@@ -1,0 +1,25 @@
+<div class="space-y-4 bg-gray-100 p-4">
+  <nuxeo-general-form
+    [config]="consultFormConfig()"
+    [shouldShowButtons]="false"
+    [isLoading]="isSubmitting()"
+    (formResult)="handleFormResult($event)"
+    (dialogClose)="closeDialog.emit()"></nuxeo-general-form>
+
+  <div class="flex gap-2 pt-4">
+    <digi-button
+      (afOnClick)="closeDialog.emit()"
+      [attr.af-size]="'medium'"
+      [attr.af-variation]="'secondary'"
+      [attr.af-full-width]="false">
+      Avbryt
+    </digi-button>
+    <digi-button
+      (afOnClick)="isSubmitting() ? '' : submit()"
+      [attr.af-size]="'medium'"
+      [attr.af-variation]="'primary'"
+      [attr.af-full-width]="false">
+      Skapa
+    </digi-button>
+  </div>
+</div>

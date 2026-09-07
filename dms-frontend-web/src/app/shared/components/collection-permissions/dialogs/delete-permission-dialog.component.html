@@ -1,0 +1,20 @@
+<div class="rounded border border-gray-200">
+  <table class="min-w-full text-sm">
+    <thead class="bg-gray-50 text-left text-xs font-semibold text-gray-700">
+      <tr>
+        <th class="px-4 py-3">User / Group</th>
+        <th class="px-4 py-3">Right</th>
+        <th class="px-4 py-3">Time Frame</th>
+        <th class="px-4 py-3">Granted by</th>
+      </tr>
+    </thead>
+    <tbody class="text-gray-800">
+      <tr>
+        <td class="px-4 py-3">{{ principal() }}</td>
+        <td class="px-4 py-3">{{ right() }}</td>
+        <td class="px-4 py-3">{{ timeFrame() }}</td>
+        <td class="px-4 py-3">{{ grantedBy() }}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

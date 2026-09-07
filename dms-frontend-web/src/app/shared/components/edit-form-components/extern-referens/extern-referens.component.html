@@ -1,0 +1,83 @@
+<div class="flex flex-col gap-2">
+  <digi-button
+    [ngClass]="{ 'self-end': shouldShowTable() }"
+    (afOnClick)="isContactDialogOpen.set(true)"
+    [attr.af-size]="'small'"
+    [attr.af-variation]="'secondary'"
+    [attr.af-full-width]="false">
+    Lägg till extern referens/beskrivning
+  </digi-button>
+  <digi-dialog
+    (afOnClose)="isContactDialogOpen.set(false); $event.stopPropagation()"
+    [attr.af-heading]="'Lägg Extern Referens'"
+    [attr.af-size]="'small'"
+    [attr.af-show-dialog]="isContactDialogOpen()">
+    <div>
+      <form [formGroup]="form" class="">
+        <div class="flex flex-col gap-4">
+          <div>
+            <h4 class="font-semibold text-gray-500">Referens</h4>
+            <digi-form-input
+              [formControlName]="'referens'"
+              af-label=" "
+              [attr.af-variation]="'medium'"
+              [attr.af-type]="'text'"
+              af-validation="neutral">
+            </digi-form-input>
+            <div>
+              <h4 class="font-semibold text-gray-500">Referenskommentar</h4>
+              <digi-form-input
+                [formControlName]="'comment'"
+                af-label=" "
+                [attr.af-variation]="'medium'"
+                [attr.af-type]="'text'"
+                af-validation="neutral">
+              </digi-form-input>
+            </div>
+          </div>
+        </div>
+        <div class="flex gap-2 pt-10">
+          <digi-button
+            (afOnClick)="isContactDialogOpen.set(false)"
+            [attr.af-size]="'medium'"
+            [attr.af-variation]="'secondary'"
+            [attr.af-full-width]="false">
+            Avbryt
+          </digi-button>
+          <digi-button
+            (afOnClick)="addContact(); isContactDialogOpen.set(false)"
+            [attr.af-size]="'medium'"
+            [attr.af-variation]="'primary'"
+            [attr.af-full-width]="false">
+            Spara
+          </digi-button>
+        </div>
+      </form>
+    </div>
+  </digi-dialog>
+  <!-- references is the signal input from parent, to track its changes there.
+    Since that component is used as ngComponentOutlet and cannot send output when data changes -->
+  @if (references()().length && shouldShowTable()) {
+    <nuxeo-case-list-table
+      [shouldShowResults]="false"
+      class="max-h-[200px] overflow-auto"
+      [defaultColumnOptions]="getDefaultColumnOptions()"
+      [tableItems]="references()()"
+      [tableConfig]="CUSTOM_COLS"
+      actionsHeader="Åtgärd"
+      [actionsTemplate]="actionsTpl"
+      [loading]="false"
+      [pageSize]="25">
+    </nuxeo-case-list-table>
+  }
+  <ng-template #actionsTpl let-item>
+    <digi-button
+      (afOnClick)="removeContact(item)"
+      [attr.af-size]="'small'"
+      [attr.af-variation]="'function'"
+      [attr.af-full-width]="false">
+      <digi-icon-trash slot="icon" />
+      Ta bort
+    </digi-button>
+  </ng-template>
+</div>

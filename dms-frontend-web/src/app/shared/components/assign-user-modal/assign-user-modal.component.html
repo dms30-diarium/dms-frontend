@@ -1,0 +1,60 @@
+@if (!hideButtons()) {
+  <h4 class="mb-4 text-2xl">{{ titleSig() }}</h4>
+}
+<form [formGroup]="assignCaseFormGroup" class="flex flex-col gap-6 py-10">
+  <nuxeo-dropdown-field [controllers]="controllers()"> </nuxeo-dropdown-field>
+
+  <section class="flex flex-col gap-4 pt-6">
+    <div class="flex items-center justify-between gap-4">
+      <h4 class="text-xl">Lägg till medhandläggare</h4>
+    </div>
+    @for (controller of coworkerControllers(); track controller.controller; let idx = $index) {
+      <div class="flex items-end gap-4">
+        <div class="grow">
+          <nuxeo-dropdown-field [controllers]="[controller]"> </nuxeo-dropdown-field>
+        </div>
+
+        <nuxeo-image-button
+          icon="Trash2"
+          text="Ta bort"
+          slot="icon"
+          variation="function"
+          (buttonClick)="showConfirmation.set(true)">
+        </nuxeo-image-button>
+      </div>
+      @if (showConfirmation()) {
+        <nuxeo-confirmation-dialog
+          (canceled)="showConfirmation.set(false)"
+          (confirm)="removeCoworkerColumn(idx); showConfirmation.set(false)"
+          text="Är du säker på att du vill ta bort medhandläggare?"
+          label="Ta bort medhandläggare"></nuxeo-confirmation-dialog>
+      }
+    }
+
+    <digi-button
+      (afOnClick)="addCoworkerColumn()"
+      [attr.af-size]="'medium'"
+      [attr.af-variation]="'secondary'"
+      [attr.af-full-width]="false">
+      Lägg till medhandläggare
+    </digi-button>
+  </section>
+</form>
+@if (!hideButtons()) {
+  <div class="flex gap-4">
+    <digi-button
+      (afOnClick)="onCancel()"
+      [attr.af-size]="'medium'"
+      [attr.af-variation]="'secondary'"
+      [attr.af-full-width]="false">
+      Avbryt
+    </digi-button>
+    <digi-button
+      (afOnClick)="onAssignUser()"
+      [attr.af-size]="'medium'"
+      [attr.af-variation]="'primary'"
+      [attr.af-full-width]="false">
+      {{ blueButtonTextSig() }}
+    </digi-button>
+  </div>
+}

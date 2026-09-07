@@ -1,0 +1,110 @@
+@if (dateColumns().length) {
+  <div class="flex items-center gap-3">
+    <digi-button
+      class="date-range-trigger"
+      af-size="medium"
+      af-variation="secondary"
+      af-full-width="false"
+      (afOnClick)="openDialog()">
+      <div class="flex items-center gap-3">
+        @if (hasAnySelection()) {
+          <div class="h-[10px] w-[10px] rounded-full bg-[#009322]"></div>
+        }
+        <span>Filtrera på datum</span>
+      </div>
+    </digi-button>
+  </div>
+
+  <digi-dialog
+    (afOnClose)="closeDialog()"
+    [attr.af-heading]="'Datumfilter'"
+    [attr.af-size]="'medium'"
+    [attr.af-show-dialog]="isDialogOpen()">
+    <div class="grid gap-4">
+      @for (col of dateColumns(); track col.sortField + '|' + col.label) {
+        <div class="flex flex-col gap-2">
+          <span class="text-xs font-semibold text-slate-600" [attr.title]="col.label">{{ col.label }}</span>
+          @if (isSingleDate(col)) {
+            <div class="grid grid-cols-2 gap-3">
+              <div class="flex flex-col gap-1">
+                <div class="text-[11px] text-slate-500" [attr.id]="getInputId(col, 'from') + '-label'">Datum</div>
+                <digi-calendar-datepicker
+                  class="min-w-[9.5rem]"
+                  [attr.id]="getInputId(col, 'from')"
+                  [attr.aria-labelledby]="getInputId(col, 'from') + '-label'"
+                  [attr.af-label]="''"
+                  [afSelectedDates]="getDateSelection(col, 'from')"
+                  [afCloseOnSelect]="true"
+                  [afMultipleDates]="false"
+                  (afOnDateChange)="onDateChange($event, col, 'from')">
+                </digi-calendar-datepicker>
+              </div>
+              <div class="flex flex-col justify-center gap-1">
+                @if (getDateSelection(col, 'from').length) {
+                  <span class="text-[11px] text-slate-500">Rensa</span>
+                  <digi-button
+                    af-size="small"
+                    af-variation="secondary"
+                    af-full-width="false"
+                    (afOnClick)="clearDate(col, 'from')">
+                    Rensa
+                  </digi-button>
+                }
+              </div>
+            </div>
+          } @else {
+            <div class="grid grid-cols-3 gap-3">
+              <div class="flex flex-col gap-1">
+                <div class="text-[11px] text-slate-500" [attr.id]="getInputId(col, 'from') + '-label'">Från</div>
+                <digi-calendar-datepicker
+                  class="min-w-[9.5rem]"
+                  [attr.id]="getInputId(col, 'from')"
+                  [attr.aria-labelledby]="getInputId(col, 'from') + '-label'"
+                  [attr.af-label]="''"
+                  [afSelectedDates]="getDateSelection(col, 'from')"
+                  [afMaxDate]="getDateSelection(col, 'to')[0]"
+                  [afCloseOnSelect]="true"
+                  [afMultipleDates]="false"
+                  (afOnDateChange)="onDateChange($event, col, 'from')">
+                </digi-calendar-datepicker>
+              </div>
+              <div class="flex flex-col gap-1">
+                <div class="text-[11px] text-slate-500" [attr.id]="getInputId(col, 'to') + '-label'">Till</div>
+                <digi-calendar-datepicker
+                  class="min-w-[9.5rem]"
+                  [attr.id]="getInputId(col, 'to')"
+                  [attr.aria-labelledby]="getInputId(col, 'to') + '-label'"
+                  [attr.af-label]="''"
+                  [afSelectedDates]="getDateSelection(col, 'to')"
+                  [afMinDate]="getDateSelection(col, 'from')[0]"
+                  [afCloseOnSelect]="true"
+                  [afMultipleDates]="false"
+                  (afOnDateChange)="onDateChange($event, col, 'to')">
+                </digi-calendar-datepicker>
+              </div>
+              <div class="flex flex-col justify-center gap-1">
+                @if (getDateSelection(col, 'from').length || getDateSelection(col, 'to').length) {
+                  <span class="text-[11px] text-slate-500">Rensa</span>
+                  <digi-button
+                    af-size="small"
+                    af-variation="secondary"
+                    af-full-width="false"
+                    (afOnClick)="clearDate(col, 'from'); clearDate(col, 'to')">
+                    Rensa
+                  </digi-button>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+    <div class="mt-4 flex justify-start gap-2">
+      @if (hasAnySelection()) {
+        <digi-button af-variation="secondary" af-full-width="false" (afOnClick)="clearAll()"> Rensa alla </digi-button>
+      }
+      <digi-button af-variation="secondary" af-full-width="false" (afOnClick)="closeDialog()"> Avbryt </digi-button>
+      <digi-button af-variation="primary" af-full-width="false" (afOnClick)="applyFilters()"> Filtrera </digi-button>
+    </div>
+  </digi-dialog>
+}

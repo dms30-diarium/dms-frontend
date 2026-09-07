@@ -1,0 +1,98 @@
+<div class="flex h-full flex-col">
+  <div class="mb-4 ml-2.5">
+    <nuxeo-navigation-bread [docId]="document().uid" />
+  </div>
+
+  <div class="mb-6 flex justify-between gap-4">
+    <div class="flex">
+      <h1 class="text-primary text-2xl">
+        <b>{{ document().properties[schemaFields.dc.title] }}</b>
+      </h1>
+    </div>
+    <div class="w-full max-w-[66%]">
+      <nuxeo-button-menu [buttons]="buttons" [document]="document()"></nuxeo-button-menu>
+    </div>
+  </div>
+
+  <div class="flex h-[100vh] gap-4">
+    <div class="flex-1">
+      <nuxeo-pdf-viewer [doc]="document()"></nuxeo-pdf-viewer>
+    </div>
+
+    <div class="h-fit w-[340px] flex-1 space-y-4">
+      <div class="w-full bg-white p-4">
+        <h3 class="mb-4 text-xl font-bold">Information</h3>
+
+        <p class="flex justify-between">
+          <span>State:</span>
+          <span>{{ document().state || '—' }}</span>
+        </p>
+
+        <p class="flex justify-between">
+          <span>Last Modified:</span>
+          <span>{{ getDate(document().properties[schemaFields.dc.modified] ?? null) }}</span>
+        </p>
+
+        <p class="flex justify-between">
+          <span>Created:</span>
+          <span>{{ getDate(document().properties[schemaFields.dc.created] ?? null) }}</span>
+        </p>
+
+        <p class="flex justify-between">
+          <span>By:</span>
+          <span>{{ document().properties[schemaFields.dc.creator] || '—' }}</span>
+        </p>
+
+        <p class="flex justify-between">
+          <span>Contributors:</span>
+          <span>{{ document().properties[schemaFields.dc.lastContributor] || '—' }}</span>
+        </p>
+
+        <p class="flex justify-between">
+          <span>Titel:</span>
+          <span>{{ document().properties[schemaFields.dc.title] }}</span>
+        </p>
+
+        <p class="flex justify-between">
+          <span>Beskrivning:</span>
+          <span>{{ document().properties[schemaFields.dc.description] || '—' }}</span>
+        </p>
+      </div>
+
+      <div class="w-full bg-white p-4">
+        <h3 class="mb-4 text-xl font-bold">Extraherade data</h3>
+
+        <p class="flex justify-between">
+          <span>Är data extraherad:</span>
+          <span>{{ document().properties[schemaFields.import.arDataExtraherad] ?? '—' }}</span>
+        </p>
+
+        <p class="flex justify-between">
+          <span>Datum när data extraherades:</span>
+          <span>{{ getDate(document().properties[schemaFields.import.datumNarDataExtraherades]) }}</span>
+        </p>
+
+        <div class="mt-4">
+          <p class="font-semibold">Ärendenummer</p>
+          <p>{{ getArendenummer() }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  @if (isCreateHandlingOpen()) {
+    <digi-dialog
+      (afOnClose)="isCreateHandlingOpen.set(false)"
+      class="isFullSize"
+      [attr.af-size]="'large'"
+      [attr.af-show-dialog]="!!isCreateHandlingOpen()">
+      <h2 class="mb-2 text-2xl font-semibold">Skapa hantering från importfil</h2>
+      <nuxeo-create-handling-from-mail
+        [document]="document()"
+        [parentId]="document().uid"
+        [attachments]="attachmentsOptions()"
+        (dialogClosed)="isCreateHandlingOpen.set(false)">
+      </nuxeo-create-handling-from-mail>
+    </digi-dialog>
+  }
+</div>

@@ -1,0 +1,94 @@
+<nuxeo-accordion accordionTitle="Översikt" [isExpanded]="true">
+  <div class="flex flex-col gap-4 px-6 py-4 text-sm text-slate-700">
+    <div>
+      <div class="text-xs font-semibold text-slate-500 uppercase">Titel</div>
+      <div class="mt-1">{{ folderTitle() }}</div>
+    </div>
+    <div>
+      <div class="text-xs font-semibold text-slate-500 uppercase">Beskrivning</div>
+      <div class="mt-1">{{ description() }}</div>
+    </div>
+    @if (isMyndighet()) {
+      <div>
+        <div class="text-xs font-semibold text-slate-500 uppercase">Organisationsnummer</div>
+        <div class="mt-1">{{ myndighetOrganisationsnummer() || '-' }}</div>
+      </div>
+    }
+    @if (isSubOrganization()) {
+      <div>
+        <div class="text-xs font-semibold text-slate-500 uppercase">Kod</div>
+        <div class="mt-1">{{ organizationCode() || '-' }}</div>
+      </div>
+      <div>
+        <div class="text-xs font-semibold text-slate-500 uppercase">Kortnamn</div>
+        <div class="mt-1">{{ organizationShortName() || '-' }}</div>
+      </div>
+      <div>
+        <div class="text-xs font-semibold text-slate-500 uppercase">Namn</div>
+        <div class="mt-1">{{ organizationName() || '-' }}</div>
+      </div>
+      <div>
+        <div class="text-xs font-semibold text-slate-500 uppercase">Ansvarig</div>
+        <div class="mt-2 flex flex-wrap gap-2">
+          @if (organizationResponsible()) {
+            <span class="rounded-full bg-white px-3 py-1 text-xs text-slate-700 shadow-sm">
+              {{ organizationResponsible() }}
+            </span>
+          } @else {
+            <span class="text-slate-700">-</span>
+          }
+        </div>
+      </div>
+      <div>
+        <div class="text-xs font-semibold text-slate-500 uppercase">Användare</div>
+        <div class="mt-2 flex flex-wrap gap-2">
+          @if (organizationUsers().length) {
+            @for (user of organizationUsers(); track user) {
+              <span class="rounded-full bg-white px-3 py-1 text-xs text-slate-700 shadow-sm">
+                {{ user }}
+              </span>
+            }
+          } @else {
+            <span class="text-slate-700">-</span>
+          }
+        </div>
+      </div>
+    }
+    @if (isDiarium()) {
+      <div>
+        <div class="text-xs font-semibold text-slate-500 uppercase">Prefix</div>
+        <div class="mt-1">{{ diariumPrefix() || '-' }}</div>
+      </div>
+      <div>
+        <div class="text-xs font-semibold text-slate-500 uppercase">Suffix</div>
+        <div class="mt-1">{{ diariumSuffix() || '-' }}</div>
+      </div>
+      <div>
+        <div class="text-xs font-semibold text-slate-500 uppercase">Löpnummerlängd</div>
+        <div class="mt-1">{{ diariumLopnummerlangd() || '-' }}</div>
+      </div>
+      <div>
+        <div class="text-xs font-semibold text-slate-500 uppercase">Handlingslöpnummerlängd</div>
+        <div class="mt-1">{{ diariumHandlingslopnummerlangd() || '-' }}</div>
+      </div>
+    }
+    @if (shouldShowTaxonomyOverview()) {
+      <div>
+        <div class="text-xs font-semibold text-slate-500 uppercase">Nature</div>
+        <div class="mt-1">{{ natureLabel() || '-' }}</div>
+      </div>
+      <div>
+        <div class="text-xs font-semibold text-slate-500 uppercase">Subjects</div>
+        <div class="mt-1">{{ subjectLabels() || '-' }}</div>
+      </div>
+      <div>
+        <div class="text-xs font-semibold text-slate-500 uppercase">Coverage</div>
+        <div class="mt-1">{{ coverageLabel() || '-' }}</div>
+      </div>
+      <div>
+        <div class="text-xs font-semibold text-slate-500 uppercase">Expires</div>
+        <div class="mt-1">{{ expiresLabel() || '-' }}</div>
+      </div>
+    }
+  </div>
+</nuxeo-accordion>

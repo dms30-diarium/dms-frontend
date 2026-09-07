@@ -1,0 +1,9 @@
+<div class="bg-gray-100 p-4">
+  <nuxeo-general-form
+    formName="Ny video"
+    [isLoading]="isLoading()"
+    [config]="createVideoConfig()"
+    (formResult)="createDocument($event)"
+    (uploadFileOutput)="onFileUpload($event)"
+    (dialogClose)="dialogClosed.emit(null)"></nuxeo-general-form>
+</div>

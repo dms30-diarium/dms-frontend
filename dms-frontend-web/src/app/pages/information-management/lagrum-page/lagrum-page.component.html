@@ -1,0 +1,43 @@
+@if (isLoading()) {
+  <div class="p-6">Laddar lagrum...</div>
+} @else if (loadError()) {
+  <div class="p-6">Kan inte ladda lagrum.</div>
+} @else if (document()) {
+  @if (isContainer()) {
+    <div class="p-6">
+      <h1 class="py-8 text-4xl font-semibold">{{ document()!.title }}</h1>
+      <div class="mb-6">
+        <nuxeo-entity-overview [document]="document()!" [folderTitle]="document()!.title"></nuxeo-entity-overview>
+      </div>
+      <nuxeo-case-list-table
+        [defaultColumnOptions]="getDefaultColumnOptions()"
+        [tableItems]="tableData()"
+        [tableConfig]="tableColumns"
+        [loading]="isLoading()"
+        [total]="children().length"
+        [page]="0"
+        [pageSize]="50">
+      </nuxeo-case-list-table>
+    </div>
+  } @else {
+    <nuxeo-document-info-page
+      [docId]="document()!.uid"
+      [title]="document()!.title"
+      subtitle="Lagrum"
+      detailTitle="Lagrum"
+      [statusItems]="statusItems()"
+      [detailItems]="detailItems()"
+      [auditEntries]="auditEntries()"
+      [showEdit]="canEdit()"
+      editDialogHeading="Redigera lagrum"
+      [editConfig]="editConfig()"
+      [isEditOpen]="isEditOpen()"
+      [isSaving]="isSaving()"
+      (editOpen)="openEdit()"
+      (editClose)="closeEdit()"
+      (formResult)="handleEditResult($event)">
+    </nuxeo-document-info-page>
+  }
+} @else {
+  <div class="p-6">Kan inte ladda lagrum.</div>
+}

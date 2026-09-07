@@ -1,0 +1,18 @@
+<p class="text-sm text-gray-800">Är du säker på att du vill ta bort den här kommentaren?</p>
+<p class="text-sm text-gray-800">Alla svar på den här kommentaren kommer också att raderas.</p>
+<div class="mt-6 flex gap-4">
+  <digi-button
+    (afOnClick)="onCancel()"
+    [attr.af-size]="'medium'"
+    [attr.af-variation]="'secondary'"
+    [attr.af-full-width]="false">
+    Avbryt
+  </digi-button>
+  <digi-button
+    (afOnClick)="onConfirm()"
+    [attr.af-size]="'medium'"
+    [attr.af-variation]="'primary'"
+    [attr.af-full-width]="false">
+    Radera
+  </digi-button>
+</div>

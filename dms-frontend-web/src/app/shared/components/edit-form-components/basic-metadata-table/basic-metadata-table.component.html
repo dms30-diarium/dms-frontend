@@ -1,0 +1,133 @@
+<div class="flex flex-col gap-2">
+  @if (showAddButton()) {
+    <digi-button
+      (afOnClick)="openDialog()"
+      [attr.af-size]="'medium'"
+      [attr.af-variation]="'secondary'"
+      [attr.af-full-width]="false">
+      Lägg till metadatafält
+    </digi-button>
+  }
+
+  @if (showAddButton()) {
+    <digi-dialog
+      (afOnClose)="isDialogOpen.set(false)"
+      [attr.af-heading]="'Lägg till metadatafält'"
+      [attr.af-size]="'small'"
+      [attr.af-show-dialog]="isDialogOpen()">
+      <div>
+        <form [formGroup]="form">
+          <div class="flex flex-col gap-4">
+            <div>
+              <h4 class="font-semibold text-gray-500">Nyckel *</h4>
+              <digi-form-input
+                [formControlName]="'nyckel'"
+                af-label=" "
+                [attr.af-variation]="'medium'"
+                [attr.af-type]="'text'"
+                af-validation="neutral">
+              </digi-form-input>
+            </div>
+
+            <div class="flex flex-col gap-2">
+              <digi-form-checkbox
+                [formControlName]="'flervardig'"
+                [attr.af-label]="'Flervärdig'"
+                [attr.af-variation]="'secondary'">
+              </digi-form-checkbox>
+              <digi-form-checkbox
+                [formControlName]="'aktiv'"
+                [attr.af-label]="'Aktiv'"
+                [attr.af-variation]="'secondary'">
+              </digi-form-checkbox>
+            </div>
+
+            <div>
+              <h4 class="font-semibold text-gray-500">Typ *</h4>
+              <digi-form-select
+                [formControlName]="'typ'"
+                af-label=" "
+                [attr.af-variation]="'medium'"
+                [attr.af-validation]="'neutral'"
+                [attr.af-placeholder]="'Välj typ'">
+                @for (option of typeOptions; track option.id) {
+                  <option [value]="option.id">{{ option.label }}</option>
+                }
+              </digi-form-select>
+            </div>
+
+            <div>
+              <h4 class="font-semibold text-gray-500">Ordning</h4>
+              <digi-form-input
+                [formControlName]="'ordning'"
+                af-label=" "
+                [attr.af-variation]="'medium'"
+                [attr.af-type]="'number'"
+                [attr.inputmode]="'numeric'"
+                [attr.pattern]="'[0-9]*'"
+                af-validation="neutral">
+              </digi-form-input>
+            </div>
+          </div>
+
+          <div class="flex gap-2 pt-6">
+            <digi-button
+              (afOnClick)="isDialogOpen.set(false)"
+              [attr.af-size]="'medium'"
+              [attr.af-variation]="'secondary'"
+              [attr.af-full-width]="false">
+              Avbryt
+            </digi-button>
+            <digi-button
+              (afOnClick)="addMetadataField()"
+              [attr.af-size]="'medium'"
+              [attr.af-variation]="'primary'"
+              [attr.af-full-width]="false">
+              @if (editingId()) {
+                Uppdatera
+              } @else {
+                Spara
+              }
+            </digi-button>
+          </div>
+        </form>
+      </div>
+    </digi-dialog>
+  }
+
+  @if (tableFields()().length) {
+    <nuxeo-case-list-table
+      [shouldShowResults]="false"
+      class="max-h-[240px] overflow-auto"
+      [isSettingsEnabled]="false"
+      [tableItems]="tableFields()()"
+      [tableConfig]="columnConfig"
+      [actionsHeader]="showActions() ? 'Åtgärd' : null"
+      [actionsTemplate]="showActions() ? actionsTpl : null"
+      [loading]="false"
+      [pageSize]="25"
+      [defaultColumnOptions]="getDefaultColumnOptions()">
+    </nuxeo-case-list-table>
+  }
+
+  <ng-template #actionsTpl let-item>
+    <div class="flex items-center gap-4">
+      <digi-button
+        (afOnClick)="openDialog(item)"
+        [attr.af-size]="'small'"
+        [attr.af-variation]="'function'"
+        [attr.af-full-width]="false">
+        <digi-icon-pen slot="icon"></digi-icon-pen>
+        Redigera
+      </digi-button>
+      <digi-button
+        (afOnClick)="removeField(item)"
+        [attr.af-size]="'small'"
+        [attr.af-variation]="'function'"
+        [attr.af-full-width]="false">
+        <digi-icon-trash slot="icon" />
+        Ta bort
+      </digi-button>
+    </div>
+  </ng-template>
+</div>

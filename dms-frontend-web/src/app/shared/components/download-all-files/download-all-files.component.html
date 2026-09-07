@@ -1,0 +1,118 @@
+<form class="bg-gray-100 p-4" [formGroup]="form">
+  <div class="flex h-full w-full flex-1 flex-col rounded-md border-3 border-gray-200 p-6">
+    @if (filesByHandling().length) {
+      <div class="mb-4">
+        <h3 class="text-lg font-bold text-gray-900">Välj filer att ladda ner</h3>
+        <p class="text-sm text-gray-600">Markera filer per handling eller välj alla direkt.</p>
+      </div>
+
+      <div class="mb-3 flex flex-wrap items-center justify-between gap-3 px-1">
+        <div class="flex flex-wrap items-center gap-3">
+          <digi-form-checkbox
+            af-variation="secondary"
+            [formControl]="selectAllControl"
+            [attr.af-label]="'Markera / avmarkera alla filer'" />
+
+          <digi-form-select
+            class="-mt-4 min-w-[260px]"
+            af-label=" "
+            [attr.af-variation]="'medium'"
+            [attr.af-validation]="'neutral'"
+            [attr.af-value]="downloadModeControl.value"
+            (afOnChange)="onDownloadModeChange($event.target.value)">
+            <option value="merge-all">Sammanfoga alla</option>
+            <option value="separate-files">Ladda ner som separata filer</option>
+          </digi-form-select>
+        </div>
+        <span class="text-sm font-semibold text-gray-700">{{ selectedCount() }} valda</span>
+      </div>
+
+      @if (downloadModeControl.value === 'separate-files') {
+        <div class="mb-3 flex flex-wrap items-center gap-4 px-1">
+          <digi-form-checkbox
+            af-variation="secondary"
+            [formControl]="exportOriginalContentControl"
+            [attr.af-label]="'Originalinnehåll'" />
+          <digi-form-checkbox
+            af-variation="secondary"
+            [formControl]="exportPDFRenditionContentControl"
+            [attr.af-label]="'PDF-version'" />
+          <digi-form-checkbox
+            af-variation="secondary"
+            [formControl]="exportWatermarkedContentControl"
+            [attr.af-label]="'Vattenmärkt version'" />
+        </div>
+      }
+
+      <div class="max-h-[50vh] divide-y divide-gray-200 overflow-y-auto rounded border border-gray-300 bg-white">
+        @for (handling of filesByHandling(); track handling.id) {
+          <section>
+            <div class="rounded bg-blue-50 px-3 py-2">
+              <div class="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-x-4 gap-y-2">
+                <digi-form-checkbox
+                  af-variation="secondary"
+                  [attr.af-label]="' '"
+                  [attr.af-checked]="isAllHandlingFilesSelected(handling)"
+                  (afOnChange)="toggleHandlingSelection(handling)" />
+
+                <div class="min-w-0">
+                  <div class="truncate font-semibold text-gray-900" [title]="handling.title">{{ handling.title }}</div>
+                  <div class="text-xs text-gray-600">
+                    {{ selectedCountForHandling(handling) }} / {{ handling.filer.length }} filer markerade
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div
+              class="mt-2 grid grid-cols-[auto_minmax(0,1.7fr)_minmax(120px,0.7fr)_minmax(140px,0.8fr)_minmax(120px,0.6fr)] items-center gap-x-3 border-b border-gray-200 pr-2 pb-1 pl-8 text-sm font-semibold text-gray-800">
+              <div></div>
+              <div>Filnamn</div>
+              <div>Antal filer.</div>
+              <div>Original format.</div>
+              <div>Filstorlek</div>
+            </div>
+
+            <div class="divide-y divide-gray-100">
+              @for (file of handling.filer; track file.id; let fileIndex = $index) {
+                <div
+                  class="grid grid-cols-[auto_minmax(0,1.7fr)_minmax(120px,0.7fr)_minmax(140px,0.8fr)_minmax(120px,0.6fr)] items-center gap-x-3 py-2 pr-2 pl-8">
+                  <digi-form-checkbox af-variation="secondary" [formControlName]="file.id" [attr.af-label]="' '" />
+
+                  <div class="truncate text-sm text-gray-900" [title]="file.title">{{ file.title }}</div>
+                  <div class="text-sm text-gray-500">{{ getFileCount(fileIndex + 1, handling.filer.length) }}</div>
+                  <div class="truncate text-sm text-gray-500" [title]="getOriginalFormat(file)">
+                    {{ getOriginalFormat(file) }}
+                  </div>
+                  <div class="text-sm text-gray-500">{{ getFileSize(file) }}</div>
+                </div>
+              }
+            </div>
+          </section>
+        }
+      </div>
+
+      <div class="mt-4 flex gap-4">
+        <digi-button
+          (afOnClick)="closeDialog.emit()"
+          [attr.af-size]="'medium'"
+          [attr.af-variation]="'secondary'"
+          [attr.af-full-width]="false">
+          Avbryt
+        </digi-button>
+        <digi-button
+          (afOnClick)="downloadFiles()"
+          [attr.af-size]="'medium'"
+          [attr.af-variation]="'primary'"
+          [attr.af-full-width]="false"
+          [attr.af-disabled]="isDownloading()">
+          {{ isDownloading() ? 'Laddar ned...' : 'Exportera valda' }}
+        </digi-button>
+      </div>
+    } @else {
+      <div class="rounded-md border border-gray-200 bg-white p-4 text-sm font-semibold text-gray-600">
+        Det finns inga filer i detta ärende
+      </div>
+    }
+  </div>
+</form>

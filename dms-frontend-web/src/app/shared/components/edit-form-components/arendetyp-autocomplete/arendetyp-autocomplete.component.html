@@ -1,0 +1,22 @@
+<div class="flex gap-1">
+  <h4>Ärendetyp</h4>
+  @if (required()) {
+    <span class="text-red-600">*</span>
+  }
+</div>
+
+<digi-form-select-filter
+  [afValidation]="!value()().length && isSubmited() ? 'error' : 'neutral'"
+  af-validation-text="Detta fält är obligatoriskt."
+  [afListItems]="options()"
+  af-filter-button-text-label=" "
+  (afOnQueryChanged)="onDropdownInputChange($event)"
+  (afOnSelect)="onSelect($event)"
+  [value]="value()()"
+  af-name="Sök"
+  af-filter-button-text="Inga objekt valda"
+  [afHideResetButton]="true"
+  [afMultipleItems]="false"
+  afSubmitButtonText="Filtrera"
+  af-validation="neutral">
+</digi-form-select-filter>

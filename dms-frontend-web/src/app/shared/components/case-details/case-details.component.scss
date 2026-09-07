@@ -1,0 +1,41 @@
+.detail-pair {
+  display: grid;
+  grid-template-columns: 140px minmax(0, 1fr);
+  column-gap: 0.25rem;
+  align-items: start;
+}
+
+.detail-label {
+  color: rgb(100 116 139);
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  word-break: break-word;
+  hyphens: auto;
+}
+
+:host-context([data-theme='dark']) .detail-label {
+  color: #c9cdd4;
+}
+
+:host-context([data-theme='dark']) .detail-value {
+  color: #ffffff;
+}
+
+:host-context([data-theme='dark']) h2 {
+  color: #ffffff;
+}
+
+.detail-value {
+  min-width: 0;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 700;
+  word-break: break-word;
+  hyphens: auto;
+}
+
+@media (max-width: 767px) {
+  .detail-pair {
+    grid-template-columns: 1fr;
+  }
+}

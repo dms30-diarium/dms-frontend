@@ -1,0 +1,165 @@
+@if (isOrganizationFolder() && document()) {
+  <nuxeo-organization-page
+    [document]="document()!"
+    [tableData]="tableData() ?? []"
+    [total]="total() ?? 0"
+    [tableConfig]="customColumnConfig"
+    [defaultColumnOptions]="getDefaultColumnOptions()"
+    [sortBy]="sortBy()"
+    [sortOrder]="sortOrder()"
+    (documentUpdated)="updateOrganizationDocument($event)"
+    (organizationCreated)="refreshCurrentPage()"
+    (sortChange)="onSortChange($event)">
+  </nuxeo-organization-page>
+} @else if (!isOrganizationFolder()) {
+  <div class="p-6">
+    <h1 class="py-8 text-4xl font-semibold">{{ folderTitle() }}</h1>
+    <div class="mb-2 flex items-center justify-end gap-4">
+      <div class="flex-1"></div>
+      <div class="flex flex-1 items-center justify-center gap-4"></div>
+    </div>
+    @if (document() && canEdit()) {
+      <div class="mb-3 flex justify-end">
+        <digi-button
+          (afOnClick)="openEditCurrentDocument()"
+          [attr.af-size]="'medium'"
+          [attr.af-variation]="'primary'"
+          [attr.af-full-width]="false">
+          Redigera
+        </digi-button>
+      </div>
+    }
+    @if (document(); as doc) {
+      <div class="mb-6">
+        <nuxeo-entity-overview [document]="doc" [folderTitle]="folderTitle()"></nuxeo-entity-overview>
+      </div>
+    }
+    @if (document()?.type === 'MailFolder' || document()?.type === 'Importorsmapp') {
+      <div>
+        <nuxeo-button-menu [buttons]="buttons" [document]="document()!"></nuxeo-button-menu>
+      </div>
+    }
+
+    @if (isExport()) {
+      <div class="min-w-0">
+        <div class="scroll-main table-scroll w-full overflow-x-auto overflow-y-visible">
+          <table class="table-content w-full table-auto text-left text-sm whitespace-nowrap">
+            <thead class="bg-table-header sticky top-0 text-slate-600">
+              <tr class="select-none">
+                <th class="border-b border-slate-200 px-4 py-3 text-left font-semibold text-slate-600">ZIP</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+              @if (exportZipDownloadUrl()) {
+                <tr class="transition-colors hover:bg-slate-50">
+                  <td class="px-4 py-3 text-left align-middle">
+                    <a
+                      class="font-medium text-slate-800 hover:text-blue-700 hover:underline"
+                      [href]="exportZipDownloadUrl()">
+                      Ladda ner ZIP
+                    </a>
+                  </td>
+                </tr>
+              } @else {
+                <tr>
+                  <td class="px-4 py-6 text-center text-slate-500">Inga resultat</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    } @else {
+      <nuxeo-case-list-table
+        [defaultColumnOptions]="getDefaultColumnOptions()"
+        [tableItems]="tableData() ?? []"
+        [tableConfig]="customColumnConfig"
+        [loading]="false"
+        [total]="total() ?? 0"
+        [page]="page()"
+        [pageSize]="pageSize()"
+        [sortBy]="sortBy()"
+        [sortOrder]="sortOrder()"
+        [pageSizeOptions]="pageSizeOptions"
+        [shouldShowPageSizeOption]="true"
+        (sortChange)="onSortChange($event)"
+        (pageChange)="onPageChange($event)"
+        (pageSizeSelect)="onPageSizeSelect($event)">
+      </nuxeo-case-list-table>
+    }
+    @if (this.isLoading()) {
+      <div>
+        <digi-loader-spinner [attr.af-size]="'medium'" [attr.af-text]="'Laddar'"> </digi-loader-spinner>
+      </div>
+    }
+
+    <div class="fixed right-4 bottom-4 z-50">
+      <nuxeo-add-button (addButtonClick)="isDialogOpened.set(true)"></nuxeo-add-button>
+    </div>
+    <digi-dialog
+      (afOnClose)="isDialogOpened.set(false)"
+      [attr.af-heading]="'Lägg till innehåll'"
+      [attr.af-size]="'large'"
+      [attr.af-show-dialog]="isDialogOpened()">
+      <nuxeo-select-case-popup
+        (dialogClose)="isDialogOpened.set(false)"
+        [documentPath]="document()?.path ?? ''"></nuxeo-select-case-popup>
+    </digi-dialog>
+
+    <digi-dialog
+      (afOnClose)="closeInfoTableEdit()"
+      [attr.af-size]="'small'"
+      [attr.af-heading]="'Redigera ' + folderTitle()"
+      [attr.af-show-dialog]="isInfoTableEditOpen()">
+      <nuxeo-general-form
+        [config]="infoEditFormConfig()"
+        [isLoading]="isInfoTableSaving()"
+        (formResult)="saveInfoTableEdit($event)"
+        (dialogClose)="closeInfoTableEdit()">
+      </nuxeo-general-form>
+    </digi-dialog>
+
+    @if (isCreateImportFileOpen()) {
+      <digi-dialog
+        (afOnClose)="isCreateImportFileOpen.set(false)"
+        [attr.af-size]="'small'"
+        [attr.af-heading]="'Create import file'"
+        [attr.af-show-dialog]="!!isCreateImportFileOpen()">
+        <div class="flex flex-col gap-4">
+          <digi-form-input
+            af-label=" "
+            af-variation="medium"
+            af-validation="neutral"
+            [value]="importFileTitle()"
+            (afOnInput)="handleInput($event.target.value, 'title')">
+          </digi-form-input>
+
+          <digi-form-input
+            af-label=" "
+            af-variation="medium"
+            af-validation="neutral"
+            [value]="importFileDescription()"
+            (afOnInput)="handleInput($event.target.value, 'description')">
+          </digi-form-input>
+
+          <div class="mt-4 flex justify-end gap-2">
+            <digi-button
+              (afOnClick)="isCreateImportFileOpen.set(false)"
+              [attr.af-size]="'medium'"
+              [attr.af-variation]="'secondary'"
+              [attr.af-full-width]="false">
+              Avbryt
+            </digi-button>
+            <digi-button
+              (afOnClick)="createImportFile()"
+              [attr.af-size]="'medium'"
+              [attr.af-variation]="'primary'"
+              [attr.af-full-width]="false">
+              Create
+            </digi-button>
+          </div>
+        </div>
+      </digi-dialog>
+    }
+  </div>
+}

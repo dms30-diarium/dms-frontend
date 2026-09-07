@@ -1,0 +1,9 @@
+<digi-tablist
+  [attr.af-tabs]="tabsJson()"
+  [attr.af-active-tab]="activeTabId()"
+  [attr.af-aria-label]="'App tabs'"
+  (afTabChange)="onTabClick($event)">
+  @for (tab of tabs(); track tab.id) {
+    <digi-tablist-panel [attr.tab]="tab.id" />
+  }
+</digi-tablist>

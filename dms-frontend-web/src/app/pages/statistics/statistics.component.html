@@ -1,0 +1,113 @@
+<div class="p-6">
+  <digi-navigation-breadcrumbs af-current-page="Statistik">
+    <a href="/">Start</a>
+  </digi-navigation-breadcrumbs>
+  <h1 class="pt-5 pb-8 text-3xl font-semibold">Statistik</h1>
+  <nuxeo-tabs [tabs]="tabs" [activeTabId]="activeTabId()" (tabChanged)="onDocTypeTabChanged($event)"> </nuxeo-tabs>
+  @if (activeTabId() === 'arende') {
+    <form [formGroup]="filtersForm" class="flex gap-4">
+      <div class="flex w-full flex-wrap items-end gap-4">
+        <div class="min-w-[200px] flex-1">
+          <h4 class="font-semibold text-gray-500">Ärendetyp</h4>
+          <digi-form-select-filter
+            #caseTypeFilter
+            [formControlName]="'caseType'"
+            [afListItems]="suggestions()['caseType'] ?? []"
+            af-name="Sök"
+            af-filter-button-text="Inga objekt valda"
+            af-submit-button-text="Filtrera"
+            af-validation="neutral"
+            [afHideResetButton]="true"
+            [afMultipleItems]="false"
+            (afOnQueryChanged)="onDocumentQuery($event, 'Klass', 'caseType')"
+            (afOnSelect)="onDocumentSelect($event, 'caseType')"
+            (afOnSubmitFilters)="onDocumentSelect($event, 'caseType')">
+          </digi-form-select-filter>
+        </div>
+        <div class="min-w-[200px] flex-1">
+          <h4 class="font-semibold text-gray-500">Ansvarig organisationsenhet</h4>
+          <digi-form-select-filter
+            #orgFilter
+            [formControlName]="'org'"
+            [afListItems]="suggestions()['organization'] ?? []"
+            af-name="Sök"
+            af-filter-button-text="Inga objekt valda"
+            af-submit-button-text="Filtrera"
+            af-validation="neutral"
+            [afHideResetButton]="true"
+            [afMultipleItems]="false"
+            (afOnQueryChanged)="onDocumentQuery($event, 'Organisationsdel', 'organization')"
+            (afOnSelect)="onDocumentSelect($event, 'org')"
+            (afOnSubmitFilters)="onDocumentSelect($event, 'org')">
+          </digi-form-select-filter>
+        </div>
+        <div class="min-w-[200px] flex-1 pb-1.5">
+          <h4 class="font-semibold text-gray-500">Månad</h4>
+          <digi-form-select
+            (afOnChange)="changeSelectedOptions()"
+            formControlName="month"
+            af-label=" "
+            [attr.af-variation]="'medium'"
+            [attr.af-validation]="'neutral'"
+            [attr.af-placeholder]="'Välj ...'">
+            @for (option of monthOptions; track option.id) {
+              <option [value]="option.id">
+                <span>{{ option.label }}</span>
+              </option>
+            }
+          </digi-form-select>
+        </div>
+        <div class="min-w-[200px] flex-1 pb-1.5">
+          <h4 class="font-semibold text-gray-500">År</h4>
+          <digi-form-select
+            (afOnChange)="changeSelectedOptions()"
+            formControlName="year"
+            af-label=" "
+            [attr.af-variation]="'medium'"
+            [attr.af-validation]="'neutral'"
+            [attr.af-placeholder]="'Välj ...'">
+            @for (option of yearOptions; track option.id) {
+              <option [value]="option.id">
+                <span>{{ option.label }}</span>
+              </option>
+            }
+          </digi-form-select>
+        </div>
+        <nuxeo-image-button
+          (buttonClick)="restoreFilters()"
+          icon="XButtonOutline"
+          text="Rensa valet"
+          size="small"
+          variation="function">
+        </nuxeo-image-button>
+      </div>
+    </form>
+    <div class="flex w-full gap-4">
+      <div class="flex-1">
+        <div class="pt-5 pb-8 text-xl font-semibold">Genomsnittlig handläggningstid</div>
+        <div class="flex bg-white p-6">
+          <span class="flex-1 font-semibold">Handläggning avslutad: {{ data()?.['genomsnittlig_arendetid'] }} </span>
+          <span class="flex-1 font-semibold">Stängt: {{ data()?.['genomsnittlig_handlaggningstid'] }} </span>
+        </div>
+      </div>
+      <div class="flex-1">
+        <div class="pt-5 pb-8 text-xl font-semibold">Handlingar</div>
+        <div class="flex bg-white p-6">
+          <span class="flex-1 font-semibold">Totalt inkomna: {{ data()?.['totalt_inkomna_handlingar'] }}</span>
+          <span class="flex-1 font-semibold">Totalt upprättade: {{ data()?.['totalt_upprattade_handlingar'] }}</span>
+        </div>
+      </div>
+    </div>
+    <h1 class="pt-5 pb-8 text-xl font-semibold">Öppna Ärenden ({{ totalOpen() }})</h1>
+
+    <div class="flex flex-wrap gap-4">
+      <div #orgsOpen class="chart-container min-h-[400px] min-w-[400px] flex-1"></div>
+      <div #typesOpen class="chart-container min-h-[400px] min-w-[400px] flex-1"></div>
+    </div>
+    <h1 class="pt-8 pb-8 text-xl font-semibold">Stängda Ärenden ({{ totalClosed() }})</h1>
+    <div class="flex flex-wrap gap-4">
+      <div #orgsClosed class="chart-container min-h-[400px] min-w-[400px] flex-1"></div>
+      <div #typesClosed class="chart-container min-h-[400px] min-w-[400px] flex-1"></div>
+    </div>
+  }
+</div>

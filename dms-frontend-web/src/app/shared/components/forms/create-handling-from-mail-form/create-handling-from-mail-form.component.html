@@ -1,0 +1,61 @@
+@if (subLabel()) {
+  <h4 class="mb-4">{{ subLabel() }}</h4>
+}
+
+<div class="grid gap-4 lg:grid-cols-3">
+  <div class="flex min-w-0 flex-col gap-4">
+    @if (firstColumnConfig().length) {
+      <nuxeo-general-form
+        (changeForm)="onChangeForm($event)"
+        [shouldShowButtons]="false"
+        [isLoading]="isLoading()"
+        [isSubmittedInput]="isSubmitted()"
+        [config]="firstColumnConfig()"
+        (selectedOptionChanged)="onSelectedOptionChanged($event)"
+        (selectedRadioChanged)="onSelectedRadioChanged($event)"
+        (dropdownChanged)="onDropdownChanged($event)"
+        (dialogClose)="onDialogClose()"></nuxeo-general-form>
+    }
+
+    <div class="min-w-0">
+      <h3 class="text-base font-semibold">Fil</h3>
+      <nuxeo-general-form
+        class="mt-2"
+        (changeForm)="onChangeForm($event)"
+        [shouldShowButtons]="false"
+        [isLoading]="isLoading()"
+        [config]="fileConfig()"
+        (dialogClose)="onDialogClose()"></nuxeo-general-form>
+    </div>
+  </div>
+
+  <div class="min-w-0">
+    @if (secondColumnConfig().length) {
+      <nuxeo-general-form
+        (changeForm)="onChangeForm($event)"
+        [shouldShowButtons]="false"
+        [isLoading]="isLoading()"
+        [isSubmittedInput]="isSubmitted()"
+        [config]="secondColumnConfig()"
+        (selectedOptionChanged)="onSelectedOptionChanged($event)"
+        (selectedRadioChanged)="onSelectedRadioChanged($event)"
+        (dropdownChanged)="onDropdownChanged($event)"
+        (dialogClose)="onDialogClose()"></nuxeo-general-form>
+    }
+  </div>
+
+  <div class="min-w-0">
+    @if (thirdColumnConfig().length) {
+      <nuxeo-general-form
+        (changeForm)="onChangeForm($event)"
+        [shouldShowButtons]="false"
+        [isLoading]="isLoading()"
+        [isSubmittedInput]="isSubmitted()"
+        [config]="thirdColumnConfig()"
+        (selectedOptionChanged)="onSelectedOptionChanged($event)"
+        (selectedRadioChanged)="onSelectedRadioChanged($event)"
+        (dropdownChanged)="onDropdownChanged($event)"
+        (dialogClose)="onDialogClose()"></nuxeo-general-form>
+    }
+  </div>
+</div>

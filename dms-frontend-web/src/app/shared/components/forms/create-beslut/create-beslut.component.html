@@ -1,0 +1,7 @@
+<div class="bg-gray-100 p-4">
+  <nuxeo-general-form
+    formName="Nytt beslut"
+    [config]="createFolderConfig()"
+    (formResult)="createDocument($event)"
+    (dialogClose)="dialogClosed.emit(null)"></nuxeo-general-form>
+</div>

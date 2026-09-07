@@ -1,0 +1,21 @@
+@if (displayedBreadcrumbs().length) {
+  <digi-navigation-breadcrumbs [attr.af-current-page]="truncateBreadcrumb(displayedCurrentPageTitle())">
+    @for (crumb of displayedBreadcrumbs(); let i = $index; track i) {
+      @if (i < displayedBreadcrumbs().length - 1) {
+        @if (crumb.link) {
+          <a [routerLink]="crumb.link" [title]="crumb.label">
+            {{ truncateBreadcrumb(crumb.label) }}
+          </a>
+        } @else {
+          <span [title]="crumb.label">
+            {{ truncateBreadcrumb(crumb.label) }}
+          </span>
+        }
+      } @else {
+        <span aria-current="page" [title]="crumb.label">
+          {{ truncateBreadcrumb(crumb.label) }}
+        </span>
+      }
+    }
+  </digi-navigation-breadcrumbs>
+}

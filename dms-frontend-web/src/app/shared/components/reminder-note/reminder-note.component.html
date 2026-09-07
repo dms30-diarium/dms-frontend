@@ -1,0 +1,29 @@
+<div class="bg-white">
+  <angular-editor [formControl]="noteControl" [config]="editorConfig"> </angular-editor>
+</div>
+
+<div class="flex gap-2 pt-4">
+  @if (showCancelButton()) {
+    <digi-button
+      (afOnClick)="closeDialog.emit()"
+      [attr.af-size]="'medium'"
+      [attr.af-variation]="'secondary'"
+      [attr.af-full-width]="false">
+      Avbryt
+    </digi-button>
+  }
+  <digi-button
+    (afOnClick)="saveNoteObject.emit(noteControl.value); closeDialog.emit()"
+    [attr.af-size]="'medium'"
+    [attr.af-variation]="'primary'"
+    [attr.af-full-width]="false">
+    Spara
+  </digi-button>
+  <digi-button
+    (afOnClick)="noteControl.reset(''); saveNoteObject.emit(noteControl.value); closeDialog.emit()"
+    [attr.af-size]="'medium'"
+    [attr.af-variation]="'secondary'"
+    [attr.af-full-width]="false">
+    Rensa
+  </digi-button>
+</div>

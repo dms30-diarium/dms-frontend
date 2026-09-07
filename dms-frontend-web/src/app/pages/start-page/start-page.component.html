@@ -1,0 +1,173 @@
+@if (!loaded()) {
+  <div class="flex items-center justify-center p-8">
+    <digi-loader-spinner af-size="medium" af-text="Laddar"> </digi-loader-spinner>
+  </div>
+} @else if (loadError()) {
+  <div class="p-8 text-center">
+    <h2 class="mb-2 text-xl font-semibold">Couldn’t load your profile</h2>
+    <p class="mb-4">Please check your connection and try again.</p>
+    <button class="btn btn-primary" (click)="retryLoadMe()">Retry</button>
+  </div>
+} @else {
+  <div class="px-14">
+    @if (isChef()) {
+      <div class="mt-14 mb-6 flex w-full flex-wrap gap-8 md:flex-nowrap">
+        <div
+          class="text-primary flex h-[150px] min-w-[180px] flex-1 flex-col gap-4 rounded-lg border border-gray-300 bg-white p-6">
+          <p class="text-5xl font-bold">
+            {{ statistics()?.arenden?.totalt ?? '-' }}
+          </p>
+          <p>Öppnande ärenden</p>
+        </div>
+        <div
+          class="text-primary flex h-[150px] min-w-[180px] flex-1 flex-col gap-4 rounded-lg border border-gray-300 bg-white p-6">
+          <p class="text-5xl font-bold">
+            {{ statistics()?.stangda_arenden?.totalt ?? '-' }}
+          </p>
+          <p>Totalt avslutade ärenden</p>
+        </div>
+        <div
+          class="text-primary flex h-[150px] min-w-[180px] flex-1 flex-col gap-4 rounded-lg border border-gray-300 bg-white p-6">
+          <p class="text-5xl font-bold">
+            {{ statistics()?.totalt_inkomna_handlingar ?? '-' }}
+          </p>
+          <p>Totalt inkomna handlingar</p>
+        </div>
+        <div
+          class="text-primary flex h-[150px] min-w-[180px] flex-1 flex-col gap-4 rounded-lg border border-gray-300 bg-white p-6">
+          <p class="text-5xl font-bold">
+            {{ statistics()?.totalt_upprattade_handlingar ?? '-' }}
+          </p>
+          <p>Totalt upprättade handlingar</p>
+        </div>
+      </div>
+    }
+    @if (!themeService.hideWeekCalendar()) {
+      <nuxeo-weekly-tasks-table
+        class="-mx-14 block"
+        [weekLabel]="weeklyTaskWeekLabel()"
+        [columns]="weeklyTaskColumns()"
+        [loading]="weeklyTasksLoading()"
+        (previousWeek)="onPreviousWeek()"
+        (nextWeek)="onNextWeek()">
+      </nuxeo-weekly-tasks-table>
+    }
+    <nuxeo-tabs
+      [tabs]="tabs()"
+      [activeTabId]="activeTabId()"
+      [shouldStretch]="false"
+      (tabChanged)="onTabChanged($event)">
+    </nuxeo-tabs>
+
+    @if (activeTabId() === 'all-docs') {
+      <h1 class="pb-5 text-2xl font-semibold">Alla ärenden i status öppen eller stängd.</h1>
+    }
+    @if (activeTabId() === 'ready-to-close') {
+      <h1 class="mb-10 text-2xl font-semibold">Ärenden avslutade av handläggare och klara att stängas</h1>
+    }
+    @if (activeTabId() === 'to-dispatch') {
+      <h1 class="mb-10 text-2xl font-semibold">Handlingar som är klara att skickas till mottagare</h1>
+    }
+    @if (activeTabId() === 'my-monitoring') {
+      <h1 class="mb-10 text-2xl font-semibold">
+        Här listas påminnelser, bevakningar och deadlines för ärenden och handlingar
+      </h1>
+    }
+    @if (activeTabId() === 'incoming-docs') {
+      <nuxeo-tabs
+        class="secondary-tabs"
+        [tabs]="subtabs()"
+        [activeTabId]="activeSubTabId()"
+        [shouldStretch]="false"
+        (tabChanged)="onSubTabChanged($event)">
+      </nuxeo-tabs>
+    }
+
+    <div class="relative flex items-center justify-end gap-4">
+      <div class="flex-1"></div>
+      <div class="absolute flex flex-1 items-center justify-center gap-4">
+        @if (showSearchForTab()) {
+          <digi-form-input-search
+            [attr.af-variation]="'medium'"
+            [attr.af-type]="'search'"
+            [attr.af-label]="' '"
+            [value]="searchTerm()"
+            [attr.af-button-text]="'Sök'"
+            (afOnInput)="onSearchInput($event)"
+            (afOnSubmitSearch)="onSearch($event)">
+          </digi-form-input-search>
+        }
+        @if (showQuickRangeForTab()) {
+          <nuxeo-table-date-quick-filter
+            [quickRangeBuckets]="caseCreatedAggBuckets()"
+            [selectedItems]="selectedQuikDates()"
+            (selectedItemsChanged)="selectedQuikDates.set($event)"
+            (dateRangeChange)="onDateRangeChange($event)">
+          </nuxeo-table-date-quick-filter>
+        }
+        <nuxeo-table-date-range-filters
+          [dateColumns]="casesDateColumns()"
+          [showQuickRangeFilter]="showQuickRangeForTab()"
+          [dateRangeSelection]="activeDateRangeSelection()"
+          (dateRangeChange)="onDateFilterChange($event)">
+        </nuxeo-table-date-range-filters>
+
+        @if (showStatusFilterForTab()) {
+          <digi-form-filter
+            (afSubmitFilter)="onFiltersChanged($event.detail)"
+            (afResetFilter)="onFiltersChanged({ checked: [] })"
+            [attr.af-filter-button-text]="'Status'"
+            [attr.af-submit-button-text]="'Filtrera'"
+            [attr.af-name]="'Path'"
+            [afCheckItems]="statusQuickFilterChecked()"
+            [afListItems]="statusOptions().length ? statusOptions() : []">
+          </digi-form-filter>
+        }
+        @if (showResetFiltersForTab()) {
+          <digi-button af-size="medium" af-variation="function" af-full-width="false" (afOnClick)="resetFilters()">
+            <digi-icon-x-button-outline slot="icon"></digi-icon-x-button-outline>
+            Rensa valet
+          </digi-button>
+        }
+        @if (!isSimplifiedHandler()) {
+          <nuxeo-toggle-button
+            class="my-auto"
+            (choiceChange)="onToggleButtonChange($event)"
+            [activeButton]="viewMode() === viewModeEnum.Grid ? 1 : 2"></nuxeo-toggle-button>
+        }
+      </div>
+    </div>
+    <nuxeo-cases-list
+      #casesList
+      [shouldShowPageSizeOption]="true"
+      [specifiedPageSize]="pageSize()"
+      [viewMode]="viewMode()"
+      [externalColumnFilters]="externalColumnFilters()"
+      [filters]="caseFilters()"
+      [tab]="activeTabId() === 'incoming-docs' ? activeSubTabId() : activeTabId()"
+      [loadCreatedAggs]="showQuickRangeForTab()"
+      [showCsvExport]="
+        activeTabId() !== 'incoming-docs' &&
+        activeTabId() !== 'my-tasks' &&
+        activeTabId() !== 'my-monitoring' &&
+        activeTabId() !== 'ready-to-close'
+      "
+      (pageSizeSelect)="onPageSizeSelect($event)"
+      (createdAggBucketsChange)="onCaseCreatedAggBucketsChange($event)"
+      (statusFilterChange)="onTableStatusFilterChange($event)">
+    </nuxeo-cases-list>
+
+    <div class="fixed right-4 bottom-4 z-50">
+      <nuxeo-add-button (addButtonClick)="openDialog()"></nuxeo-add-button>
+    </div>
+
+    <digi-dialog
+      [attr.af-heading]="'Lägg till innehåll'"
+      [attr.af-size]="'large'"
+      [attr.af-show-dialog]="isDialogOpened()"
+      (afOnClose)="isDialogOpened.set(false)">
+      <nuxeo-select-case-popup (dialogClose)="isDialogOpened.set(false)" [documentPath]="getPath()">
+      </nuxeo-select-case-popup>
+    </digi-dialog>
+  </div>
+}

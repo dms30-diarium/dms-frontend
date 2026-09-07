@@ -1,0 +1,14 @@
+<div>
+  <digi-progress-indicator
+    class="status-bar__indicator"
+    [ngClass]="{ 'status-bar__indicator--closed': isClosed() }"
+    [attr.af-total-steps]="states().length"
+    [attr.af-completed-steps]="completedSteps()"
+    [attr.af-variation]="'primary'">
+  </digi-progress-indicator>
+  <div class="flex w-[90%] justify-between gap-4">
+    @for (state of states(); track state.id) {
+      <span [ngClass]="{ 'font-bold': state.id === currentState() }">{{ state.label }}</span>
+    }
+  </div>
+</div>

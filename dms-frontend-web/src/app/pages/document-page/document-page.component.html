@@ -1,0 +1,105 @@
+@let doc = document();
+
+@if (doc?.type === 'Klass') {
+  @defer (when true) {
+    <nuxeo-klass-page></nuxeo-klass-page>
+  }
+} @else if (doc?.type === 'Klasstyp') {
+  @defer (when true) {
+    <nuxeo-klasstyp-page></nuxeo-klasstyp-page>
+  }
+} @else if (doc?.type === 'Checklista') {
+  @defer (when true) {
+    <nuxeo-checklista-page></nuxeo-checklista-page>
+  }
+} @else if (doc?.type === 'Arendefas') {
+  @defer (when true) {
+    <nuxeo-arendefas-page></nuxeo-arendefas-page>
+  }
+} @else if (doc?.type === 'Handlingstyp') {
+  @defer (when true) {
+    <nuxeo-handlingstyp-page></nuxeo-handlingstyp-page>
+  }
+} @else if (doc?.type === 'Beredningsbeslut') {
+  @defer (when true) {
+    <nuxeo-beredningsbeslut-page></nuxeo-beredningsbeslut-page>
+  }
+} @else if (doc?.type === 'Handlaggningsstatus') {
+  @defer (when true) {
+    <nuxeo-handlaggningsstatus-page></nuxeo-handlaggningsstatus-page>
+  }
+} @else if (doc?.type === 'Lagrum') {
+  @defer (when true) {
+    <nuxeo-lagrum-page></nuxeo-lagrum-page>
+  }
+} @else if (doc?.type === 'Beslut' || doc?.type === 'Beslutstyp') {
+  @defer (when true) {
+    <nuxeo-beslutstyper-page></nuxeo-beslutstyper-page>
+  }
+} @else if (doc) {
+  <div
+    class="min-h-full p-6"
+    [ngClass]="{
+      'arende-theme bg-arende-primary': doc.type === 'Arende',
+      'fil-theme bg-handling-primary': doc.type === 'Fil',
+      'handling-theme bg-handling-primary': doc.type === 'Handling',
+      'utkast-theme bg-utkast-primary': doc.type === 'Utkast',
+      'default-theme bg-gray-primary': !['Arende', 'Fil', 'Handling', 'Utkast'].includes(doc.type),
+    }">
+    @if (isArende(doc)) {
+      @defer (when true) {
+        <nuxeo-case-page [document]="doc" (reloadDocument)="reloadDocument()"></nuxeo-case-page>
+      }
+    } @else if (doc.type === 'Fil') {
+      @defer (when true) {
+        <nuxeo-file-view [document]="doc" (reloadDocument)="reloadDocument()"></nuxeo-file-view>
+      }
+    } @else if (isUtkast(doc)) {
+      @defer (when true) {
+        <nuxeo-utkast-page [document]="doc" (reloadDocument)="reloadDocument()"></nuxeo-utkast-page>
+      }
+    } @else if (isHandling(doc)) {
+      @defer (when true) {
+        <nuxeo-handling-page [document]="doc" (reloadDocument)="reloadDocument()"></nuxeo-handling-page>
+      }
+    } @else if (doc.type === 'MailMessage') {
+      @defer (when true) {
+        <nuxeo-mail-message [document]="doc" (reloadDocument)="reloadDocument()"></nuxeo-mail-message>
+      }
+    } @else if (doc.type === 'Importorfil') {
+      @defer (when true) {
+        <nuxeo-import-file-page [document]="doc" (reloadDocument)="reloadDocument()"></nuxeo-import-file-page>
+      }
+    } @else if (
+      doc.type === 'Note' ||
+      doc.type === 'File' ||
+      doc.type === 'Audio' ||
+      doc.type === 'Utkastmall' ||
+      doc.type === 'EPostmall' ||
+      doc.type === 'TemplateSource' ||
+      doc.type === 'WebTemplateSource'
+    ) {
+      @defer (when true) {
+        <nuxeo-document-preview [document]="doc" (reloadDocument)="reloadDocument()"></nuxeo-document-preview>
+      }
+    } @else if (doc.type === 'Picture') {
+      @defer (when true) {
+        <nuxeo-picture-view [document]="doc" (reloadDocument)="reloadDocument()"></nuxeo-picture-view>
+      }
+    } @else if (doc.type === 'Video') {
+      @defer (when true) {
+        <nuxeo-video-view [document]="doc" (reloadDocument)="reloadDocument()"></nuxeo-video-view>
+      }
+    } @else if (doc.type === 'Arkiv') {
+      @defer (when true) {
+        <nuxeo-arkiv-page [document]="doc" (reloadDocument)="reloadDocument()"></nuxeo-arkiv-page>
+      }
+    } @else {
+      @defer (when true) {
+        <nuxeo-file-view [document]="doc" (reloadDocument)="reloadDocument()"></nuxeo-file-view>
+      }
+    }
+  </div>
+} @else {
+  <div class="p-6">Can't load the doc</div>
+}

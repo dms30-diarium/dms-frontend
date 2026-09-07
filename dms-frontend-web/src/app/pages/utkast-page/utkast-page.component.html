@@ -1,0 +1,860 @@
+@if (isEditPageOpen()) {
+  <nuxeo-edit-form
+    [doc]="document()"
+    [config]="editConfig()"
+    [canSeeCustomMetadataValues]="false"
+    (dialogClose)="isEditPageOpen.set(false)"
+    (formResultHandling)="formatEditForm($event)"
+    (updateDropdownValues)="updateDropdownValues($event)"></nuxeo-edit-form>
+} @else if (this.isLoading()) {
+  <div
+    class="fixed top-0 left-0 z-50 flex h-full w-full items-center justify-center overflow-clip bg-white/60 backdrop-blur-xs">
+    <digi-loader-spinner [attr.af-size]="'medium'" [attr.af-text]="'Laddar'"> </digi-loader-spinner>
+  </div>
+} @else {
+  @if (selectedFileIdList().length) {
+    <nuxeo-top-buttons-panel
+      [selectedFiles]="selectedFileIdList()"
+      [showPrint]="true"
+      [showFavorites]="false"
+      [showRedo]="false"
+      (downloadFiles)="downloadSelectedFilesAsZip()"
+      (printFiles)="onPrint()"
+      (restoreSelection)="clearSelectedFiles()"
+      (assignToCollection)="isAssignCollectionOpened.set(selectedFileIdList())"></nuxeo-top-buttons-panel>
+  }
+  <div class="flex h-full flex-col">
+    <div class="mb-4 ml-2.5">
+      <nuxeo-navigation-bread [docId]="document().uid" />
+    </div>
+    @if (secretStampText()) {
+      <div class="secret-stamp-container">
+        <div class="secret-stamp" [class.secret-stamp--strong]="secretStampText() === 'STARK - SEKRETESS'">
+          {{ secretStampText() }}
+        </div>
+      </div>
+    }
+    <div class="mb-6 flex justify-between gap-4">
+      <div class="flex min-w-0">
+        <nuxeo-svg-icon
+          size="35px"
+          class="my-icon text-primary h-9 w-9 shrink-0"
+          src="/nuxeo/app/assets/figmaIcons/utkast.svg">
+        </nuxeo-svg-icon>
+        <h1 class="text-primary ml-2 min-w-0 text-2xl">
+          <b class="block truncate" [title]="document().properties[schemaFields.dc.title]">{{
+            document().properties[schemaFields.dc.title]
+          }}</b>
+        </h1>
+      </div>
+      <div class="w-full max-w-[66%]">
+        <nuxeo-button-menu [buttons]="buttons()" [document]="document()"></nuxeo-button-menu>
+      </div>
+    </div>
+
+    @if (isApproved()) {
+      <div class="mb-4">
+        <digi-notification-alert af-size="large" af-variation="success" af-heading="Utkast godkänt">
+          @if (reviewerName()) {
+            Godkänd av {{ reviewerName() }}
+            {{ getDate(document().properties[schemaFields.handling.godkannandeDatum]) }}.
+          } @else {
+            Utkastet är godkänt.
+          }
+        </digi-notification-alert>
+      </div>
+    }
+    @if (hasRequestedChanges()) {
+      <div class="mb-4">
+        <digi-notification-alert af-size="large" af-variation="warning" af-heading="Ändringar begärda">
+          @if (reviewerName()) {
+            {{ reviewerName() }} har lämnat kommentarer att åtgärda.
+          } @else {
+            Det finns kommentarer att kontrollera innan godkännande.
+          }
+          @if (responsibleForChanges()) {
+            <div class="mt-2 text-sm">Kommentarerna ska hanteras av {{ responsibleForChanges() }}.</div>
+          }
+        </digi-notification-alert>
+      </div>
+    }
+    @if (sendForApprovalWorkflow()) {
+      @for (item of sendForApprovalWorkflow(); track $index) {
+        <div class="mb-4">
+          <digi-notification-alert
+            af-size="large"
+            af-variation="info"
+            [attr.af-heading]="isUserAssignedForWorkflow(item) ? 'Godkänn utkastet' : 'Skickat för godkännande'">
+            @if (isUserAssignedForWorkflow(item)) {
+              <span>Du har fått i uppdrag att godkänna detta utkast. Vänligen godkänn eller neka.</span>
+              <div>
+                Utkast skickat till
+                @for (user of item.variables.anvandare; track user.id) {
+                  {{ getUserFullName(user) }}
+                  @if (!$last) {
+                    ,
+                  }
+                }
+                .
+              </div>
+              <div class="flex gap-2">
+                <span class="font-semibold"
+                  >{{ store.getValue('label.ui.workflow.description') ?? 'Beskrivning' }}:
+                </span>
+                <span>{{ item?.variables?.beskrivning }}</span>
+              </div>
+              <div class="flex gap-4 pt-4">
+                @for (action of getTaskActions(item); track $index) {
+                  <digi-button
+                    (afOnClick)="sendReviewDecision(action.name, item)"
+                    [attr.af-size]="'medium'"
+                    [attr.af-variation]="action.name === VOCAB_IDS.arbetsflodeAtgard.avvisa ? 'secondary' : 'primary'"
+                    [attr.af-full-width]="false">
+                    {{ action.label }}
+                  </digi-button>
+                }
+              </div>
+              <digi-button
+                (afOnClick)="abortWorkflow(item)"
+                class="absolute top-4 right-4"
+                af-size="medium"
+                af-variation="secondary"
+                af-full-width="false">
+                <digi-icon-x slot="icon" />
+                Avbryt arbetsflöde
+              </digi-button>
+            } @else {
+              <span>
+                Utkast skickat till
+                @for (user of item.variables.anvandare; track user.id) {
+                  {{ getUserFullName(user) }}
+                  @if (!$last) {
+                    ,
+                  }
+                }
+                .
+              </span>
+            }
+          </digi-notification-alert>
+        </div>
+      }
+    }
+    @if (approvalAssignee() && currentUserIsReviewer() && approvalPending()) {
+      <div class="mb-4">
+        <digi-notification-alert af-size="large" af-variation="warning" af-heading="Utkast väntar på ditt beslut">
+          Du har blivit tilldelad att fatta beslut om utkastet. Vänligen godkänn eller avslå ärendet.
+        </digi-notification-alert>
+      </div>
+    }
+    @if (sendForReviewWorkflow()) {
+      @for (item of sendForReviewWorkflow(); track $index) {
+        <div class="mb-4">
+          <digi-notification-alert af-size="large" af-variation="warning" af-heading="Granska utkast">
+            @if (isUserAssignedForWorkflow(item)) {
+              <span>Du har blivit tilldelad att granska utkastet. Vänligen godkänn eller neka.</span>
+              <div>
+                Utkast skickat till
+                @for (user of item.variables.anvandare; track user.id) {
+                  {{ getUserFullName(user) }}
+                  @if (!$last) {
+                    ,
+                  }
+                }
+                .
+              </div>
+              <div class="flex gap-2">
+                <span class="font-semibold"
+                  >{{ store.getValue('label.ui.workflow.description') ?? 'Beskrivning' }}:
+                </span>
+                <span>{{ item?.variables?.beskrivning }}</span>
+              </div>
+              <div class="flex gap-4 pt-4">
+                @for (action of getTaskActions(item); track $index) {
+                  <digi-button
+                    (afOnClick)="sendReviewDecision(action.name, item)"
+                    [attr.af-size]="'medium'"
+                    [attr.af-variation]="action.name === VOCAB_IDS.arbetsflodeAtgard.avvisa ? 'secondary' : 'primary'"
+                    [attr.af-full-width]="false">
+                    {{ action.label }}
+                  </digi-button>
+                }
+              </div>
+              <digi-button
+                nuxeoTooltipDirective="Avbryt arbetsflöde"
+                (afOnClick)="abortWorkflow(item)"
+                class="absolute top-4 right-4"
+                [attr.af-size]="'medium'"
+                [attr.af-variation]="'secondary'"
+                [attr.af-full-width]="false">
+                <digi-icon-x slot="icon" />
+                Avbryt arbetsflöde
+              </digi-button>
+            } @else {
+              <span>
+                Utkast skickat till
+                @for (user of item.variables.anvandare; track user.id) {
+                  {{ getUserFullName(user) }}
+                  @if (!$last) {
+                    ,
+                  }
+                }
+                .
+              </span>
+              <div class="flex gap-2">
+                <span class="font-semibold"
+                  >{{ store.getValue('label.ui.workflow.description') ?? 'Beskrivning' }}:
+                </span>
+                <span>{{ item?.variables?.beskrivning }}</span>
+              </div>
+            }
+          </digi-notification-alert>
+        </div>
+      }
+    }
+
+    <div class="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+      @if (document().uid) {
+        <div class="lg:col-start-1">
+          @if (isCreatedFromTemplate()) {
+            <div class="flex items-start justify-between gap-4">
+              @if (this.versionForm.controls.version.value === this.currentFileVersion()?.uid) {
+                <nuxeo-toggle-button
+                  class="mb-4 block flex-1"
+                  textLeft="Växla till redigering"
+                  textRight="Växla till förhandsgranskning"
+                  iconLeft="Pencil"
+                  iconRight="FileText"
+                  (choiceChange)="onToggleButtonChange($event)"
+                  [activeButton]="viewMode() === 'edit' ? 1 : 2"></nuxeo-toggle-button>
+              }
+              <form [formGroup]="versionForm" class="flex flex-1 items-center justify-end gap-2">
+                @if (this.versionForm.controls.version.value !== this.currentFileVersion()?.uid) {
+                  <digi-button
+                    (afOnClick)="restoreSelectedVersion()"
+                    [attr.af-size]="'medium'"
+                    [attr.af-variation]="'primary'"
+                    [attr.af-full-width]="false">
+                    Återställ den här versionen
+                  </digi-button>
+                }
+                <div class="word-normal text-sm break-words hyphens-auto text-gray-500">
+                  {{ store.getValue('label.ui.file.version') ?? 'Filversion' }}:
+                </div>
+                <digi-form-select
+                  class="w-30"
+                  [formControlName]="'version'"
+                  af-label=" "
+                  [attr.af-variation]="'medium'"
+                  [attr.af-validation]="'neutral'"
+                  [attr.af-placeholder]="'Välj ...'"
+                  (afOnChange)="changeCurrentVersion($event)">
+                  @for (option of availableVersions(); track option.uid) {
+                    <option [value]="option.uid">
+                      <span
+                        >{{ option.properties[schemaFields.uid.majorVersion] }}.{{
+                          option.properties[schemaFields.uid.minorVersion]
+                        }}</span
+                      >
+                    </option>
+                  }
+                </digi-form-select>
+              </form>
+            </div>
+          }
+        </div>
+
+        <div class="hidden lg:block"></div>
+
+        <div class="lg:col-start-1">
+          @if (viewMode() === 'edit') {
+            <div>Redigera fält</div>
+            <form [formGroup]="editFieldsForm">
+              @for (field of editProps(); track $index) {
+                <div>{{ field.nyckel }}</div>
+                <digi-form-input
+                  class="flex-1"
+                  [formControlName]="field.nyckel"
+                  [attr.af-label]="' '"
+                  [attr.af-variation]="'medium'"
+                  [attr.af-type]="'text'">
+                </digi-form-input>
+              }
+            </form>
+            <digi-button
+              (afOnClick)="saveEditDocProperties()"
+              [attr.af-size]="'medium'"
+              [attr.af-variation]="'primary'"
+              [attr.af-full-width]="false">
+              Spara
+            </digi-button>
+          } @else if (selectedFile()) {
+            <nuxeo-pdf-viewer
+              [parentDoc]="document()"
+              (reloadDocument)="getFile()"
+              [doc]="selectedFile()!"></nuxeo-pdf-viewer>
+          }
+        </div>
+
+        <div class="space-y-4 lg:col-start-2">
+          <nuxeo-accordion
+            id="utkast-overview"
+            accordionTitle="Översikt"
+            [isExpanded]="accordionState()['oversikt']"
+            (toggled)="onSectionToggled('oversikt', $event)">
+            <div class="px-10">
+              <div class="mb-4 w-full bg-white p-4">
+                <p class="grid grid-cols-[30%_70%] gap-2">
+                  <span class="word-normal text-sm break-words hyphens-auto text-gray-500">{{
+                    store.getValue('label.type')
+                  }}</span>
+                  <span class="text-sm font-bold break-words">{{ store.getLabelByType(document().type) }}</span>
+                </p>
+                <p class="grid grid-cols-[30%_70%] gap-2">
+                  <span class="word-normal text-sm break-words hyphens-auto text-gray-500">Skapad av:</span>
+                  <!-- doesn't have label on BE -->
+                  <span class="text-sm font-bold break-words">{{
+                    properties()[schemaFields.dc.creator]
+                      ? properties()[schemaFields.dc.creator]?.properties?.firstName +
+                        ' ' +
+                        properties()[schemaFields.dc.creator]?.properties?.lastName
+                      : ''
+                  }}</span>
+                </p>
+                <p class="grid grid-cols-[30%_70%] gap-2">
+                  <span class="word-normal text-sm break-words hyphens-auto text-gray-500"
+                    >{{ store.getValue('label.ui.schema.handling.ansvarigHandlaggare') }}:</span
+                  >
+                  <span class="text-sm font-bold break-words">
+                    @if (properties()[schemaFields.handling.ansvarigHandlaggare]) {
+                      {{
+                        properties()[schemaFields.handling.ansvarigHandlaggare]?.properties?.firstName +
+                          ' ' +
+                          properties()[schemaFields.handling.ansvarigHandlaggare]?.properties?.lastName
+                      }}
+                    }
+                  </span>
+                </p>
+                <p class="grid grid-cols-[30%_70%] gap-2">
+                  <span class="word-normal text-sm break-words hyphens-auto text-gray-500"
+                    >{{ store.getValue('documentInfo.created') }}:</span
+                  >
+                  <span class="text-sm font-bold break-words">{{
+                    getDate(document().properties[schemaFields.dc.modified])
+                  }}</span>
+                </p>
+                <p class="grid grid-cols-[30%_70%] gap-2">
+                  <span class="word-normal text-sm break-words hyphens-auto text-gray-500"
+                    >{{ store.getLabelByType('arende') }}:</span
+                  >
+                  <span class="text-sm font-bold break-words" [title]="namesByUid[document()!.parentRef!]">{{
+                    truncateTitle(namesByUid[document()!.parentRef!])
+                  }}</span>
+                </p>
+                <p class="grid grid-cols-[30%_70%] gap-2">
+                  <span class="word-normal text-sm break-words hyphens-auto text-gray-500">
+                    {{ store.getValue('documentPage.comments') }}:
+                  </span>
+                  <span class="text-sm font-bold break-words">{{
+                    properties()[schemaFields.handling.kommentarer]
+                  }}</span>
+                </p>
+                <p class="grid grid-cols-[30%_70%] gap-2">
+                  <span class="word-normal text-sm break-words hyphens-auto text-gray-500"
+                    >{{ store.getSchemaByType('handling', 'handlingstyp') }}:</span
+                  >
+                  <span class="text-sm font-bold break-words">{{
+                    properties()[schemaFields.handling.handlingstyp]?.title ?? ''
+                  }}</span>
+                </p>
+                <p class="grid grid-cols-[30%_70%] gap-2">
+                  <span class="word-normal text-sm break-words hyphens-auto text-gray-500"
+                    >{{ store.getValue('label.ui.schema.handling.innehallerPersonuppgifterGdpr') }}:</span
+                  >
+                  <span class="text-sm font-bold break-words">{{
+                    properties()[schemaFields.handling.innehallerPersonuppgifterGdpr] ? 'Ja' : 'Nej'
+                  }}</span>
+                </p>
+                <p class="grid grid-cols-[30%_70%] gap-2">
+                  <span class="word-normal text-sm break-words hyphens-auto text-gray-500"
+                    >{{ store.getSchemaByType('handling', 'handlingsriktning') }}:</span
+                  >
+                  <span class="text-sm font-bold break-words">{{
+                    properties()[schemaFields.handling.handlingsriktning]?.properties?.label
+                  }}</span>
+                </p>
+                <p class="grid grid-cols-[30%_70%] gap-2">
+                  <span class="word-normal text-sm break-words hyphens-auto text-gray-500"
+                    >{{ store.getSchemaByType('handling', 'sekretess') }}:</span
+                  >
+                  <span class="text-sm font-bold break-words">{{
+                    properties()[schemaFields.handling.sekretess]?.properties?.label
+                  }}</span>
+                </p>
+                @if (
+                  properties()[schemaFields.handling.sekretess]?.id === VOCAB_IDS.sekretess.svagSekretess ||
+                  properties()[schemaFields.handling.sekretess]?.id === VOCAB_IDS.sekretess.starkSekretess
+                ) {
+                  <p class="grid grid-cols-[30%_70%] gap-2">
+                    <span class="word-normal text-sm break-words hyphens-auto text-gray-500"
+                      >{{ store.getSchemaByType('handling', 'lagrumsbeskrivning') }}:</span
+                    >
+                    <span class="text-sm font-bold break-words">{{
+                      properties()[schemaFields.handling.lagrumsbeskrivning]?.title
+                    }}</span>
+                  </p>
+                }
+                <p class="grid grid-cols-[30%_70%] gap-2">
+                  <span class="word-normal text-sm break-words hyphens-auto text-gray-500"
+                    >{{ store.getSchemaByType('handling', 'granskare') }}:</span
+                  >
+                  <span class="text-sm font-bold break-words">{{
+                    properties()[schemaFields.handling.granskare]
+                      ? properties()[schemaFields.handling.granskare]?.properties?.firstName +
+                        ' ' +
+                        properties()[schemaFields.handling.granskare]?.properties?.lastName
+                      : ''
+                  }}</span>
+                </p>
+                <p class="grid grid-cols-[30%_70%] gap-2">
+                  <span class="word-normal text-sm break-words hyphens-auto text-gray-500"
+                    >{{ store.getSchemaByType('handling', 'avsandare') }}:</span
+                  >
+                  @for (el of document().properties[schemaFields.handling.avsandare]; track el) {
+                    <p>
+                      <span class="text-gray-500"
+                        >{{ store.getValue('label.ui.schema.handling.avsandare.namn') }}:
+                      </span>
+                      {{ el.namn }}
+                      @if (el.epost) {
+                        ,
+                        <span class="text-gray-500"
+                          >{{ store.getValue('label.ui.schema.handling.avsandare.epost') }}:
+                        </span>
+                        {{ el.epost }}
+                      }
+                    </p>
+                  }
+                </p>
+                <p class="grid grid-cols-[30%_70%] gap-2">
+                  <span class="word-normal text-sm break-words hyphens-auto text-gray-500"
+                    >{{ store.getValue('label.ui.schema.handling.mottagare') }}:</span
+                  >
+                  @for (el of document().properties[schemaFields.handling.mottagare]; track el) {
+                    <p>
+                      <span class="text-gray-500"
+                        >{{ store.getValue('label.ui.schema.handling.mottagare.namn') }}:
+                      </span>
+                      {{ el.namn }}
+
+                      @if (el.epost) {
+                        ,
+                        <span class="text-gray-500"
+                          >{{ store.getValue('label.ui.schema.handling.mottagare.epost') }}:
+                        </span>
+                        {{ el.epost }}
+                      }
+                    </p>
+                  }
+                </p>
+              </div>
+              @if (document().properties[schemaFields.handling.granskningskommentar]) {
+                <div class="w-full bg-white p-4">
+                  <h3 class="pb-4 text-xl font-bold">
+                    {{ store.getValue('label.ui.workflow.requested_changes') ?? 'Begärda ändringar' }}
+                  </h3>
+                  <p class="text-gray-800">{{ document().properties[schemaFields.handling.granskningskommentar] }}</p>
+                  <div class="mt-3 text-sm text-gray-600">
+                    @if (document().properties[schemaFields.handling.granskare]) {
+                      <div>
+                        {{ store.getValue('label.ui.workflow.by') ?? 'Av' }}:
+                        {{ reviewerName() ?? document().properties[schemaFields.handling.granskare] }}
+                      </div>
+                    }
+                    @if (document().properties[schemaFields.handling.granskningsdatum]) {
+                      <div>
+                        {{ store.getValue('label.ui.workflow.date') ?? 'Datum' }}:
+                        {{ getDate(document().properties[schemaFields.handling.granskningsdatum]) }}
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          </nuxeo-accordion>
+          <div
+            cdkDropList
+            [cdkDropListData]="visibleSections()"
+            [cdkDropListOrientation]="'vertical'"
+            (cdkDropListDropped)="onSectionDropped($event)"
+            class="flex flex-col">
+            @for (section of visibleSections(); track section) {
+              @switch (section) {
+                @case ('eventLog') {
+                  <div cdkDrag [cdkDragData]="section" class="relative w-full">
+                    <nuxeo-drag-handle></nuxeo-drag-handle>
+                    <nuxeo-accordion
+                      accordionTitle="Händelselogg"
+                      [isExpanded]="accordionState()['eventLog']"
+                      (toggled)="onSectionToggled('eventLog', $event)">
+                      <div class="px-10 pb-6">
+                        <section>
+                          <div class="flex flex-col gap-1">
+                            <div class="grid grid-cols-[30%_70%] gap-2">
+                              <span class="text-sm text-gray-500"
+                                >{{ store.getValue('label.ui.schema.handling.granskare') }}:
+                              </span>
+                              <span class="text-sm font-bold">{{
+                                properties()[schemaFields.handling.granskare]
+                                  ? properties()[schemaFields.handling.granskare]?.properties?.firstName +
+                                    ' ' +
+                                    properties()[schemaFields.handling.granskare]?.properties?.lastName
+                                  : ''
+                              }}</span>
+                            </div>
+                            <div class="grid grid-cols-[30%_70%] gap-2">
+                              <span class="text-sm text-gray-500"
+                                >{{ store.getValue('label.ui.schema.handling.granskningsdatum') }}:
+                              </span>
+                              <span class="text-sm font-bold">{{
+                                getDate(properties()[schemaFields.handling.granskningsdatum])
+                              }}</span>
+                            </div>
+                            <div class="grid grid-cols-[30%_70%] gap-2">
+                              <span class="text-sm text-gray-500"
+                                >{{ store.getValue('label.ui.schema.handling.godkannandeDatum') }}:
+                              </span>
+                              <span class="text-sm font-bold">{{
+                                getDate(properties()[schemaFields.handling.godkannandeDatum])
+                              }}</span>
+                            </div>
+                            <div class="grid grid-cols-[30%_70%] gap-2">
+                              <span class="text-sm text-gray-500"
+                                >{{ store.getValue('label.ui.schema.handling.beslutsfattare') }}:
+                              </span>
+                              <span class="text-sm font-bold">{{
+                                properties()[schemaFields.handling.beslutsfattare]
+                                  ? properties()[schemaFields.handling.beslutsfattare]?.properties?.firstName +
+                                    ' ' +
+                                    properties()[schemaFields.handling.beslutsfattare]?.properties?.lastName
+                                  : ''
+                              }}</span>
+                            </div>
+                            <div class="grid grid-cols-[30%_70%] gap-2">
+                              <span class="text-sm text-gray-500"
+                                >{{ store.getValue('label.ui.schema.handling.beslutatDatum') }}:
+                              </span>
+                              <span class="text-sm font-bold">{{
+                                getDate(properties()[schemaFields.handling.beslutatDatum])
+                              }}</span>
+                            </div>
+                            <div class="grid grid-cols-[30%_70%] gap-2">
+                              <span class="text-sm text-gray-500"
+                                >{{ store.getValue('label.ui.schema.handling.beslut') }}:
+                              </span>
+                              <span class="text-sm font-bold">{{
+                                properties()[schemaFields.handling.beslut]?.id
+                              }}</span>
+                            </div>
+                            <div class="grid grid-cols-[30%_70%] gap-2">
+                              <span class="text-sm text-gray-500"
+                                >{{ store.getValue('label.ui.schema.handling.handlingstyp') }}:
+                              </span>
+                              <span class="text-sm font-bold">{{
+                                properties()[schemaFields.handling.handlingstyp]?.title ?? ''
+                              }}</span>
+                            </div>
+                            @if (
+                              properties()[schemaFields.handling.handlingsriktning]?.id ===
+                              VOCAB_IDS.arendeRiktning.utgaende
+                            ) {
+                              <div class="grid grid-cols-[30%_70%] gap-2">
+                                <span class="pl-6 text-sm text-gray-500"
+                                  >{{ store.getValue('label.ui.schema.handling.utgaendeDatum') }}:
+                                </span>
+                                <span class="text-sm font-bold">{{
+                                  getDate(properties()[schemaFields.handling.utgaendeDatum])
+                                }}</span>
+                              </div>
+                            } @else if (
+                              properties()[schemaFields.handling.handlingsriktning]?.id ===
+                              VOCAB_IDS.arendeRiktning.intern
+                            ) {
+                              <div class="grid grid-cols-[30%_70%] gap-2">
+                                <span class="pl-6 text-sm text-gray-500"
+                                  >{{ store.getValue('label.ui.schema.handling.upprattadDatum') }}:
+                                </span>
+                                <span class="text-sm font-bold">{{
+                                  getDate(properties()[schemaFields.handling.upprattadDatum])
+                                }}</span>
+                              </div>
+                            } @else {
+                              <div class="grid grid-cols-[30%_70%] gap-2">
+                                <span class="pl-6 text-sm text-gray-500"
+                                  >{{ store.getValue('label.ui.schema.handling.inkommenDatum') }}:
+                                </span>
+                                <span class="text-sm font-bold">{{
+                                  getDate(properties()[schemaFields.handling.inkommenDatum])
+                                }}</span>
+                              </div>
+                            }
+                            <div class="grid grid-cols-[30%_70%] gap-2">
+                              <span class="text-sm text-gray-500"
+                                >{{ store.getValue('label.ui.schema.handling.expedieradDatum') }}:
+                              </span>
+                              <span class="text-sm font-bold">{{
+                                getDate(properties()[schemaFields.handling.expedieradDatum])
+                              }}</span>
+                            </div>
+                            <div class="grid grid-cols-[30%_70%] gap-2">
+                              <span class="text-sm text-gray-500"
+                                >{{ store.getValue('label.ui.schema.handling.arkiveradDatum') }}:
+                              </span>
+                              <span class="text-sm font-bold">{{
+                                getDate(properties()[schemaFields.handling.arkiveradDatum])
+                              }}</span>
+                            </div>
+                            <div class="grid grid-cols-[30%_70%] gap-2">
+                              <span class="text-sm text-gray-500"
+                                >{{ store.getValue('label.ui.schema.handling.gallradDatum') }}:
+                              </span>
+                              <span class="text-sm font-bold">{{
+                                getDate(properties()[schemaFields.handling.gallradDatum])
+                              }}</span>
+                            </div>
+                            <div class="grid grid-cols-[30%_70%] gap-2">
+                              <span class="text-sm text-gray-500"
+                                >{{ store.getValue('label.ui.schema.handling.makuleradDatum') }}:
+                              </span>
+                              <span class="text-sm font-bold">{{
+                                getDate(properties()[schemaFields.handling.makuleradDatum])
+                              }}</span>
+                            </div>
+                          </div>
+                        </section>
+                      </div>
+                    </nuxeo-accordion>
+                  </div>
+                }
+                @case ('files') {
+                  <div cdkDrag [cdkDragData]="section" class="relative w-full">
+                    <nuxeo-drag-handle></nuxeo-drag-handle>
+                    <nuxeo-accordion
+                      [accordionTitle]="'Filer (' + files().length + ')'"
+                      [isExpanded]="accordionState()['files']"
+                      (toggled)="onSectionToggled('files', $event)">
+                      <nuxeo-handling-files
+                        [files]="files()"
+                        [selectedFileIds]="selectedFileIds()"
+                        (fileSelected)="selectedFile.set($event)"
+                        (filePreview)="previewFile.set($event)"
+                        (filePrint)="printFile($event)"
+                        (attachmentSelectionChange)="onAttachmentSelectionChange($event)"
+                        (selectionChange)="onFileSelectionChange($event)"></nuxeo-handling-files>
+                    </nuxeo-accordion>
+                  </div>
+                }
+              }
+            }
+          </div>
+          @if (loggedAtionsReviewWorkflow().length) {
+            <h1 class="mt-6 text-2xl font-semibold">Arbetsflöde för att skicka för granskning</h1>
+            <div>
+              <digi-progress-indicator
+                class="status-bar__indicator"
+                [attr.af-total-steps]="loggedAtionsReviewWorkflow().length"
+                [attr.af-completed-steps]="loggedAtionsReviewWorkflow().length"
+                [attr.af-variation]="'primary'">
+              </digi-progress-indicator>
+              <div class="flex justify-between gap-4">
+                @for (action of loggedAtionsReviewWorkflow(); track $index) {
+                  <div class="flex flex-col">
+                    <div class="flex gap-2">
+                      <span class="word-normal text-sm break-words hyphens-auto text-gray-500"
+                        >{{ store.getValue('label.ui.workflow.action') ?? 'Aktion' }}:</span
+                      ><span class="text-sm font-bold break-words"
+                        >{{ store.getValue(`label.ui.workflow.${action?.atgard}`) ?? action?.atgard }}
+                      </span>
+                    </div>
+                    <div class="flex gap-2">
+                      <span class="word-normal text-sm break-words hyphens-auto text-gray-500"
+                        >{{ store.getValue('label.ui.workflow.date') ?? 'Datum' }}:</span
+                      ><span class="text-sm font-bold break-words">{{ action.datum | date: 'dd.MM.yyyy' }}</span>
+                    </div>
+                    <div class="flex gap-2">
+                      <span class="word-normal text-sm break-words hyphens-auto text-gray-500"
+                        >{{ store.getValue('label.ui.workflow.user') ?? 'Användare' }}:</span
+                      >
+                      <div class="flex flex-col">
+                        @for (user of action.anvandare; track $index) {
+                          <div class="text-sm font-bold break-words">{{ getUsers([user]) }}</div>
+                        }
+                      </div>
+                    </div>
+                    <div class="flex gap-2">
+                      <span class="word-normal text-sm break-words hyphens-auto text-gray-500"
+                        >{{ store.getValue('label.ui.workflow.status') ?? 'Status' }}:</span
+                      >
+
+                      <span class="text-sm font-bold break-words">
+                        {{ store.getValue(`label.ui.state.${action?.status}`) ?? action?.status }}</span
+                      >
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+          @if (loggedAtionsApproveWorkflow().length) {
+            <h1 class="mt-6 text-2xl font-semibold">Skicka för godkännande arbetsflöde</h1>
+            <div>
+              <digi-progress-indicator
+                class="status-bar__indicator"
+                [attr.af-total-steps]="loggedAtionsApproveWorkflow().length"
+                [attr.af-completed-steps]="loggedAtionsApproveWorkflow().length"
+                [attr.af-variation]="'primary'">
+              </digi-progress-indicator>
+              <div class="flex justify-between gap-4">
+                @for (action of loggedAtionsApproveWorkflow(); track $index) {
+                  <div class="flex flex-col">
+                    <div class="flex gap-2">
+                      <span class="word-normal text-sm break-words hyphens-auto text-gray-500"
+                        >{{ store.getValue('label.ui.workflow.action') ?? 'Aktion' }}:</span
+                      ><span class="text-sm font-bold break-words">
+                        {{ store.getValue(`label.ui.workflow.${action?.atgard}`) ?? action?.atgard }}
+                      </span>
+                    </div>
+                    <div class="flex gap-2">
+                      <span class="word-normal text-sm break-words hyphens-auto text-gray-500"
+                        >{{ store.getValue('label.ui.workflow.date') ?? 'Datum' }}:</span
+                      ><span class="text-sm font-bold break-words">{{ action.datum | date: 'dd.MM.yyyy' }}</span>
+                    </div>
+                    <div class="flex gap-2">
+                      <span class="word-normal text-sm break-words hyphens-auto text-gray-500"
+                        >{{ store.getValue('label.ui.workflow.user') ?? 'Användare' }}:</span
+                      >
+                      <div class="flex flex-col">
+                        @for (user of action.anvandare; track $index) {
+                          <div class="text-sm font-bold break-words">{{ getUsers([user]) }}</div>
+                        }
+                      </div>
+                    </div>
+                    <div class="flex gap-2">
+                      <span class="word-normal text-sm break-words hyphens-auto text-gray-500"
+                        >{{ store.getValue('label.ui.workflow.status') ?? 'Status' }}:</span
+                      >
+                      <span class="text-sm font-bold break-words">
+                        {{ store.getValue(`label.ui.state.${action?.status}`) ?? action?.status }}
+                      </span>
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      } @else {
+        <div class="lg:col-span-2">Document isn't found</div>
+      }
+    </div>
+  </div>
+  @if (isSendForApprovalOpened()) {
+    <digi-dialog
+      (afOnClose)="isSendForApprovalOpened.set(null)"
+      [attr.af-size]="'small'"
+      [attr.af-heading]="'Skicka för beslutsfattare / godkännare'"
+      [attr.af-show-dialog]="!!isSendForApprovalOpened()">
+      <nuxeo-utkast-review
+        workflowModelName="StickaForGodkannande"
+        [docId]="document().uid"
+        (reloadDoc)="reload()"
+        (closeDialog)="isSendForApprovalOpened.set(null)"></nuxeo-utkast-review>
+    </digi-dialog>
+  }
+  @if (showConfirmation()) {
+    <nuxeo-confirmation-dialog
+      (canceled)="showConfirmation.set(false)"
+      (confirm)="onCreateHandling(); showConfirmation.set(false)"
+      text="Är du säker på att du vill upprätta till handling?"
+      label="Upprätta till handling"></nuxeo-confirmation-dialog>
+  }
+  @if (isChangeResponsibleOpened()) {
+    <digi-dialog
+      (afOnClose)="isChangeResponsibleOpened.set(false)"
+      [attr.af-size]="'small'"
+      [attr.af-show-dialog]="!!isChangeResponsibleOpened()">
+      <nuxeo-utkast-dialog
+        [docId]="document().uid"
+        [currentAssignee]="currentAnsvHandlaggare()"
+        [mode]="'reassign'"
+        [confirmMessage]="'Är du säker på att byta ansvarig handläggare?'"
+        (closeDialog)="isChangeResponsibleOpened.set(false)"
+        (assignUser)="reloadDocument.emit(); isChangeResponsibleOpened.set(false)"></nuxeo-utkast-dialog>
+    </digi-dialog>
+  }
+  @if (isChangeRequesterOpened()) {
+    <digi-dialog
+      (afOnClose)="isChangeRequesterOpened.set(false)"
+      [attr.af-size]="'small'"
+      [attr.af-show-dialog]="!!isChangeRequesterOpened()">
+      <nuxeo-utkast-dialog
+        [docId]="document().uid"
+        [currentAssignee]="requesterId()"
+        [mode]="'changeRequester'"
+        [confirmMessage]="'Är du säker på att byta ansvarig beställare?'"
+        (closeDialog)="isChangeRequesterOpened.set(false)"
+        (assignUser)="reloadDocument.emit(); isChangeRequesterOpened.set(false)"></nuxeo-utkast-dialog>
+    </digi-dialog>
+  }
+  @if (isAssignCollectionOpened()) {
+    <digi-dialog
+      (afOnClose)="isAssignCollectionOpened.set(null)"
+      [attr.af-size]="'small'"
+      [attr.af-show-dialog]="!!isAssignCollectionOpened()">
+      <nuxeo-assign-collection-modal
+        (closeDialog)="isAssignCollectionOpened.set(null); checkInCollection()"
+        [items]="isAssignCollectionOpened()!"></nuxeo-assign-collection-modal>
+    </digi-dialog>
+  }
+  @if (isSendForReviewDialogOpen()) {
+    <digi-dialog
+      (afOnClose)="isSendForReviewDialogOpen.set(false)"
+      [attr.af-size]="'small'"
+      [attr.af-heading]="'Sänd för granskning'"
+      [attr.af-show-dialog]="!!isSendForReviewDialogOpen()">
+      <nuxeo-utkast-review
+        workflowModelName="SkickaForGranskning"
+        [docId]="document().uid"
+        (reloadDoc)="reload()"
+        (closeDialog)="isSendForReviewDialogOpen.set(false)"></nuxeo-utkast-review>
+    </digi-dialog>
+  }
+
+  @if (isCopyLinkDialogOpen()) {
+    <digi-dialog
+      [attr.af-show-dialog]="!!isCopyLinkDialogOpen()"
+      (afOnClose)="isCopyLinkDialogOpen.set(false)"
+      [attr.af-size]="'small'"
+      [attr.af-heading]="'Dela dokumentet'">
+      <div>
+        <p class="mb-2 text-gray-500">
+          {{ store.getValue('label.ui.share.internal_access_link') ?? 'Intern åtkomstlänk till' }}:
+        </p>
+      </div>
+      <div class="flex items-center gap-4">
+        <p>{{ documentLink() }}</p>
+        @if (!linkWasCopied()) {
+          <digi-icon-copy (click)="copyLink()" class="cursor-pointer"></digi-icon-copy>
+        }
+        @if (linkWasCopied()) {
+          <digi-icon-check></digi-icon-check>
+        }
+      </div>
+    </digi-dialog>
+  }
+
+  @if (previewFile()) {
+    <digi-dialog (afOnClose)="previewFile.set(null)" [attr.af-size]="'big'" [attr.af-show-dialog]="!!previewFile()">
+      <nuxeo-pdf-viewer [doc]="previewFile()!" [isPreview]="true" [canDelete]="false"></nuxeo-pdf-viewer>
+    </digi-dialog>
+  }
+}

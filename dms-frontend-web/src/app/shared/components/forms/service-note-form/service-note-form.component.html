@@ -1,0 +1,86 @@
+@if (isSubmitting()) {
+  <div
+    class="fixed top-0 left-0 z-50 flex h-full w-full items-center justify-center overflow-clip bg-white/60 backdrop-blur-xs">
+    <digi-loader-spinner [attr.af-size]="'medium'" [attr.af-text]="'Laddar'"> </digi-loader-spinner>
+  </div>
+}
+<div class="space-y-6">
+  <div class="flex flex-col gap-4 border-b pb-4 sm:flex-row sm:items-start sm:justify-between">
+    <div class="flex items-center gap-4">
+      @if (userLogoUrl()) {
+        <img
+          [src]="userLogoUrl()!"
+          alt="Användarlogo"
+          class="h-12 w-12 rounded-full object-cover"
+          referrerpolicy="no-referrer" />
+      } @else {
+        <div
+          class="flex h-12 w-12 items-center justify-center rounded-full bg-slate-200 text-lg font-semibold text-slate-600">
+          {{ userInitials() || '??' }}
+        </div>
+      }
+      <div>
+        <p class="text-sm font-medium text-gray-800">{{ userCompany() }}</p>
+      </div>
+    </div>
+    <div class="flex flex-1 flex-col items-center justify-center text-center">
+      <p class="text-base font-semibold tracking-wide">TJÄNSTEANTECKNING</p>
+    </div>
+    <div class="text-right">
+      <p class="text-xs text-gray-500 uppercase">Datum</p>
+      <p class="text-sm font-medium text-gray-800">{{ todayDisplay }}</p>
+    </div>
+  </div>
+
+  <div class="space-y-2">
+    <div class="flex items-center justify-between">
+      <p class="text-sm font-semibold text-gray-800">Anteckning</p>
+      @if (noteControl.touched && isNoteEmpty()) {
+        <p class="text-xs text-red-600">Detta fält är obligatoriskt.</p>
+      }
+    </div>
+    <angular-editor
+      [formControl]="noteControl"
+      [config]="editorConfig"
+      [placeholder]="'Skriv din tjänsteanteckning här'">
+    </angular-editor>
+  </div>
+  <div>
+    <p class="text-sm text-gray-500">Med vänliga hälsningar</p>
+    <p class="text-base font-semibold text-gray-800">{{ userFullName() }}</p>
+  </div>
+
+  <div class="grid grid-cols-1 gap-6 border-t pt-4 text-sm sm:grid-cols-3">
+    <div>
+      <p class="text-xs text-gray-500 uppercase">Adress</p>
+      <p class="text-gray-800">{{ footerAddress() }}</p>
+    </div>
+    <div>
+      <p class="text-xs text-gray-500 uppercase">Telefon / E-post</p>
+      <p class="text-gray-800">{{ contactPhone() }}</p>
+      <p class="text-gray-800">{{ contactEmail() }}</p>
+    </div>
+    <div class="text-right">
+      <p class="text-xs text-gray-500 uppercase">Ärende</p>
+      <p class="text-gray-800">{{ caseDocumentTitle() || 'Ärende' }}</p>
+      <p class="text-gray-600">{{ caseNumber() || '–' }}</p>
+    </div>
+  </div>
+  <div class="flex gap-2 pt-4">
+    <digi-button
+      (afOnClick)="onCancel()"
+      [attr.af-size]="'medium'"
+      [attr.af-variation]="'secondary'"
+      [attr.af-full-width]="false">
+      Avbryt
+    </digi-button>
+    <digi-button
+      (afOnClick)="isSubmitting() ? '' : onCreateHandling()"
+      [attr.af-size]="'medium'"
+      [attr.af-variation]="'primary'"
+      [attr.af-full-width]="false"
+      [attr.af-disabled]="isSubmitting()">
+      Spara och upprätta handling
+    </digi-button>
+  </div>
+</div>

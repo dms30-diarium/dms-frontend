@@ -1,0 +1,21 @@
+<div class="flex flex-col gap-2">
+  <div class="flex items-center justify-between">
+    <h2 [class.invisible]="!contacts()().length" class="text-2xl font-light">
+      {{ 'Motpart kontakter (Externa)' }}
+    </h2>
+  </div>
+  <!-- contacts is the signal input from parent, to track its changes there.
+    Since that component is used as ngComponentOutlet and cannot send output when data changes -->
+  @if (contacts()().length) {
+    <nuxeo-case-list-table
+      [isSettingsEnabled]="false"
+      [shouldShowResults]="false"
+      (updatedTableItems)="updateEditedData($event)"
+      [defaultColumnOptions]="getDefaultColumnOptions()"
+      [tableItems]="contacts()()"
+      [tableConfig]="customColumnConfig()"
+      [loading]="false"
+      [pageSize]="25">
+    </nuxeo-case-list-table>
+  }
+</div>

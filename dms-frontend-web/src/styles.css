@@ -1,0 +1,782 @@
+@import 'tailwindcss';
+@source "./src/**/*.{html,ts}";
+
+@theme {
+  /* bg-colors */
+  --color-primary: #00005a;
+  --color-gray-primary: #eff1f4;
+  --color-header-primary: #ffffff;
+  --color-arende-primary: #e7f1f1;
+  --color-handling-primary: #e8e8f3;
+  --color-utkast-primary: #f9f6ec;
+  --color-table-header: #e2e6eb;
+  --color-brown-text: #967300;
+
+  /* buttons colors */
+  --color-arende-button: #1f756b;
+}
+
+/* === Blue theme === */
+[data-theme='blue'] {
+  --color-primary: #003087;
+  --color-gray-primary: #eef3fb;
+  --color-header-primary: #f0f5ff;
+  --color-table-header: #d0dff5;
+  --color-arende-button: #1a6b5e;
+}
+
+/* === Custom theme — values are overridden by inline styles set from ThemeService === */
+[data-theme='custom'] {
+  --color-primary: #00005a;
+  --color-gray-primary: #eff1f4;
+  --color-header-primary: #ffffff;
+  --color-table-header: #e2e6eb;
+  --color-arende-button: #1f756b;
+}
+
+/* === Kawaii theme === */
+[data-theme='kawaii'] {
+  --color-primary: #6b1736;
+  --color-gray-primary: #fdeef3;
+  --color-header-primary: #fff5f7;
+  --color-table-header: #f9c9d5;
+  --color-arende-button: #c2185b;
+  --color-arende-primary: #fdeef2;
+  --color-handling-primary: #fde8ee;
+  --color-utkast-primary: #fef0f3;
+}
+
+[data-theme='kawaii'] .bg-white {
+  background-color: #fff5f7 !important;
+}
+
+[data-theme='kawaii'] .bg-gray-50,
+[data-theme='kawaii'] .bg-slate-50 {
+  background-color: #fdeef3 !important;
+}
+
+[data-theme='kawaii'] .bg-slate-100 {
+  background-color: #f9d0dc !important;
+}
+
+[data-theme='kawaii'] .table-scroll tbody tr {
+  background: #fff5f7 !important;
+}
+
+[data-theme='kawaii'] .table-scroll tbody tr.bg-slate-50 {
+  background: #fdeef3 !important;
+}
+
+[data-theme='kawaii'] .table-scroll tbody tr:hover {
+  background: #fad4e0 !important;
+}
+
+[data-theme='kawaii'] .border-gray-200,
+[data-theme='kawaii'] .border-slate-200,
+[data-theme='kawaii'] .border-gray-300 {
+  border-color: #f0b8c8 !important;
+}
+
+[data-theme='kawaii'] .hover\:bg-gray-100:hover {
+  background-color: #fad4e0 !important;
+}
+
+[data-theme='kawaii'] .shadow-sm,
+[data-theme='kawaii'] .shadow-lg {
+  box-shadow: 0 2px 8px rgba(194, 24, 91, 0.12) !important;
+}
+
+/* === Dark theme === */
+[data-theme='dark'] {
+  --color-primary: #4a9eff;
+  --color-gray-primary: #1a1d23;
+  --color-header-primary: #12151a;
+  --color-table-header: #22262d;
+  --color-brown-text: #d4a832;
+  --color-arende-button: #2da37a;
+  --color-arende-primary: #131d1d;
+  --color-handling-primary: #13131d;
+  --color-utkast-primary: #1c1b14;
+}
+
+[data-theme='dark'] body {
+  color: #c9cdd4;
+  background-color: #1a1d23;
+}
+
+/* White surfaces */
+[data-theme='dark'] .bg-white {
+  background-color: #1e2227 !important;
+  color: #c9cdd4;
+}
+
+[data-theme='dark'] .bg-gray-50,
+[data-theme='dark'] .bg-slate-50 {
+  background-color: #22262d !important;
+}
+
+[data-theme='dark'] .bg-slate-100 {
+  background-color: #22262d !important;
+}
+
+/* Table rows — override hardcoded #ffffff in case-list-table.component.scss */
+[data-theme='dark'] .table-scroll tbody tr {
+  background: #1e2227 !important;
+  color: #c9cdd4;
+}
+
+[data-theme='dark'] .table-scroll tbody tr.bg-slate-50 {
+  background: #22262d !important;
+}
+
+[data-theme='dark'] .table-scroll tbody tr:hover {
+  background: #252b33 !important;
+}
+
+/* Text */
+[data-theme='dark'] .text-gray-900,
+[data-theme='dark'] .text-gray-800,
+[data-theme='dark'] .text-gray-700,
+[data-theme='dark'] .text-slate-950,
+[data-theme='dark'] .text-slate-900,
+[data-theme='dark'] .text-slate-800,
+[data-theme='dark'] .text-slate-700,
+[data-theme='dark'] .text-slate-600 {
+  color: #c9cdd4 !important;
+}
+
+[data-theme='dark'] .text-gray-500,
+[data-theme='dark'] .text-gray-400,
+[data-theme='dark'] .text-slate-500,
+[data-theme='dark'] .text-slate-400 {
+  color: #c9cdd4 !important;
+}
+
+/* Drag handle buttons — white icon + updated border in dark mode */
+[data-theme='dark'] nuxeo-drag-handle button {
+  color: #ffffff !important;
+  border-color: #3a3f47 !important;
+  background-color: #2a2f38 !important;
+}
+
+/* Breadcrumbs — white links in dark mode */
+[data-theme='dark'] digi-navigation-breadcrumbs {
+  --digi--navigation-breadcrumbs--link--color: #ffffff;
+  --digi--navigation-breadcrumbs--link--visited--color: #c9cdd4;
+  --digi--navigation-breadcrumbs--link--hover--focus--color: #c9cdd4;
+  --digi--navigation-breadcrumbs--item--color: #c9cdd4;
+}
+
+/* Expandera alla / Dölj alla toggle button — white in dark mode */
+[data-theme='dark'] .expand-toggle-btn .digi-button.digi-button--variation-function .sc-digi-button {
+  color: #ffffff !important;
+}
+
+/* Accordion value spans (bold) — white in dark mode */
+[data-theme='dark']
+  .sc-digi-expandable-faq-item-h
+  .digi-expandable-faq-item__content.sc-digi-expandable-faq-item
+  span.font-bold {
+  color: #ffffff;
+}
+
+/* Status label text next to badge (case + handling overview) — white in dark mode */
+[data-theme='dark'] nuxeo-case-overview span.font-bold,
+[data-theme='dark'] nuxeo-handling-overview span.font-bold {
+  color: #ffffff;
+}
+
+/* Ärendeprocess: progress indicator "Steg X av Y" label — white in dark mode */
+[data-theme='dark'] .sc-digi-progress-indicator-h .digi-progress-indicator__label.sc-digi-progress-indicator {
+  color: #ffffff;
+}
+
+/* Ärendeprocess: Checklista heading — white in dark mode */
+[data-theme='dark'] nuxeo-case-page div.font-bold {
+  color: #ffffff;
+}
+
+/* Ärendeprocess: checklist item names (text-gray-500 in dark mode → light gray) */
+[data-theme='dark'] nuxeo-case-page .font-semibold.text-gray-500 {
+  color: #c9cdd4 !important;
+}
+
+/* Workflow overview (Översikt / Påminnelse / Deadline) — white text in dark mode */
+[data-theme='dark'] nuxeo-workflow-overview {
+  color: #ffffff;
+}
+[data-theme='dark'] nuxeo-workflow-overview .text-gray-500,
+[data-theme='dark'] nuxeo-workflow-overview .text-gray-700 {
+  color: #c9cdd4 !important;
+}
+
+/* Calendar separator line — darker in dark mode */
+[data-theme='dark'] nuxeo-case-page div.bg-gray-300 {
+  background-color: #3a3f47;
+}
+
+/* digi-calendar: transparent date cell backgrounds + white text in dark mode */
+[data-theme='dark'] .sc-digi-calendar-h {
+  --digi--calendar--date--background-color: transparent;
+  --digi--calendar--date--color: #ffffff;
+  --digi--calendar--date--today--background-color: #2a2f38;
+}
+
+/* Notification alert: dark background + white text in dark mode */
+[data-theme='dark'] .sc-digi-notification-alert-h .digi-notification-alert__wrapper.sc-digi-notification-alert {
+  background-color: #2a2f38;
+}
+[data-theme='dark'] .sc-digi-notification-alert-h .digi-notification-alert__heading.sc-digi-notification-alert,
+[data-theme='dark'] .sc-digi-notification-alert-h .digi-notification-alert__content.sc-digi-notification-alert > * {
+  color: #ffffff;
+}
+
+/* All function-variation buttons — white in dark mode */
+/* [data-theme='dark'] adds specificity (0,3,0) > light-mode rule (0,2,0); green case-buttons-container rule (0,4,1) still wins */
+[data-theme='dark'] .digi-button.digi-button--variation-function .sc-digi-button,
+[data-theme='dark'] .digi-button.digi-button--variation-function .digi-button__text.sc-digi-button {
+  color: #ffffff !important;
+}
+
+/* Navbar bell + settings icons, table export — white in dark mode (target SVG directly, not host) */
+[data-theme='dark'] .sc-digi-icon-settings-h svg.sc-digi-icon-settings.digi-icon-settings,
+[data-theme='dark'] .digi-icon-bell.sc-digi-header-notification.sc-digi-icon-bell,
+[data-theme='dark'] button > digi-icon-file-export svg.sc-digi-icon-file-export,
+[data-theme='dark'] button > digi-icon-file-export.sc-digi-icon-file-export-h svg.sc-digi-icon-file-export {
+  color: #ffffff !important;
+}
+
+/* Navbar reminders bell — white in dark mode (wrapper has hardcoded text-[#1b345d]) */
+[data-theme='dark'] nuxeo-navbar-reminders > div {
+  color: #ffffff;
+}
+
+/* Form labels (digi-form-label) — white in dark mode */
+[data-theme='dark'] .sc-digi-form-label-h .digi-form-label.sc-digi-form-label {
+  color: #ffffff !important;
+}
+
+/* Digi design system token overrides for dark mode */
+[data-theme='dark'] {
+  --digi--color--text--primary: #c9cdd4;
+  --digi--color--text--secondary: #9aa0ab;
+  --digi--color--icons--primary: #c9cdd4;
+  --digi--color--background--neutral-5: #22262d;
+  --digi--color--background--neutral-6: #1e2227;
+  --digi--color--background--secondary: #22262d;
+}
+
+/* Browse (Bläddra) navigation tree — force item text to light color */
+[data-theme='dark'] digi-navigation-vertical-menu,
+[data-theme='dark'] digi-navigation-vertical-menu-item {
+  --digi--navigation-vertical-menu-item--color: #c9cdd4;
+  --digi--navigation-vertical-menu-item--color--hover: #4a9eff;
+  --digi--navigation-vertical-menu-item--color--active: #ffffff;
+}
+
+[data-theme='dark']
+  .sc-digi-navigation-vertical-menu-item-h
+  .digi-navigation-vertical-menu-item__link.sc-digi-navigation-vertical-menu-item,
+[data-theme='dark']
+  .sc-digi-navigation-vertical-menu-item-h
+  .digi-navigation-vertical-menu-item__button.sc-digi-navigation-vertical-menu-item {
+  color: #c9cdd4 !important;
+}
+
+/* Borders */
+[data-theme='dark'] .border-gray-200,
+[data-theme='dark'] .border-slate-200,
+[data-theme='dark'] .border-gray-300 {
+  border-color: #2e333b !important;
+}
+
+/* Hover */
+[data-theme='dark'] .hover\:bg-gray-100:hover {
+  background-color: #252b33 !important;
+}
+
+/* Shadows */
+[data-theme='dark'] .shadow-sm,
+[data-theme='dark'] .shadow-lg {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Scrollbars */
+[data-theme='dark'] .scroll-top::-webkit-scrollbar-track,
+[data-theme='dark'] .scroll-main::-webkit-scrollbar-track {
+  background-color: #22262d;
+}
+
+[data-theme='dark'] .scroll-top::-webkit-scrollbar-thumb,
+[data-theme='dark'] .scroll-main::-webkit-scrollbar-thumb {
+  border-color: #22262d;
+}
+
+html,
+body {
+  height: 100dvh;
+  margin: 0;
+  font-family: system-ui, sans-serif;
+}
+
+/* === Base icon sizes === */
+
+/*Icons used in images */
+.icon-images.sc-digi-icon-folder-h {
+  --digi--icon--color: #ffffff;
+}
+.digi-icon-folder.sc-digi-icon-folder {
+  --digi--icon--width: 150px;
+  --digi--icon--height: 150px;
+}
+/* Big icons (32px) */
+.icon-image-title.sc-digi-icon-user-alt-h,
+.icon-image-title.sc-digi-icon-pen-h,
+.icon-image-title.sc-digi-icon-file-document-h,
+.icon-image-title.sc-digi-icon-folder-h {
+  width: 32px;
+  height: 32px;
+}
+/* Medium icons (24px) */
+.sc-digi-icon-settings-h svg.sc-digi-icon-settings.digi-icon-settings {
+  width: 24px;
+  height: 24px;
+}
+
+/* Plus icons (20px) */
+.plus-icon.sc-digi-icon-plus-h {
+  width: 20px;
+  height: 20px;
+}
+
+.image.image-small,
+.image.image-medium {
+  --digi--icon--color: currentColor !important;
+}
+
+.toggle-button digi-button .digi-button {
+  border: 0 !important;
+  border-radius: 0 !important;
+  height: 100% !important;
+}
+
+/* Small icons (16px) */
+.download-btn,
+.image.image-small.hydrated svg {
+  width: 16px;
+  height: 16px;
+  max-width: 16px;
+  max-height: 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+}
+/* Medium icons (16px) */
+.image.image-medium.hydrated svg {
+  width: 24px;
+  height: 24px;
+  max-width: 24px;
+  max-height: 24px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+}
+
+.download-btn svg {
+  color: var(--color-primary) !important;
+}
+
+/* === primary icons === */
+.digi-button.digi-button--variation-function .digi-button__text.sc-digi-button,
+.digi-button.digi-button--variation-function .sc-digi-button,
+.sc-digi-icon-settings-h svg.sc-digi-icon-settings.digi-icon-settings,
+.digi-icon-bell.sc-digi-header-notification.sc-digi-icon-bell,
+button > digi-icon-file-export svg.sc-digi-icon-file-export,
+button > digi-icon-file-export.sc-digi-icon-file-export-h svg.sc-digi-icon-file-export,
+nuxeo-collection-details-page .sc-digi-icon-folder-h svg.sc-digi-icon-folder.digi-icon-folder {
+  color: #1b345d;
+}
+/* === green buttons === */
+nuxeo-case-page .case-buttons-container {
+  .general-workflow-btn,
+  .digi-button.digi-button--variation-function .sc-digi-button,
+  .digi-button.digi-button--variation-function .sc-digi-button,
+  .sc-digi-icon-settings-h svg.sc-digi-icon-settings.digi-icon-settings,
+  .digi-icon-bell.sc-digi-header-notification.sc-digi-icon-bell {
+    color: var(--color-arende-button);
+  }
+}
+
+/* === Colors depending on context === */
+
+.plus-icon.sc-digi-icon-plus-h {
+  --digi--icon--color: #ffffff;
+}
+
+/* Arende  */
+.arende-theme .image,
+.arende-theme .icon-image-title {
+  --digi--icon--color: #1b345d;
+}
+
+/* Handling  */
+.handling-theme .image,
+.handling-theme .icon-image-title {
+  --digi--icon--color: #1b345d;
+}
+
+/* Case list progress circle (hide labels, show circle only) */
+.case-list-table__progress-circle digi-progress-circle .digi-progress-circle__content,
+.case-list-table__progress-circle digi-progress-circle .digi-progress-circle__circle-label {
+  display: none;
+}
+
+/* Utkast  */
+.utkast-theme .image,
+.utkast-theme .icon-image-title {
+  --digi--icon--color: #1b345d;
+}
+
+/* Fil  */
+.fil-theme .image,
+.fil-theme .icon-image-title {
+  --digi--icon--color: #1b345d;
+}
+
+/* Ready to close cases  */
+
+.ready-theme {
+  --digi--icon--color: #1b345d;
+}
+
+/* top-buttons-panel  */
+nuxeo-top-buttons-panel .image {
+  --digi--icon--color: #1b345d;
+}
+
+/* Navigation tree */
+.sc-digi-navigation-vertical-menu-s
+  ul.digi-navigation-vertical-menu__list--root.primary
+  .digi-navigation-vertical-menu__item--active
+  > ul
+  ul
+  ul
+  ul {
+  padding-left: 18px;
+}
+
+/* Table icons */
+
+table tbody tr .digi-button.digi-button--variation-function:first-child {
+  padding-left: 0;
+}
+
+/* inputs */
+.digi-form-select-filter__toggle-button,
+.digi-form-input__input.sc-digi-form-input,
+.sc-digi-form-select-h .digi-form-select__select.sc-digi-form-select,
+.sc-digi-form-textarea-h .digi-form-textarea__textarea.sc-digi-form-textarea {
+  border-color: rgb(185, 187, 187) !important;
+}
+
+input[type='checkbox'] {
+  accent-color: #1b345d;
+}
+
+.digi-form-checkbox__input.sc-digi-form-checkbox:indeterminate
+  ~ .digi-form-checkbox__label.sc-digi-form-checkbox
+  .digi-form-checkbox__box.sc-digi-form-checkbox,
+.digi-form-checkbox__input.sc-digi-form-checkbox:checked
+  ~ .digi-form-checkbox__label.sc-digi-form-checkbox
+  .digi-form-checkbox__box.sc-digi-form-checkbox {
+  --BACKGROUND--CHECKED: #1b345d;
+  --BORDER-COLOR--CHECKED: #1b345d;
+  background-color: var(--BACKGROUND--CHECKED);
+  border-color: var(--BORDER-COLOR--CHECKED);
+}
+
+.digi-form-select-filter__toggle-button.sc-digi-form-select-filter:focus,
+.digi-form-input__input.sc-digi-form-input:focus-visible,
+.sc-digi-form-select-h .digi-form-select__select.sc-digi-form-select:focus-visible,
+.sc-digi-form-textarea-h .digi-form-textarea__textarea.sc-digi-form-textarea:focus-visible {
+  border-color: rgb(185, 187, 187) !important;
+  outline: 1px solid rgb(148, 142, 143) !important;
+  outline-offset: 0 !important;
+  box-shadow: none !important;
+}
+
+.digi-calendar-datepicker.sc-digi-calendar-datepicker {
+  position: relative;
+}
+
+digi-calendar-datepicker.sc-digi-calendar-datepicker-h
+  .digi-calendar-datepicker__input-field.sc-digi-calendar-datepicker {
+  max-width: none;
+}
+
+.digi-form-input__input.sc-digi-form-input {
+  max-width: 100%;
+}
+
+.sc-digi-form-select-filter-h
+  .digi-form-select-filter__dropdown.sc-digi-form-select-filter
+  fieldset.sc-digi-form-select-filter {
+  width: 100% !important;
+  display: block;
+  min-width: 0;
+}
+
+.digi-form-select-filter__header input {
+  box-sizing: border-box;
+  max-width: 100%;
+}
+
+/* status bar */
+digi-typography {
+  digi-progress-indicator {
+    ol {
+      max-width: 100%;
+    }
+  }
+}
+
+/* calendar */
+
+digi-icon-exclamation-triangle-filled.sc-digi-icon-exclamation-triangle-filled-h
+  svg.sc-digi-icon-exclamation-triangle-filled {
+  color: #967300;
+}
+
+/* badge color */
+
+.sc-digi-tablist.sc-digi-badge-notification-h.sc-digi-badge-notification-s {
+  --digi--color--background--danger-4: #1b345d;
+}
+
+/* tabs */
+
+nuxeo-tabs.secondary-tabs div.digi-tablist.sc-digi-tablist {
+  width: fit-content;
+  background-color: transparent;
+}
+
+/* Case page workflow alerts: force slotted content to stretch full width */
+
+nuxeo-case-page digi-notification-alert.workflow-alert-wide .digi-notification-alert,
+nuxeo-case-page digi-notification-alert.workflow-alert-wide digi-layout-media-object,
+nuxeo-case-page digi-notification-alert.workflow-alert-wide .digi-layout-media-object,
+nuxeo-case-page digi-notification-alert.workflow-alert-wide .digi-notification-alert__wrapper,
+nuxeo-case-page digi-notification-alert.workflow-alert-wide .digi-notification-alert__text,
+nuxeo-case-page digi-notification-alert.workflow-alert-wide .digi-notification-alert__content,
+nuxeo-case-page digi-notification-alert.workflow-alert-wide .digi-typography {
+  width: 100%;
+}
+
+/* accordion without padding */
+nuxeo-sidebar-search
+  digi-expandable-faq-item.sc-digi-expandable-faq-item-h
+  .digi-expandable-faq-item__button.sc-digi-expandable-faq-item {
+  padding: 0;
+}
+
+/* Truncate long labels inside Digi function buttons rendered by nuxeo-image-button */
+nuxeo-image-button digi-button .digi-button {
+  max-width: 100%;
+  overflow: hidden;
+}
+
+nuxeo-image-button digi-button .digi-button__text.sc-digi-button {
+  max-width: 100%;
+}
+
+nuxeo-image-button digi-button .digi-button__text.sc-digi-button span:last-child {
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.calendar-accordion {
+  .digi-calendar__date {
+    position: relative;
+    background-color: unset !important;
+    color: unset !important;
+    pointer-events: none;
+  }
+  .deadlineCalendarItem {
+    background-color: rgb(212, 21, 21) !important;
+  }
+  .reminderCalendarItem {
+    background-color: rgb(221, 164, 30) !important;
+  }
+}
+/* Gray background for readonly rich text fields in general forms */
+.general-form-readonly-editor .angular-editor-textarea {
+  background-color: #f3f4f6;
+}
+
+/* Meddelande editor background in request completion form */
+.request-completion-form .angular-editor-wrapper,
+.request-completion-form .angular-editor-textarea {
+  background-color: #ffffff !important;
+}
+
+/* Progressbar esign in table */
+.sc-digi-progress-indicator-h .digi-progress-indicator__step.sc-digi-progress-indicator {
+  height: 0 !important;
+  z-index: 0 !important;
+}
+
+.case-list-table__progress-circle
+  digi-progress-indicator.sc-digi-progress-indicator-h
+  .digi-progress-indicator__step.sc-digi-progress-indicator::before {
+  --case-progress-line-gap: 4px;
+  left: calc(var(--digi--progress-indicator--step--size) + var(--case-progress-line-gap)) !important;
+  width: calc(100% - var(--digi--progress-indicator--step--size) - (var(--case-progress-line-gap) * 2)) !important;
+}
+
+nuxeo-utkast-page .status-bar__indicator .digi-progress-indicator__list.sc-digi-progress-indicator {
+  width: 160%;
+}
+
+digi-dialog.isFullSize {
+  --digi--dialog--content--width--large: 80%;
+}
+
+nuxeo-case-list-table .sc-digi-progress-indicator-h .digi-progress-indicator__list.sc-digi-progress-indicator {
+  margin-top: 0;
+}
+
+/* sekretess stamp */
+.secret-stamp-container {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  margin: 0.25rem 0 1rem;
+  pointer-events: none;
+}
+
+.secret-stamp-container--right {
+  justify-content: flex-end;
+}
+
+.secret-stamp-container--card {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  width: auto;
+  margin: 0;
+}
+
+.secret-stamp {
+  display: inline-block;
+  border: 2px solid #c62828;
+  color: #c62828;
+  padding: 0.35rem 1.5rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  transform: rotate(-10deg);
+  font-size: 0.95rem;
+}
+
+/* sekretess stamp (handling card variant) */
+.secret-stamp-container--handling-card {
+  top: 2.25rem;
+  right: 0.75rem;
+}
+
+.secret-stamp-card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 12rem;
+  border: 1.5px solid #c62828;
+  color: #c62828;
+  padding: 0.2rem 1rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.secret-stamp-card__text {
+  display: block;
+}
+
+.secret-stamp-card--strong {
+  border-width: 3px;
+  font-weight: 900;
+}
+
+.secret-stamp--strong {
+  border-width: 3px;
+  font-weight: 900;
+}
+
+/* tabs */
+nuxeo-tabs digi-tablist.sc-digi-tablist-h div.digi-tablist.sc-digi-tablist div.control-wrapper.sc-digi-tablist {
+  display: none;
+}
+
+[data-theme='dark'] digi-tablist .digi-tablist {
+  background-color: #1e2227 !important;
+  border-bottom-color: #2e333b !important;
+}
+
+[data-theme='dark'] digi-tablist .digi-tab .title {
+  color: #c9cdd4 !important;
+}
+
+[data-theme='dark'] digi-tablist .digi-tab:hover:not(.is-active) .title {
+  color: #4a9eff !important;
+}
+
+/* Accordion / collapsible dark mode */
+[data-theme='dark'] .sc-digi-expandable-faq-item-h .digi-expandable-faq-item--primary.sc-digi-expandable-faq-item {
+  --BACKGROUND: #1e2227;
+  color: #c9cdd4;
+}
+
+[data-theme='dark'] .sc-digi-expandable-faq-item-h .digi-expandable-faq-item__header.sc-digi-expandable-faq-item,
+[data-theme='dark'] .sc-digi-expandable-faq-item-h .digi-expandable-faq-item__button.sc-digi-expandable-faq-item {
+  color: #ffffff !important;
+}
+
+/* Accordion content area — all collapsibles on case / handling / utkast pages */
+[data-theme='dark'] .sc-digi-expandable-faq-item-h .digi-expandable-faq-item__content.sc-digi-expandable-faq-item {
+  color: #c9cdd4;
+}
+
+[data-theme='dark'] .sc-digi-expandable-faq-item-h .digi-expandable-faq-item__content.sc-digi-expandable-faq-item h2,
+[data-theme='dark'] .sc-digi-expandable-faq-item-h .digi-expandable-faq-item__content.sc-digi-expandable-faq-item h3 {
+  color: #ffffff;
+}
+
+[data-theme='dark'] nuxeo-accordion digi-expandable-faq,
+[data-theme='dark'] nuxeo-accordion digi-expandable-faq-item {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* search */
+.sc-digi-form-input-search .digi-form-input__input.sc-digi-form-input {
+  height: unset;
+}
+
+digi-form-input-search .sc-digi-form-input-h .digi-form-input.sc-digi-form-input {
+  gap: unset;
+}
+
+/* Reverse digi-form-filter footer so submit/Filtrera is on the right */
+.sc-digi-form-filter-h .digi-form-filter__footer.sc-digi-form-filter {
+  flex-direction: row-reverse;
+}
+.sc-digi-form-filter-h .digi-form-filter__reset-button.sc-digi-form-filter {
+  margin-left: 0;
+  margin-right: var(--digi--form-filter--reset-button--margin-left);
+}

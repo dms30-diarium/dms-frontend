@@ -1,0 +1,25 @@
+@if (isLoading()) {
+  <div class="p-6">Laddar beslutstyp...</div>
+} @else if (loadError()) {
+  <div class="p-6">Kan inte ladda beslutstyp.</div>
+} @else if (document()) {
+  <nuxeo-document-info-page
+    [docId]="document()!.uid"
+    [title]="document()!.title"
+    subtitle="Beslutstyp"
+    detailTitle="Beslutstyp"
+    [statusItems]="statusItems()"
+    [detailItems]="detailItems()"
+    [auditEntries]="auditEntries()"
+    [showEdit]="canEdit()"
+    editDialogHeading="Redigera beslutstyp"
+    [editConfig]="editConfig()"
+    [isEditOpen]="isEditOpen()"
+    [isSaving]="isSaving()"
+    (editOpen)="openEdit()"
+    (editClose)="closeEdit()"
+    (formResult)="handleEditResult($event)">
+  </nuxeo-document-info-page>
+} @else {
+  <div class="p-6">Kan inte ladda beslutstyp.</div>
+}

@@ -1,0 +1,73 @@
+<div class="flex flex-col gap-2">
+  <digi-button
+    (afOnClick)="isContactDialogOpen.set(true)"
+    [attr.af-size]="'small'"
+    [attr.af-variation]="'secondary'"
+    [attr.af-full-width]="false">
+    Lägg till arendemening
+  </digi-button>
+  <digi-dialog
+    (afOnClose)="isContactDialogOpen.set(false); $event.stopPropagation()"
+    [attr.af-heading]="'Lägg till arendemening'"
+    [attr.af-size]="'small'"
+    [attr.af-show-dialog]="isContactDialogOpen()">
+    <div>
+      <form [formGroup]="form" class="">
+        <div class="flex flex-col gap-4">
+          <div>
+            <h4 class="font-semibold text-gray-500">Arendemening</h4>
+            <digi-form-textarea
+              [formControlName]="'arendemening'"
+              af-label=" "
+              [attr.af-variation]="'medium'"
+              [attr.af-validation]="
+                form.controls.arendemening.invalid && form.controls.arendemening.dirty ? 'error' : 'neutral'
+              "
+              [attr.af-validation-text]="minimumWordsValidationText">
+            </digi-form-textarea>
+          </div>
+        </div>
+        <div class="flex gap-2 pt-10">
+          <digi-button
+            (afOnClick)="isContactDialogOpen.set(false)"
+            [attr.af-size]="'medium'"
+            [attr.af-variation]="'secondary'"
+            [attr.af-full-width]="false">
+            Avbryt
+          </digi-button>
+          <digi-button
+            (afOnClick)="saveContact()"
+            [attr.af-size]="'medium'"
+            [attr.af-variation]="'primary'"
+            [attr.af-full-width]="false">
+            Spara
+          </digi-button>
+        </div>
+      </form>
+    </div>
+  </digi-dialog>
+  @if (values().length) {
+    <nuxeo-case-list-table
+      [isSettingsEnabled]="false"
+      [shouldShowResults]="false"
+      class="max-h-[200px] overflow-auto"
+      [defaultColumnOptions]="getDefaultColumnOptions()"
+      [tableItems]="values()"
+      [tableConfig]="CUSTOM_COLS"
+      actionsHeader="Åtgärd"
+      [actionsTemplate]="actionsTpl"
+      [loading]="false"
+      [pageSize]="25">
+    </nuxeo-case-list-table>
+  }
+  <ng-template #actionsTpl let-item>
+    <digi-button
+      (afOnClick)="removeContact(item)"
+      [attr.af-size]="'small'"
+      [attr.af-variation]="'function'"
+      [attr.af-full-width]="false">
+      <digi-icon-trash slot="icon" />
+      Ta bort
+    </digi-button>
+  </ng-template>
+</div>

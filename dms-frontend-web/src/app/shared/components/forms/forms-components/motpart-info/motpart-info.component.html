@@ -1,0 +1,37 @@
+<nuxeo-accordion accordionTitle="Motpartsinformation">
+  <form [formGroup]="form" class="flex flex-col gap-2 p-4">
+    <div>
+      <div>Telefonnummer</div>
+      <digi-form-input formControlName="phone" af-label=" " af-variation="medium" af-type="text"> </digi-form-input>
+    </div>
+
+    <div>
+      <div>E-post</div>
+      <digi-form-input formControlName="epost" af-label=" " af-variation="medium" af-type="text"> </digi-form-input>
+    </div>
+
+    <div>
+      <div>Adress</div>
+      <digi-form-input formControlName="address" af-label=" " af-variation="medium" af-type="text"> </digi-form-input>
+    </div>
+
+    @if (motpartTyp() === VOCAB_IDS.motpartTyp.foretagMyndighet) {
+      <div>
+        <div>Organisationsnummer</div>
+        <digi-form-input formControlName="organisationsnummer" af-label=" " af-variation="medium" af-type="text">
+        </digi-form-input>
+      </div>
+    }
+
+    <div class="flex justify-between">
+      <div class="flex w-[calc(50%-8px)] max-w-[calc(50%-8px)] flex-col">
+        <div>Postnummer</div>
+        <digi-form-input formControlName="zip" af-label=" " af-variation="medium" af-type="text"> </digi-form-input>
+      </div>
+      <div class="flex w-[calc(50%-8px)] max-w-[calc(50%-8px)] flex-col">
+        <div>Postort</div>
+        <digi-form-input formControlName="city" af-label=" " af-variation="medium" af-type="text"> </digi-form-input>
+      </div>
+    </div>
+  </form>
+</nuxeo-accordion>

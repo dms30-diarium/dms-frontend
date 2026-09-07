@@ -1,0 +1,48 @@
+<div class="flex flex-col gap-2">
+  <div
+    [ngClass]="references()().length && shouldShowTable() ? 'justify-between' : 'justify-end'"
+    class="flex items-center">
+    @if (shouldShowTable()) {
+      <h2 class="text-2xl font-light" [class.invisible]="!references()().length">
+        {{ fieldName() === 'internArendereferens' ? 'Intern Ärendereferens' : 'Intern Handlingsreferens' }}
+      </h2>
+    }
+    <nuxeo-refs-button-with-dialog
+      [refType]="refType()"
+      [heading]="
+        fieldName() === 'internArendereferens'
+          ? 'Lägg till intern ärendereferens'
+          : 'Lägg till intern handlingsreferens'
+      "
+      class="self-end"
+      (addContact)="addContact($event)"
+      [parentRef]="parentRef()"></nuxeo-refs-button-with-dialog>
+  </div>
+
+  <!-- contacts is the signal input from parent, to track its changes there.
+    Since that component is used as ngComponentOutlet and cannot send output when data changes -->
+  @if (references()().length && shouldShowTable()) {
+    <nuxeo-case-list-table
+      [shouldShowResults]="false"
+      [defaultColumnOptions]="getDefaultColumnOptions()"
+      (updatedTableItems)="updateEditedData($event)"
+      [tableItems]="references()()"
+      [tableConfig]="customColumnConfig()"
+      actionsHeader="Åtgärd"
+      [actionsTemplate]="actionsTpl"
+      [loading]="false"
+      [pageSize]="25">
+    </nuxeo-case-list-table>
+  }
+
+  <ng-template #actionsTpl let-item>
+    <digi-button
+      (afOnClick)="removeContact(item)"
+      [attr.af-size]="'small'"
+      [attr.af-variation]="'function'"
+      [attr.af-full-width]="false">
+      <digi-icon-trash slot="icon" />
+      Ta bort
+    </digi-button>
+  </ng-template>
+</div>

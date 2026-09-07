@@ -1,0 +1,232 @@
+<div class="p-6">
+  <digi-navigation-breadcrumbs [attr.af-current-page]="groupLabel()">
+    <a [routerLink]="['/']">Start</a>
+    <a [routerLink]="['/admin/anvandare-grupper']">Användare & Grupper</a>
+  </digi-navigation-breadcrumbs>
+
+  <div class="mt-6 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+    <div class="flex flex-wrap items-start justify-between gap-4">
+      <div>
+        <div class="text-xs font-semibold tracking-wide text-gray-500 uppercase">Grupp</div>
+        <h1 class="mt-1 text-2xl font-semibold text-gray-900">{{ groupLabel() }}</h1>
+        <div class="mt-1 text-sm text-gray-600">{{ groupIdentifier() }}</div>
+        <div class="mt-2 text-sm text-gray-600">{{ memberSummary() }}</div>
+      </div>
+      <div class="flex flex-wrap items-center gap-2">
+        <digi-button
+          af-size="small"
+          af-variation="function"
+          af-full-width="false"
+          type="button"
+          (afOnClick)="isDeleteDialogOpen.set(true)">
+          {{ store.getValue('command.delete') }}
+        </digi-button>
+        <digi-button
+          af-size="small"
+          af-variation="primary"
+          af-full-width="false"
+          type="button"
+          (afOnClick)="openAddMembers()">
+          {{ store.getValue('groupManagement.addMembers') }}
+        </digi-button>
+        <digi-button
+          af-size="small"
+          af-variation="secondary"
+          af-full-width="false"
+          type="button"
+          (afOnClick)="openEditGroup()">
+          {{ store.getValue('groupManagement.editGroup') }}
+        </digi-button>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-6 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+    <div class="flex items-center justify-between border-b border-gray-200 px-5 py-4">
+      <div class="text-sm font-semibold text-gray-900">Användare</div>
+    </div>
+
+    <ng-template #usersActions let-item>
+      <digi-button
+        af-size="small"
+        af-variation="function"
+        af-full-width="false"
+        type="button"
+        aria-label="Remove user"
+        (afOnClick)="openRemoveMember(item?.identifier, $event)">
+        <digi-icon-trash slot="icon" />
+      </digi-button>
+    </ng-template>
+    <nuxeo-case-list-table
+      [tableConfig]="usersTableConfig"
+      [defaultColumnOptions]="usersDefaultColumnOptions"
+      [tableItems]="usersRows()"
+      [total]="usersTotal()"
+      [page]="0"
+      [pageSize]="pageSize"
+      [loading]="false"
+      [isSettingsEnabled]="false"
+      actionsHeader="Åtgärder"
+      [actionsTemplate]="usersActions"
+      [columnSearchEnabled]="true"
+      (columnSearchChange)="onUsersSearch($event)">
+    </nuxeo-case-list-table>
+  </div>
+
+  <div class="mt-6 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+    <div class="flex items-center justify-between border-b border-gray-200 px-5 py-4">
+      <div class="text-sm font-semibold text-gray-900">Kapslade grupper</div>
+    </div>
+    <nuxeo-case-list-table
+      [tableConfig]="nestedGroupsTableConfig"
+      [defaultColumnOptions]="nestedGroupsDefaultColumnOptions"
+      [tableItems]="nestedGroupsRows()"
+      [total]="nestedGroupsTotal()"
+      [page]="0"
+      [pageSize]="pageSize"
+      [loading]="false"
+      [isSettingsEnabled]="false"
+      [columnSearchEnabled]="true">
+    </nuxeo-case-list-table>
+  </div>
+
+  <div class="mt-6 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+    <div class="flex items-center justify-between border-b border-gray-200 px-5 py-4">
+      <div class="text-sm font-semibold text-gray-900">Behörigheter</div>
+    </div>
+    <nuxeo-case-list-table
+      [tableConfig]="permissionsTableConfig"
+      [defaultColumnOptions]="permissionsDefaultColumnOptions"
+      [tableItems]="permissionsRows()"
+      [total]="permissionsTotal()"
+      [page]="0"
+      [pageSize]="pageSize"
+      [loading]="false"
+      [isSettingsEnabled]="false">
+    </nuxeo-case-list-table>
+    @if (!permissionsRows().length) {
+      <div class="px-5 pb-5 text-sm text-gray-500">{{ groupLabel() }} har inga behörigheter.</div>
+    }
+  </div>
+
+  <digi-dialog
+    (afOnClose)="isDeleteDialogOpen.set(false)"
+    [attr.af-heading]="'Delete group'"
+    [attr.af-size]="'small'"
+    [attr.af-show-dialog]="isDeleteDialogOpen()">
+    <p class="text-sm text-gray-700">Är du säker på att du vill ta bort den här gruppen?</p>
+    <div class="mt-6 flex items-center gap-2">
+      <digi-button
+        type="button"
+        (afOnClick)="isDeleteDialogOpen.set(false)"
+        [attr.af-size]="'medium'"
+        [attr.af-variation]="'secondary'"
+        [attr.af-full-width]="false">
+        Avbryt
+      </digi-button>
+      <digi-button
+        type="button"
+        (afOnClick)="isDeleteDialogOpen.set(false); deleteGroup()"
+        [attr.af-size]="'medium'"
+        [attr.af-variation]="'primary'"
+        [attr.af-full-width]="false">
+        Radera
+      </digi-button>
+    </div>
+  </digi-dialog>
+
+  <digi-dialog
+    (afOnClose)="closeAddMembers()"
+    [attr.af-heading]="'Add Members'"
+    [attr.af-size]="'large'"
+    [attr.af-show-dialog]="isAddMembersOpen()">
+    <nuxeo-general-form
+      #addMembersForm
+      [config]="addMembersFormConfig()"
+      [shouldShowButtons]="false"
+      (dropdownChanged)="handleAddMembersDropdownChanged($event)"
+      (formResult)="handleAddMembers($event)">
+    </nuxeo-general-form>
+
+    <div class="mt-6 flex items-center gap-2">
+      <digi-button
+        type="button"
+        (afOnClick)="closeAddMembers()"
+        [attr.af-size]="'medium'"
+        [attr.af-variation]="'secondary'"
+        [attr.af-full-width]="false">
+        Avbryt
+      </digi-button>
+      <digi-button
+        type="button"
+        (afOnClick)="submitAddMembers(addMembersForm)"
+        [attr.af-size]="'medium'"
+        [attr.af-variation]="'primary'"
+        [attr.af-full-width]="false">
+        Lägg till
+      </digi-button>
+    </div>
+  </digi-dialog>
+
+  <digi-dialog
+    (afOnClose)="closeEditGroup()"
+    [attr.af-heading]="'Edit Group'"
+    [attr.af-size]="'large'"
+    [attr.af-show-dialog]="isEditGroupOpen()">
+    <div class="bg-gray-100 p-4">
+      <div class="bg-gray-100 p-4">
+        <nuxeo-general-form
+          #editGroupForm
+          [config]="editGroupFormConfig()"
+          [shouldShowButtons]="false"
+          (formResult)="handleEditGroup($event)">
+        </nuxeo-general-form>
+      </div>
+    </div>
+
+    <div class="mt-6 flex items-center gap-2">
+      <digi-button
+        type="button"
+        (afOnClick)="closeEditGroup()"
+        [attr.af-size]="'medium'"
+        [attr.af-variation]="'secondary'"
+        [attr.af-full-width]="false">
+        Avbryt
+      </digi-button>
+      <digi-button
+        type="button"
+        (afOnClick)="submitEditGroup(editGroupForm)"
+        [attr.af-size]="'medium'"
+        [attr.af-variation]="'primary'"
+        [attr.af-full-width]="false">
+        Spara
+      </digi-button>
+    </div>
+  </digi-dialog>
+
+  <digi-dialog
+    (afOnClose)="closeRemoveMember()"
+    [attr.af-heading]="'Remove user'"
+    [attr.af-size]="'small'"
+    [attr.af-show-dialog]="isRemoveMemberOpen()">
+    <p class="text-sm text-gray-700">Är du säker på att du vill ta bort den här användaren från gruppen?</p>
+    <div class="mt-6 flex items-center gap-2">
+      <digi-button
+        type="button"
+        (afOnClick)="closeRemoveMember()"
+        [attr.af-size]="'medium'"
+        [attr.af-variation]="'secondary'"
+        [attr.af-full-width]="false">
+        Avbryt
+      </digi-button>
+      <digi-button
+        type="button"
+        (afOnClick)="confirmRemoveMember()"
+        [attr.af-size]="'medium'"
+        [attr.af-variation]="'primary'"
+        [attr.af-full-width]="false">
+        Ta bort
+      </digi-button>
+    </div>
+  </digi-dialog>
+</div>

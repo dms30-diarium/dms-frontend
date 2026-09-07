@@ -1,0 +1,135 @@
+<div class="bg-gray-primary min-h-full">
+  @if (activeTabId() === 'overview' && viewMode() === 'table' && selectedFiles().length) {
+    <nuxeo-top-buttons-panel
+      [selectedFiles]="selectedFiles()"
+      [shouldDisplayTrashButton]="true"
+      [trashButtonTitle]="'Ta bort från samling'"
+      [trashButtonIcon]="'trash'"
+      [showDownload]="false"
+      [showFavorites]="true"
+      [showAssignToCollection]="false"
+      [showLock]="true"
+      [showShare]="true"
+      [showNotification]="true"
+      [lockState]="lockStates()"
+      [favoriteState]="favoriteStates()"
+      [subscriptionState]="subscriptionStates()"
+      (restoreSelection)="selectedFiles.set([])"
+      (deleteSelectedItems)="removeSelectedFromCollection()"
+      (addToFavorites)="onBulkAddToFavorites()"
+      (lockFiles)="onBulkLock()"
+      (shareFiles)="onBulkShare()"
+      (notifyFiles)="onBulkSubscribe()"></nuxeo-top-buttons-panel>
+  }
+  <div class="p-6">
+    <digi-navigation-breadcrumbs [attr.af-current-page]="truncateTitle(collectionInfo()?.title)">
+      <a routerLink="/">Start</a>
+      <a routerLink="/collections">Samlingar</a></digi-navigation-breadcrumbs
+    >
+    <div class="mt-5 mb-8 flex justify-between">
+      <div class="my-auto flex items-baseline">
+        <nuxeo-svg-icon size="20px" class="my-icon text-primary h-5 w-5" src="/nuxeo/app/assets/figmaIcons/samling.svg">
+        </nuxeo-svg-icon>
+        <h1 class="text-primary ml-4 text-3xl font-semibold">
+          {{ truncateTitle(collectionInfo()?.title) }}
+        </h1>
+      </div>
+      <div class="w-full max-w-[66%]">
+        <nuxeo-button-menu [buttons]="buttons()" [document]="fullCollectionDocument() ?? undefined">
+        </nuxeo-button-menu>
+      </div>
+    </div>
+    @if (isShareLinksDialogOpen()) {
+      <nuxeo-share-links-dialog [links]="shareLinks()" (dialogClose)="isShareLinksDialogOpen.set(false)">
+      </nuxeo-share-links-dialog>
+    }
+    @if (isCopyLinkDialogOpen()) {
+      <digi-dialog
+        [attr.af-show-dialog]="!!isCopyLinkDialogOpen()"
+        (afOnClose)="isCopyLinkDialogOpen.set(false)"
+        [attr.af-size]="'small'"
+        [attr.af-heading]="'Dela dokumentet'">
+        <div>
+          <p class="mb-2 text-gray-500">Intern åtkomstlänk till:</p>
+        </div>
+        <div class="flex items-center gap-4">
+          <p>{{ documentLink() }}</p>
+          @if (!linkWasCopied()) {
+            <digi-icon-copy (click)="copyLink()" class="cursor-pointer"></digi-icon-copy>
+          }
+          @if (linkWasCopied()) {
+            <digi-icon-check></digi-icon-check>
+          }
+        </div>
+      </digi-dialog>
+    }
+    <nuxeo-accordion accordionTitle="Detaljer">
+      @if (collectionInfo()) {
+        <nuxeo-collection-details [collection]="collectionInfo()"></nuxeo-collection-details>
+      }
+    </nuxeo-accordion>
+    <div class="mt-6">
+      <div class="mb-6">
+        <nuxeo-tabs
+          [tabs]="tabs()"
+          [activeTabId]="activeTabId()"
+          [shouldStretch]="false"
+          (tabChanged)="onTabChanged($event)">
+        </nuxeo-tabs>
+      </div>
+      @if (activeTabId() === 'overview') {
+        <h1 class="text-3xl">Filer</h1>
+        <div class="mb-4 flex justify-start md:justify-end">
+          <nuxeo-toggle-button
+            class="my-auto"
+            (choiceChange)="onToggleButtonChange($event)"
+            [activeButton]="viewMode() === 'grid' ? 1 : 2">
+          </nuxeo-toggle-button>
+        </div>
+        @if (viewMode() === 'table') {
+          <nuxeo-case-list-table
+            [shouldShowPageSizeOption]="true"
+            [pageSizeOptions]="pageSizeOptions"
+            [defaultColumnOptions]="getDefaultColumnOptions()"
+            [tableConfig]="tableConfig"
+            [tableItems]="tableItems()"
+            [loading]="loading()"
+            [total]="total()"
+            [page]="page()"
+            [pageSize]="pageSize()"
+            [sortBy]="sortBy()"
+            [sortOrder]="sortOrder()"
+            [checkboxes]="true"
+            [restoreCheckboxSelection]="!selectedFiles().length"
+            (toggleCheckboxes)="onTableSelectionChange($event)"
+            (sortChange)="onSortChange($event)"
+            (pageChange)="onPageChange($event)"
+            (pageSizeSelect)="onPageSizeSelect($event)">
+          </nuxeo-case-list-table>
+        } @else {
+          <div class="flex flex-col gap-4">
+            <div class="grid grid-cols-5 gap-6 sm:grid-cols-1 md:grid-cols-3">
+              @for (item of documents(); track item.uid) {
+                <nuxeo-collection-document-card [doc]="item"></nuxeo-collection-document-card>
+              }
+            </div>
+            <nuxeo-grid-pagination-controls
+              [totalPages]="totalPages()"
+              [currentPage]="page()"
+              [pageSize]="pageSize()"
+              [pageSizeOptions]="pageSizeOptions"
+              [showPageSize]="true"
+              (pageChange)="onGridPageChange($event)"
+              (pageSizeSelect)="onGridPageSizeSelect($event)">
+            </nuxeo-grid-pagination-controls>
+          </div>
+        }
+      } @else if (activeTabId() === 'permissions') {
+        @if (fullCollectionDocument()) {
+          <nuxeo-collection-permissions
+            [documentId]="fullCollectionDocument()?.uid ?? ''"></nuxeo-collection-permissions>
+        }
+      }
+    </div>
+  </div>
+</div>

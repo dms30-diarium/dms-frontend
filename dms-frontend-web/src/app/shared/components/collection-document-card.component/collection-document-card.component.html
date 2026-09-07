@@ -1,0 +1,32 @@
+<article class="flex items-center gap-4 rounded-2xl bg-white p-4 shadow-sm">
+  <!-- Checkbox -->
+  <div class="flex items-center">
+    <input type="checkbox" class="h-4 w-4 rounded border-gray-300" />
+  </div>
+
+  <!-- Text content -->
+  <div class="flex min-w-0 flex-1 flex-col">
+    <p
+      class="cursor-pointer font-semibold break-words text-blue-500 underline"
+      [routerLink]="['/doc/', doc().uid]"
+      [title]="doc().title">
+      {{ truncateTitle(doc().title) }}
+    </p>
+    <p class="mb-2 text-xs text-gray-500">{{ doc().type }}</p>
+
+    <p class="text-sm">Ändrad: {{ getDate(doc().lastModified) }}</p>
+    <p class="text-sm">Ändrad av: {{ getLastContributor(doc()) }}</p>
+  </div>
+
+  <!-- Buttons -->
+  <div class="flex items-center gap-2">
+    @for (button of buttons(); track button) {
+      <nuxeo-image-button
+        [icon]="button.icon"
+        [text]="button.text"
+        slot="icon"
+        variation="function"
+        (buttonClick)="button.click()"></nuxeo-image-button>
+    }
+  </div>
+</article>

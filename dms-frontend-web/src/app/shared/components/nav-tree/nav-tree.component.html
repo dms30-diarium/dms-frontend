@@ -1,0 +1,19 @@
+<digi-navigation-vertical-menu #navigationMenu af-variation="primary">
+  <ng-template #nodeList let-nodes>
+    <ul>
+      @for (node of nodes; track trackByUid($index, node)) {
+        <li>
+          <digi-navigation-vertical-menu-item
+            [afText]="node.title"
+            [afId]="node.uid"
+            [afActiveSubnav]="getActiveState(node)"
+            (afOnClick)="manageClick($event, node)">
+          </digi-navigation-vertical-menu-item>
+          <ng-container *ngTemplateOutlet="nodeList; context: { $implicit: node.children }"></ng-container>
+        </li>
+      }
+    </ul>
+  </ng-template>
+
+  <ng-container *ngTemplateOutlet="nodeList; context: { $implicit: [rootNode()] }"></ng-container>
+</digi-navigation-vertical-menu>

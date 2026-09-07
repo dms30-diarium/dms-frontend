@@ -1,0 +1,14 @@
+<div class="w-full rounded-md px-10 py-6 shadow-sm">
+  @if (displayedFields().length) {
+    <div class="w-full">
+      @for (field of displayedFields(); track field.key) {
+        <div class="grid grid-cols-[10%_20%] items-start gap-1 pb-2 last:pb-0">
+          <p class="text-sm font-semibold text-gray-600">{{ field.label }}:</p>
+          <p class="text-sm break-all">{{ field.displayValue }}</p>
+        </div>
+      }
+    </div>
+  } @else {
+    <p class="text-gray-500">Inga metadata att visa.</p>
+  }
+</div>

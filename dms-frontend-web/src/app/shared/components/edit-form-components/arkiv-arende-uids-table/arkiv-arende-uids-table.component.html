@@ -1,0 +1,71 @@
+<div class="flex flex-col gap-2">
+  @if (tableFields()().length) {
+    <nuxeo-case-list-table
+      [shouldShowResults]="false"
+      [isSettingsEnabled]="false"
+      [tableItems]="tableFields()()"
+      [tableConfig]="columnConfig"
+      [actionsHeader]="'Åtgärd'"
+      [actionsTemplate]="actionsTemplate"
+      [loading]="false"
+      [pageSize]="25"
+      [defaultColumnOptions]="getDefaultColumnOptions()">
+    </nuxeo-case-list-table>
+  } @else {
+    <div class="border-b border-gray-300 px-6 py-8 text-center text-gray-500">No results.</div>
+  }
+
+  <digi-button
+    (afOnClick)="openDialog()"
+    [attr.af-size]="'medium'"
+    [attr.af-variation]="'secondary'"
+    [attr.af-full-width]="true">
+    + Add
+  </digi-button>
+
+  <digi-dialog
+    (afOnClose)="isDialogOpen.set(false); $event.stopPropagation()"
+    [attr.af-heading]="'Add'"
+    [attr.af-size]="'small'"
+    [attr.af-show-dialog]="isDialogOpen()">
+    <form [formGroup]="form">
+      <div>
+        <h4 class="font-semibold text-gray-500">Arende Uids</h4>
+        <digi-form-input
+          [formControlName]="'arendeUid'"
+          [attr.af-variation]="'medium'"
+          [attr.af-type]="'text'"
+          af-validation="neutral">
+        </digi-form-input>
+      </div>
+
+      <div class="flex justify-between pt-10">
+        <digi-button
+          (afOnClick)="isDialogOpen.set(false)"
+          [attr.af-size]="'medium'"
+          [attr.af-variation]="'secondary'"
+          [attr.af-full-width]="false">
+          Avbryt
+        </digi-button>
+        <digi-button
+          (afOnClick)="addArendeUid()"
+          [attr.af-size]="'medium'"
+          [attr.af-variation]="'primary'"
+          [attr.af-full-width]="false">
+          Ok
+        </digi-button>
+      </div>
+    </form>
+  </digi-dialog>
+
+  <ng-template #actionsTemplate let-item>
+    <digi-button
+      (afOnClick)="removeArendeUid(item)"
+      [attr.af-size]="'small'"
+      [attr.af-variation]="'function'"
+      [attr.af-full-width]="false">
+      <digi-icon-trash slot="icon" />
+      Ta bort
+    </digi-button>
+  </ng-template>
+</div>

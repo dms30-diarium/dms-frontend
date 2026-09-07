@@ -1,0 +1,22 @@
+@let iconL = iconLeft();
+@let iconR = iconRight();
+@let textL = textLeft();
+@let textR = textRight();
+
+<div class="inline-flex overflow-hidden rounded-md border border-blue-950">
+  <nuxeo-image-button
+    class="toggle-button"
+    (click)="setActive(1)"
+    [icon]="iconL ? iconL : 'Table'"
+    [text]="textL ? textL : 'Kort'"
+    size="medium"
+    [variation]="isGrid ? 'primary' : 'secondary'" />
+
+  <nuxeo-image-button
+    class="toggle-button"
+    (click)="setActive(2)"
+    [icon]="iconR ? iconR : 'Bars'"
+    [text]="textR ? textR : 'Tabell'"
+    size="medium"
+    [variation]="isGrid ? 'secondary' : 'primary'" />
+</div>

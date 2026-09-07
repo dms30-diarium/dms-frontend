@@ -1,0 +1,648 @@
+@if (isEditPageOpen()) {
+  <nuxeo-edit-form
+    [doc]="document()"
+    [config]="editConfig()"
+    gridCssClass="grid grid-cols-1 gap-x-4 gap-y-2 lg:grid-cols-3 lg:auto-rows-min lg:items-start"
+    [canSeeCustomMetadataValues]="true"
+    (dialogClose)="isEditPageOpen.set(false)"
+    (formResultHandling)="formatEditForm($event)"
+    (updateDropdownValues)="updateDropdownValues($event)"></nuxeo-edit-form>
+} @else {
+  @if (selectedFileIdList().length) {
+    <nuxeo-top-buttons-panel
+      [selectedFiles]="selectedFileIdList()"
+      [showPrint]="true"
+      [showFavorites]="false"
+      [showRedo]="false"
+      (downloadFiles)="downloadSelectedFilesAsZip()"
+      (printFiles)="onPrint()"
+      (restoreSelection)="clearSelectedFiles()"
+      (assignToCollection)="isAssignCollectionOpened.set(selectedFileIdList())"></nuxeo-top-buttons-panel>
+  }
+  <div id="handling-print-section">
+    <div class="mb-6 ml-2.5">
+      <nuxeo-navigation-bread [docId]="document().uid" />
+    </div>
+    @if (secretStampText()) {
+      <div class="secret-stamp-container">
+        <div class="secret-stamp" [class.secret-stamp--strong]="secretStampText() === 'STARK - SEKRETESS'">
+          {{ secretStampText() }}
+        </div>
+      </div>
+    }
+    <div class="mb-6 flex justify-between gap-4">
+      <div class="flex w-full flex-col gap-6">
+        <div class="flex min-w-0 items-center">
+          <digi-icon-file-document class="icon-image-title shrink-0" />
+          <div class="text-primary ml-2 flex min-w-0 gap-2 text-2xl">
+            <div class="shrink-0">
+              <p class="text-sm text-gray-500">Handlingsnummer:</p>
+              <b class="whitespace-nowrap" [title]="document().properties[schemaFields.handling.handlingsnummer]">{{
+                document().properties[schemaFields.handling.handlingsnummer]
+              }}</b>
+            </div>
+            <div class="min-w-0">
+              <p class="text-sm text-gray-500">Handlingsnamn:</p>
+              <b class="block truncate" [title]="document().properties[schemaFields.handling.handlingsnamn]">{{
+                document().properties[schemaFields.handling.handlingsnamn]
+              }}</b>
+            </div>
+          </div>
+        </div>
+        <div class="flex items-center justify-between">
+          <div class="flex-1"></div>
+          <div class="w-full max-w-[50%] flex-1">
+            <nuxeo-button-menu
+              [buttons]="buttons()"
+              [document]="document()"
+              [shouldShowAccordion]="true"
+              [shouldShowMerButton]="true">
+              <div class="flex flex-col space-y-2 px-6">
+                <div class="w-full min-w-max cursor-pointer rounded bg-gray-100 text-gray-800 hover:bg-gray-200">
+                  <nuxeo-image-button
+                    (buttonClick)="isSendForReviewDialogOpen.set(true)"
+                    [icon]="'Review'"
+                    [text]="'Skicka handling för granskning'"
+                    variation="function">
+                  </nuxeo-image-button>
+                </div>
+                <div class="w-full min-w-max cursor-pointer rounded bg-gray-100 text-gray-800 hover:bg-gray-200">
+                  <nuxeo-image-button
+                    (buttonClick)="isSendForApprovalOpened.set(true)"
+                    [icon]="'Success'"
+                    [text]="'Skicka handling för godkännande'"
+                    variation="function">
+                  </nuxeo-image-button>
+                </div>
+
+                <div class="pt-4 font-semibold">Stöd från registraturen</div>
+                @for (item of generalWorkflowMenu(); track $index) {
+                  <div class="mt-2 font-medium text-gray-700">{{ item.displayLabel }}</div>
+                  @for (button of item.children; track $index) {
+                    <div
+                      aria-hidden="true"
+                      (click)="
+                        isGeneralWorkflowFormOpen.set(true);
+                        currentGeneralWorkflowAction.set({ button: button, parent: item })
+                      "
+                      class="general-workflow-btn w-full cursor-pointer rounded bg-gray-100 text-ellipsis text-gray-800 hover:bg-gray-200">
+                      <nuxeo-image-button
+                        [title]="button.label"
+                        [icon]="generalWorkflowIcons[$index] ? generalWorkflowIcons[$index] : 'FileText'"
+                        [text]="button.label"
+                        variation="function">
+                      </nuxeo-image-button>
+                    </div>
+                  }
+                }
+              </div>
+            </nuxeo-button-menu>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="space-y-2">
+      <div>
+        <nuxeo-accordion
+          accordionTitle="Översikt"
+          [isExpanded]="accordionState()['oversikt']"
+          (toggled)="onSectionToggled('oversikt', $event)">
+          <nuxeo-handling-overview
+            [doc]="document()"
+            [currentHandlingState]="currentHandlingState()"></nuxeo-handling-overview>
+        </nuxeo-accordion>
+      </div>
+      <!-- General workflows -->
+      @if (worflows()) {
+        @for (item of worflows(); track $index) {
+          <div class="mb-4">
+            <digi-notification-alert
+              af-size="large"
+              af-variation="info"
+              [attr.af-heading]="item?.variables?.valdAtgard?.properties?.label + ' (' + item.title + ')'">
+              @if (item?.variables?.beskrivning) {
+                <div class="flex gap-2">
+                  <span class="font-semibold">Beskrivning: </span>
+                  <span>{{ item?.variables?.beskrivning }}</span>
+                </div>
+              }
+              @if (item?.variables?.forfalloDatum) {
+                <div class="flex gap-2">
+                  <span class="font-semibold">ForfalloDatum: </span>
+                  <span>{{ item?.variables?.forfalloDatum | date: 'dd.MM.yyyy' }}</span>
+                </div>
+              }
+              @if (item?.variables?.paminnelseDatum) {
+                <div class="flex gap-2">
+                  <span class="font-semibold">Paminnelse Datum: </span>
+                  <span>{{ item?.variables?.paminnelseDatum | date: 'dd.MM.yyyy' }}</span>
+                </div>
+              }
+              @if (item?.initiator) {
+                <div class="flex gap-2">
+                  <span class="font-semibold">Initierad av: </span>
+                  <span>{{ item?.initiator }}</span>
+                </div>
+              }
+              @if (item?.variables?.handlaggare) {
+                <div class="flex gap-2">
+                  <span class="font-semibold">Handlaggare: </span>
+                  <span>{{ item?.variables?.handlaggare?.id }}</span>
+                </div>
+              }
+              @if (item?.variables?.registrator) {
+                <div class="flex gap-2">
+                  <span class="font-semibold">Registrator: </span>
+                  <span>{{ item?.variables?.registrator?.id }}</span>
+                </div>
+              }
+
+              @let comments = getWorkflowComments(item);
+              @if (comments?.length) {
+                <div
+                  class="my-4 max-h-[250px] overflow-y-scroll rounded-md border-2 border-gray-200 bg-blue-50 px-4 py-6">
+                  @for (workflowInfo of comments; track $index) {
+                    @if (workflowInfo?.kommentar) {
+                      <div class="flex items-start gap-2">
+                        <div class="text-sm whitespace-nowrap text-gray-500">
+                          <div class="text-primary text-sm font-semibold">
+                            {{ workflowInfo?.namn }}
+                            @if (workflowInfo.aktorer?.[0]) {
+                              ({{ getUserName(workflowInfo.aktorer[0]) }}) :
+                            } @else {
+                              :
+                            }
+                          </div>
+                          <div class="text-xs">
+                            {{ workflowInfo?.atgardDatum | date: 'dd.MM.yyyy HH:mm' }}
+                          </div>
+                        </div>
+                        <div class="text-sm">{{ workflowInfo.kommentar }}</div>
+                      </div>
+                    }
+                  }
+                </div>
+              }
+              @if (isUserAssignedForWorkflow(item)) {
+                <form [formGroup]="workflowCommentForm">
+                  <digi-form-input
+                    [attr.af-label]="'Skriv en kommentar'"
+                    [formControlName]="'workflowComment'"
+                    [attr.af-variation]="'medium'"
+                    [attr.af-type]="'text'">
+                  </digi-form-input>
+                </form>
+                <div class="flex gap-4 pt-4">
+                  @for (action of getTaskActions(item); track $index) {
+                    <digi-button
+                      (afOnClick)="sendReviewDecision(action.name, item)"
+                      [attr.af-size]="'medium'"
+                      [attr.af-variation]="action.name === VOCAB_IDS.arbetsflodeAtgard.avvisa ? 'secondary' : 'primary'"
+                      [attr.af-full-width]="false">
+                      {{ action.label }}
+                    </digi-button>
+                  }
+                </div>
+              }
+              @if (canUserCancelWorkflow(item)) {
+                <digi-button
+                  (afOnClick)="abortWorkflow(item)"
+                  class="absolute top-4 right-4"
+                  af-size="medium"
+                  af-variation="secondary"
+                  af-full-width="false">
+                  <digi-icon-x slot="icon" />
+                  Avbryt arbetsflöde
+                </digi-button>
+              }
+            </digi-notification-alert>
+          </div>
+        }
+      }
+      <div class="mt-4 flex flex-col-reverse gap-4 lg:flex-row">
+        <div class="flex-2">
+          <div class="flex-1">
+            @if (selectedFile()) {
+              <nuxeo-pdf-viewer
+                [canDelete]="false"
+                [doc]="selectedFile()!"
+                [useBackendPrint]="true"
+                (backendPrintRequested)="mergeSelectedFilesAsPdf()">
+              </nuxeo-pdf-viewer>
+            }
+          </div>
+        </div>
+        <div class="w-full flex-1 lg:w-[50%]">
+          <!-- Review/approve workflows -->
+          @if (sendForApprovalWorkflow()) {
+            @for (item of sendForApprovalWorkflow(); track $index) {
+              <div class="mb-4">
+                <digi-notification-alert
+                  af-size="large"
+                  af-variation="info"
+                  [attr.af-heading]="isUserAssignedForWorkflow(item) ? 'Godkänn handling' : 'Skickat för godkännande'">
+                  @if (isUserAssignedForWorkflow(item)) {
+                    <div class="pt-6">
+                      <span>Du har fått i uppdrag att godkänna denna handling. Vänligen avvisa eller godkänn.</span>
+                      <div class="flex gap-2">
+                        <span class="font-semibold">Beskrivning: </span>
+                        <span>{{ item?.variables?.beskrivning }}</span>
+                      </div>
+                    </div>
+
+                    <div class="flex gap-4 pt-4">
+                      @for (action of getTaskActions(item); track $index) {
+                        @if (action.name !== VOCAB_IDS.arbetsflodeAtgard.upprata) {
+                          <digi-button
+                            (afOnClick)="sendReviewDecision(action.name, item)"
+                            [attr.af-size]="'medium'"
+                            [attr.af-variation]="
+                              action.name === VOCAB_IDS.arbetsflodeAtgard.avvisa ? 'secondary' : 'primary'
+                            "
+                            [attr.af-full-width]="false">
+                            {{ action.label }}
+                          </digi-button>
+                        }
+                      }
+                    </div>
+                    <digi-button
+                      (afOnClick)="abortWorkflow(item)"
+                      class="absolute top-4 right-4"
+                      af-size="medium"
+                      af-variation="secondary"
+                      af-full-width="false">
+                      <digi-icon-x slot="icon" />
+                      Avbryt arbetsflöde
+                    </digi-button>
+                  } @else {
+                    <span>
+                      Handlingen skickad till
+                      @for (user of item.variables.anvandare; track user.id) {
+                        {{ getUserFullName(user) }}
+                        @if (!$last) {
+                          ,
+                        }
+                      }
+                      .
+                    </span>
+                  }
+                </digi-notification-alert>
+              </div>
+            }
+          }
+          @if (sendForReviewWorkflow()) {
+            @for (item of sendForReviewWorkflow(); track $index) {
+              <div class="mb-4">
+                <digi-notification-alert af-size="large" af-variation="warning" af-heading="Granska handling">
+                  @if (isUserAssignedForWorkflow(item)) {
+                    <div class="pt-6">
+                      <span
+                        >Du har blivit tilldelad att granska handlingen. Vänligen avvisa eller granskning utförd.</span
+                      >
+                      <div class="flex gap-2">
+                        <span class="font-semibold">Beskrivning: </span>
+                        <span>{{ item?.variables?.beskrivning }}</span>
+                      </div>
+                    </div>
+
+                    <div class="flex gap-4 pt-4">
+                      @for (action of getTaskActions(item); track $index) {
+                        <digi-button
+                          (afOnClick)="sendReviewDecision(action.name, item)"
+                          [attr.af-size]="'medium'"
+                          [attr.af-variation]="
+                            action.name === VOCAB_IDS.arbetsflodeAtgard.avvisa ? 'secondary' : 'primary'
+                          "
+                          [attr.af-full-width]="false">
+                          {{ action.label }}
+                        </digi-button>
+                      }
+                    </div>
+                    <digi-button
+                      (afOnClick)="abortWorkflow(item)"
+                      class="absolute top-4 right-4"
+                      [attr.af-size]="'medium'"
+                      [attr.af-variation]="'secondary'"
+                      [attr.af-full-width]="false">
+                      <digi-icon-x slot="icon" />
+                      Avbryt arbetsflöde
+                    </digi-button>
+                  } @else {
+                    <span>
+                      Handlingen skickad till
+                      @for (user of item.variables.anvandare; track user.id) {
+                        {{ getUserFullName(user) }}
+                        @if (!$last) {
+                          ,
+                        }
+                      }
+                      .
+                    </span>
+                    <div class="flex gap-2">
+                      <span class="font-semibold">Beskrivning:</span>
+                      <span>{{ item?.variables?.beskrivning }}</span>
+                    </div>
+                  }
+                </digi-notification-alert>
+              </div>
+            }
+          }
+          <div
+            cdkDropList
+            [cdkDropListData]="visibleSections()"
+            [cdkDropListOrientation]="'vertical'"
+            (cdkDropListDropped)="onSectionDropped($event)"
+            class="flex flex-col">
+            @for (section of visibleSections(); track section) {
+              @switch (section) {
+                @case ('details') {
+                  <div cdkDrag [cdkDragData]="section" class="relative w-full">
+                    <nuxeo-drag-handle></nuxeo-drag-handle>
+                    <nuxeo-accordion
+                      accordionTitle="Detaljer"
+                      [isExpanded]="accordionState()['details']"
+                      (toggled)="onSectionToggled('details', $event)">
+                      <nuxeo-handling-details
+                        [doc]="document()"
+                        [currentState]="currentHandlingState()"></nuxeo-handling-details>
+                    </nuxeo-accordion>
+                  </div>
+                }
+                @case ('actors') {
+                  <div cdkDrag [cdkDragData]="section" class="relative w-full">
+                    <nuxeo-drag-handle></nuxeo-drag-handle>
+                    <nuxeo-accordion
+                      accordionTitle="Aktörer (avsändare/mottagare)"
+                      [isExpanded]="accordionState()['actors']"
+                      (toggled)="onSectionToggled('actors', $event)">
+                      <nuxeo-handling-actors [doc]="document()"></nuxeo-handling-actors>
+                    </nuxeo-accordion>
+                  </div>
+                }
+                @case ('eventLog') {
+                  <div cdkDrag [cdkDragData]="section" class="relative w-full">
+                    <nuxeo-drag-handle></nuxeo-drag-handle>
+                    <nuxeo-accordion
+                      accordionTitle="Händelselogg"
+                      [isExpanded]="accordionState()['eventLog']"
+                      (toggled)="onSectionToggled('eventLog', $event)">
+                      <nuxeo-handling-event-log [doc]="document()"></nuxeo-handling-event-log>
+                    </nuxeo-accordion>
+                  </div>
+                }
+                @case ('references') {
+                  <div cdkDrag [cdkDragData]="section" class="relative w-full">
+                    <nuxeo-drag-handle></nuxeo-drag-handle>
+                    <nuxeo-accordion
+                      accordionTitle="Referenser till andra ärenden och handlingar"
+                      [isExpanded]="accordionState()['references']"
+                      (toggled)="onSectionToggled('references', $event)">
+                      <h2 class="px-10">Ärendereferens</h2>
+                      @if (caseReferencesTableData().length) {
+                        <nuxeo-references-details
+                          [hideAddButton]="true"
+                          refType="Arende"
+                          [parentRef]="document().parentRef ?? ''"
+                          [references]="caseReferencesTableData()"
+                          [columnsConfig]="referencesColumnsConfig"
+                          (updateReferences)="updateReferences($event, 'arende', 'arende')"></nuxeo-references-details>
+                      } @else {
+                        <p class="px-10 pb-6">Referenserna har ännu inte lagts till</p>
+                      }
+
+                      <h2 class="px-10">Handlingsreferens</h2>
+                      @if (handlingReferencesTableData().length) {
+                        <nuxeo-references-details
+                          [hideAddButton]="true"
+                          refType="Handling"
+                          [parentRef]="document().parentRef ?? ''"
+                          [references]="handlingReferencesTableData()"
+                          [columnsConfig]="handlingsColumnsConfig"
+                          (updateReferences)="
+                            updateReferences($event, 'handlings', 'handling')
+                          "></nuxeo-references-details>
+                      } @else {
+                        <p class="px-10 pb-6">Referenserna har ännu inte lagts till</p>
+                      }
+                    </nuxeo-accordion>
+                  </div>
+                }
+                @case ('customMetadata') {
+                  <div cdkDrag [cdkDragData]="section" class="relative w-full">
+                    <nuxeo-drag-handle></nuxeo-drag-handle>
+                    <nuxeo-accordion
+                      accordionTitle="Extra metadatafält"
+                      [isExpanded]="accordionState()['customMetadata']"
+                      (toggled)="onSectionToggled('customMetadata', $event)">
+                      @if (document().properties[schemaFields.handling.handlingstyp]?.uid) {
+                        <nuxeo-custom-metadata-field
+                          [definitionDocumentId]="document().properties[schemaFields.handling.handlingstyp].uid"
+                          [metadataValueEntries]="document().properties[schemaFields.dmsmetadataanpassad.falt]">
+                        </nuxeo-custom-metadata-field>
+                      }
+                    </nuxeo-accordion>
+                  </div>
+                }
+                @case ('files') {
+                  <div cdkDrag [cdkDragData]="section" class="relative w-full">
+                    <nuxeo-drag-handle></nuxeo-drag-handle>
+                    <nuxeo-accordion
+                      [accordionTitle]="'Filer (' + files().length + ')'"
+                      [isExpanded]="accordionState()['files']"
+                      (toggled)="onSectionToggled('files', $event)">
+                      <nuxeo-handling-files
+                        [files]="files()"
+                        [selectedFileIds]="selectedFileIds()"
+                        (fileSelected)="selectedFile.set($event)"
+                        (filePreview)="previewFile.set($event)"
+                        (filePrint)="printFile($event)"
+                        (attachmentSelectionChange)="onAttachmentSelectionChange($event)"
+                        (selectionChange)="onFileSelectionChange($event)"></nuxeo-handling-files>
+                    </nuxeo-accordion>
+                  </div>
+                }
+              }
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="fixed right-4 bottom-4 z-50">
+      <nuxeo-add-button (addButtonClick)="isSelectCaseDialogOpened.set(true)"></nuxeo-add-button>
+    </div>
+
+    <digi-dialog
+      class="print-hidden"
+      (afOnClose)="isSelectCaseDialogOpened.set(false)"
+      [attr.af-heading]="'Lägg till innehåll'"
+      [attr.af-size]="'large'"
+      [attr.af-show-dialog]="isSelectCaseDialogOpened()">
+      <nuxeo-select-case-popup
+        (updateReferences)="editForm($event)"
+        (dialogClose)="isSelectCaseDialogOpened.set(false)"
+        [documentPath]="document().path"></nuxeo-select-case-popup>
+    </digi-dialog>
+
+    @if (isAssignUserOpened()) {
+      <digi-dialog
+        (afOnClose)="isAssignUserOpened.set(null); loadCaseDetails()"
+        [attr.af-size]="'small'"
+        [attr.af-show-dialog]="!!isAssignUserOpened()">
+        <nuxeo-assign-user-modal
+          (closeDialog)="isAssignUserOpened.set(null)"
+          [item]="isAssignUserOpened()!"></nuxeo-assign-user-modal>
+      </digi-dialog>
+    }
+
+    @if (isConsultDialogOpen()) {
+      <digi-dialog
+        (afOnClose)="isConsultDialogOpen.set(false)"
+        [attr.af-size]="'large'"
+        [attr.af-heading]="'Rådgör med kollega/grupp'"
+        [attr.af-show-dialog]="!!isConsultDialogOpen()">
+        <nuxeo-consult-colleague-form [documentId]="document().uid" (closeDialog)="isConsultDialogOpen.set(false)">
+        </nuxeo-consult-colleague-form>
+      </digi-dialog>
+    }
+  </div>
+}
+@if (isAssignCollectionOpened()) {
+  <digi-dialog
+    (afOnClose)="isAssignCollectionOpened.set(null)"
+    [attr.af-size]="'small'"
+    [attr.af-show-dialog]="!!isAssignCollectionOpened()">
+    <nuxeo-assign-collection-modal
+      (closeDialog)="isAssignCollectionOpened.set(null); loadCaseDetails(); checkInCollection()"
+      [items]="isAssignCollectionOpened()!"></nuxeo-assign-collection-modal>
+  </digi-dialog>
+}
+
+@if (isCopyLinkDialogOpen()) {
+  <digi-dialog
+    [attr.af-show-dialog]="!!isCopyLinkDialogOpen()"
+    (afOnClose)="isCopyLinkDialogOpen.set(false)"
+    [attr.af-size]="'small'"
+    [attr.af-heading]="'Dela dokumentet'">
+    <div>
+      <p class="mb-2 text-gray-500">Intern åtkomstlänk till:</p>
+    </div>
+    <div class="flex items-center gap-4">
+      <p>{{ documentLink() }}</p>
+      @if (!linkWasCopied()) {
+        <digi-icon-copy (click)="copyLink()" class="cursor-pointer"></digi-icon-copy>
+      }
+      @if (linkWasCopied()) {
+        <digi-icon-check></digi-icon-check>
+      }
+    </div>
+  </digi-dialog>
+}
+
+@if (previewFile()) {
+  <digi-dialog (afOnClose)="previewFile.set(null)" [attr.af-size]="'big'" [attr.af-show-dialog]="!!previewFile()">
+    <nuxeo-pdf-viewer [doc]="previewFile()!" [isPreview]="true" [canDelete]="false"></nuxeo-pdf-viewer>
+  </digi-dialog>
+}
+@if (isExportDialogOpen()) {
+  <digi-dialog
+    [attr.af-show-dialog]="isExportDialogOpen()"
+    (afOnClose)="isExportDialogOpen.set(false)"
+    [attr.af-size]="'small'"
+    [attr.af-heading]="'Exportera som'">
+    <div class="flex flex-col gap-4">
+      <a class="flex gap-4" title="download" [href]="downloadThumbnail()">
+        <digi-icon-image class="h-[24px] w-[24px]"></digi-icon-image><span>Thumbnail</span>
+      </a>
+      <a class="flex gap-4" title="download" [href]="downloadXML()"
+        ><digi-icon-file-document class="h-[24px] w-[24px]"></digi-icon-file-document><span> XML Export</span>
+      </a>
+      <a class="flex gap-4" title="download" [href]="downloadZip()">
+        <digi-icon-folder-open class="h-[24px] w-[24px]"></digi-icon-folder-open><span>ZIP Export</span>
+      </a>
+    </div>
+  </digi-dialog>
+}
+
+@if (isRequestCompletionDialogOpen()) {
+  <digi-dialog
+    (afOnClose)="isRequestCompletionDialogOpen.set(false)"
+    [attr.af-size]="'large'"
+    [attr.af-heading]="'Begäran om komplettering'"
+    [attr.af-show-dialog]="!!isRequestCompletionDialogOpen()">
+    <nuxeo-request-completion-email-form
+      [caseId]="document().parentRef || document().uid"
+      [document]="document()"
+      (closeDialog)="isRequestCompletionDialogOpen.set(false)"
+      (emailSent)="reloadDocument.emit()">
+    </nuxeo-request-completion-email-form>
+  </digi-dialog>
+}
+@if (expeditHandlingOpen()) {
+  <digi-dialog
+    (afOnClose)="expeditHandlingOpen.set(false)"
+    [attr.af-size]="'large'"
+    [attr.af-heading]="'Expediera handling'"
+    [attr.af-show-dialog]="!!expeditHandlingOpen()">
+    <nuxeo-expedit-handling
+      [caseId]="document().parentRef || document().uid"
+      [document]="document()"
+      (closeDialog)="expeditHandlingOpen.set(false)"
+      (emailSent)="reloadDocument.emit()">
+    </nuxeo-expedit-handling>
+  </digi-dialog>
+}
+@if (isGeneralWorkflowFormOpen()) {
+  <digi-dialog
+    (afOnClose)="isGeneralWorkflowFormOpen.set(false)"
+    [attr.af-size]="'large'"
+    [attr.af-heading]="currentGeneralWorkflowAction()?.parent?.displayLabel"
+    [attr.af-show-dialog]="!!isGeneralWorkflowFormOpen()">
+    <div class="text-xl font-semibold">{{ currentGeneralWorkflowAction()?.button?.label }}</div>
+    <nuxeo-general-form
+      [config]="generalWorkflowFormConfig()"
+      [shouldShowButtons]="false"
+      (changeForm)="saveGeneralWorkflowForm($event)"></nuxeo-general-form>
+    <div class="flex gap-2 pt-4">
+      <digi-button
+        (afOnClick)="isGeneralWorkflowFormOpen.set(false)"
+        [attr.af-size]="'medium'"
+        [attr.af-variation]="'secondary'"
+        [attr.af-full-width]="false">
+        Avbryt
+      </digi-button>
+      <digi-button
+        (afOnClick)="startWorkflow(); isGeneralWorkflowFormOpen.set(false)"
+        [attr.af-size]="'medium'"
+        [attr.af-variation]="'primary'"
+        [attr.af-full-width]="false">
+        Skicka
+      </digi-button>
+    </div>
+  </digi-dialog>
+}
+@if (isSendForReviewDialogOpen()) {
+  <digi-dialog
+    (afOnClose)="isSendForReviewDialogOpen.set(false)"
+    [attr.af-size]="'small'"
+    [attr.af-heading]="'Sänd för granskning'"
+    [attr.af-show-dialog]="!!isSendForReviewDialogOpen()">
+    <nuxeo-utkast-review
+      workflowModelName="SkickaForGranskning"
+      [docId]="document().uid"
+      (reloadDoc)="reloadDocument.emit()"
+      (closeDialog)="isSendForReviewDialogOpen.set(false)"></nuxeo-utkast-review>
+  </digi-dialog>
+}
+@if (isSendForApprovalOpened()) {
+  <digi-dialog
+    (afOnClose)="isSendForApprovalOpened.set(false)"
+    [attr.af-size]="'small'"
+    [attr.af-heading]="'Skicka för beslutsfattare / godkännare'"
+    [attr.af-show-dialog]="!!isSendForApprovalOpened()">
+    <nuxeo-utkast-review
+      workflowModelName="StickaForGodkannande"
+      [docId]="document().uid"
+      (reloadDoc)="reloadDocument.emit()"
+      (closeDialog)="isSendForApprovalOpened.set(false)"></nuxeo-utkast-review>
+  </digi-dialog>
+}

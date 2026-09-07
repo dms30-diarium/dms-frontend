@@ -1,0 +1,123 @@
+<div class="bg-gray-primary min-h-full p-6">
+  <nuxeo-navigation-bread [docId]="document().uid"></nuxeo-navigation-bread>
+
+  <div class="flex items-start justify-between gap-4 py-8">
+    <h1 class="text-4xl font-semibold">{{ document().title }}</h1>
+  </div>
+
+  @if (canEdit()) {
+    <div class="mb-3 flex justify-end">
+      <digi-button
+        (afOnClick)="openEdit()"
+        [attr.af-size]="'medium'"
+        [attr.af-variation]="'primary'"
+        [attr.af-full-width]="false">
+        Redigera
+      </digi-button>
+    </div>
+  }
+
+  <div class="mb-6">
+    <nuxeo-entity-overview [document]="document()" [folderTitle]="document().title"></nuxeo-entity-overview>
+  </div>
+
+  <nuxeo-case-list-table
+    [defaultColumnOptions]="defaultColumnOptions()"
+    [tableItems]="tableData()"
+    [tableConfig]="tableConfig()"
+    [loading]="false"
+    [total]="total()"
+    [pageSize]="25"
+    [sortBy]="sortBy()"
+    [sortOrder]="sortOrder()"
+    (sortChange)="sortChange.emit($event)">
+  </nuxeo-case-list-table>
+
+  <div class="fixed right-4 bottom-4 z-50">
+    <nuxeo-add-button (addButtonClick)="isDialogOpened.set(true)"></nuxeo-add-button>
+  </div>
+
+  @if (isDialogOpened() && !isCreateDialogOpen()) {
+    <digi-dialog
+      (afOnClose)="isDialogOpened.set(false)"
+      [attr.af-heading]="'Lägg till innehåll'"
+      [attr.af-size]="'large'"
+      [attr.af-show-dialog]="isDialogOpened()">
+      <nuxeo-select-case-popup
+        (dialogClose)="isDialogOpened.set(false)"
+        (organizationCreateSelected)="openCreate()"
+        [documentPath]="document().path"
+        [useOrganizationCreateForm]="true"></nuxeo-select-case-popup>
+    </digi-dialog>
+  }
+
+  @if (isCreateDialogOpen()) {
+    <digi-dialog
+      (afOnClose)="closeCreate()"
+      [attr.af-size]="'large'"
+      [attr.af-heading]="'Skapa Organisationsdel'"
+      [attr.af-show-dialog]="isCreateDialogOpen()">
+      <div class="bg-gray-100 p-4">
+        <nuxeo-general-form
+          #createForm
+          [config]="createFormConfig()"
+          [isLoading]="isSaving()"
+          [shouldShowButtons]="false"
+          (formResult)="saveCreate()"
+          (dropdownChanged)="updateDropdownValues($event)"></nuxeo-general-form>
+      </div>
+      <div class="mt-6 flex gap-2">
+        <digi-button
+          (afOnClick)="closeCreate()"
+          [attr.af-size]="'medium'"
+          [attr.af-variation]="'secondary'"
+          [attr.af-full-width]="false">
+          Avbryt
+        </digi-button>
+        <digi-button
+          (afOnClick)="submitCreate()"
+          [attr.af-size]="'medium'"
+          [attr.af-variation]="'primary'"
+          [attr.af-full-width]="false"
+          [attr.af-disabled]="isSaving()">
+          Skapa
+        </digi-button>
+      </div>
+    </digi-dialog>
+  }
+
+  @if (isEditOpen()) {
+    <digi-dialog
+      (afOnClose)="closeEdit()"
+      [attr.af-size]="'large'"
+      [attr.af-heading]="editHeading()"
+      [attr.af-show-dialog]="isEditOpen()">
+      <div class="bg-gray-100 p-4">
+        <nuxeo-general-form
+          #editForm
+          [config]="editConfig()"
+          [isLoading]="isSaving()"
+          [shouldShowButtons]="false"
+          (formResult)="saveEdits()"
+          (dropdownChanged)="updateDropdownValues($event)"></nuxeo-general-form>
+      </div>
+      <div class="mt-6 flex gap-2">
+        <digi-button
+          (afOnClick)="closeEdit()"
+          [attr.af-size]="'medium'"
+          [attr.af-variation]="'secondary'"
+          [attr.af-full-width]="false">
+          Avbryt
+        </digi-button>
+        <digi-button
+          (afOnClick)="submitEdit()"
+          [attr.af-size]="'medium'"
+          [attr.af-variation]="'primary'"
+          [attr.af-full-width]="false"
+          [attr.af-disabled]="isSaving()">
+          Spara
+        </digi-button>
+      </div>
+    </digi-dialog>
+  }
+</div>

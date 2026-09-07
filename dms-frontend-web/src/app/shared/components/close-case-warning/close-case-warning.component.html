@@ -1,0 +1,45 @@
+<nuxeo-warning-card
+  [title]="'Stäng ärendet'"
+  [message]="['Vill du stänga ärendet?', 'Det betyder att ärendet ändrar status till Stängt.']"
+  [blueButtonTextSig]="'Stäng ärendet'"
+  [showConfirmButton]="true"
+  (action)="onAction($event)">
+  <div class="mt-4 space-y-4">
+    <div>
+      <h4 class="font-semibold text-gray-500">Allmän kommentar</h4>
+      <digi-form-textarea
+        id="closeCaseComment"
+        af-label=" "
+        [attr.af-variation]="'medium'"
+        [value]="comment()"
+        (input)="onCommentInput($event)">
+      </digi-form-textarea>
+    </div>
+
+    <div>
+      <h4 class="font-semibold text-gray-500">Gallrings kommentar</h4>
+      <digi-form-textarea
+        id="closeCaseGallringsKommentar"
+        af-label=" "
+        [attr.af-variation]="'medium'"
+        [value]="gallringsKommentar()"
+        (input)="onGallringsKommentarInput($event)">
+      </digi-form-textarea>
+    </div>
+
+    <div>
+      <h4 class="font-semibold text-gray-500">Datum för utföra gallring</h4>
+      <digi-form-select
+        id="closeCaseGallringsDatum"
+        af-label=" "
+        [attr.af-variation]="'medium'"
+        [attr.af-placeholder]="'Välj...'"
+        [value]="gallringsDatum()"
+        (change)="onGallringsDatumInput($event)">
+        @for (opt of gallringsDatumOptions; track opt) {
+          <option [value]="opt">{{ opt }}</option>
+        }
+      </digi-form-select>
+    </div>
+  </div>
+</nuxeo-warning-card>

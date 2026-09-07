@@ -1,0 +1,17 @@
+<div class="relative flex min-h-[150px] rounded bg-white p-4 shadow">
+  <div class="flex flex-col">
+    <span class="text-primary text-sm font-semibold">{{ gridItems()[index()].title }}</span>
+    <span class="text-sm">Status: {{ gridItems()[index()].status }}</span>
+    <span class="text-sm">Date: {{ gridItems()[index()].date }}</span>
+    <span class="text-sm">Channel: {{ gridItems()[index()].channel }}</span>
+  </div>
+
+  <button
+    [tabIndex]="index() ? index() : 0"
+    class="absolute right-4 bottom-4 cursor-pointer rounded bg-blue-600 px-3 py-1 text-center text-white"
+    (click)="viewCase()"
+    (keypress)="viewCase()"
+    title="View case details">
+    View
+  </button>
+</div>

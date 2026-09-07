@@ -1,0 +1,115 @@
+<div class="p-6">
+  <digi-navigation-breadcrumbs af-current-page="Audit logg">
+    <a href="/">Start</a>
+  </digi-navigation-breadcrumbs>
+
+  <h1 class="pt-5 pb-6 text-3xl font-semibold">Audit logg</h1>
+
+  <form [formGroup]="filters" class="audit-filters rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
+    <div class="grid gap-6 md:grid-cols-2">
+      <div class="audit-filter-field md:col-span-2">
+        <div class="text-sm font-semibold text-gray-600" id="audit-username-label">Användarnamn</div>
+        <digi-form-select-filter
+          id="audit-username"
+          class="mt-2"
+          formControlName="principalName"
+          [attr.aria-labelledby]="'audit-username-label'"
+          [afListItems]="userOptions()"
+          [value]="getSelectedOptions('principalName')"
+          [attr.af-filter-button-text-label]="' '"
+          [afFilterButtonText]="'Välj användare'"
+          af-name=" "
+          af-submit-button-text="Filter"
+          af-validation="neutral"
+          [afMultipleItems]="false"
+          (afOnQueryChanged)="onUserQuery($event)"
+          (afOnSelect)="onUserSelect($event)"
+          (afOnSubmitFilters)="onUserSelect($event)">
+        </digi-form-select-filter>
+      </div>
+
+      <div class="audit-filter-field">
+        <div class="text-sm font-semibold text-gray-600" id="audit-actions-label">Utförda åtgärder</div>
+        <digi-form-select-filter
+          id="audit-actions"
+          class="mt-2"
+          formControlName="eventId"
+          [attr.aria-labelledby]="'audit-actions-label'"
+          [afListItems]="actionOptions()"
+          [value]="getSelectedOptions('eventId')"
+          [attr.af-filter-button-text-label]="' '"
+          [afFilterButtonText]="'Välj händelseåtgärder'"
+          af-name=" "
+          af-submit-button-text="Filter"
+          af-validation="neutral"
+          [afMultipleItems]="false"
+          (afOnSelect)="onActionSelect($event)"
+          (afOnSubmitFilters)="onActionSelect($event)">
+        </digi-form-select-filter>
+      </div>
+
+      <div class="audit-filter-field">
+        <div class="text-sm font-semibold text-gray-600" id="audit-categories-label">Händelsekategori</div>
+        <digi-form-select-filter
+          id="audit-categories"
+          class="mt-2"
+          formControlName="category"
+          [attr.aria-labelledby]="'audit-categories-label'"
+          [afListItems]="categoryOptions()"
+          [value]="getSelectedOptions('category')"
+          [attr.af-filter-button-text-label]="' '"
+          [afFilterButtonText]="'Välj evenemangskategori'"
+          af-name=" "
+          af-submit-button-text="Filter"
+          af-validation="neutral"
+          [afMultipleItems]="false"
+          (afOnSelect)="onCategorySelect($event)"
+          (afOnSubmitFilters)="onCategorySelect($event)">
+        </digi-form-select-filter>
+      </div>
+
+      <div class="audit-filter-field">
+        <div class="text-sm font-semibold text-gray-600" id="audit-date-from-label">Från</div>
+        <div class="mt-2">
+          <digi-calendar-datepicker
+            id="audit-date-from"
+            [afLabel]="''"
+            [attr.aria-labelledby]="'audit-date-from-label'"
+            formControlName="dateFrom"
+            (afOnDateChange)="onDateChange('dateFrom', $event)">
+          </digi-calendar-datepicker>
+        </div>
+      </div>
+
+      <div class="audit-filter-field">
+        <div class="text-sm font-semibold text-gray-600" id="audit-date-to-label">Till</div>
+        <div class="mt-2">
+          <digi-calendar-datepicker
+            id="audit-date-to"
+            [afLabel]="''"
+            [attr.aria-labelledby]="'audit-date-to-label'"
+            formControlName="dateTo"
+            (afOnDateChange)="onDateChange('dateTo', $event)">
+          </digi-calendar-datepicker>
+        </div>
+      </div>
+    </div>
+  </form>
+
+  <div class="audit-table mt-6 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+    <nuxeo-case-list-table
+      [tableConfig]="tableConfig"
+      [defaultColumnOptions]="defaultColumnOptions"
+      [tableItems]="rows()"
+      [loading]="loading()"
+      [total]="total()"
+      [page]="page()"
+      [pageSize]="pageSize"
+      [sortBy]="sortBy()"
+      [sortOrder]="sortOrder()"
+      [columnSearchEnabled]="false"
+      (pageChange)="onPageChange($event)"
+      (sortChange)="onSortChange($event)">
+    </nuxeo-case-list-table>
+  </div>
+</div>

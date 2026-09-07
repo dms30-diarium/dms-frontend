@@ -1,0 +1,443 @@
+@if (internalTableConfig().length) {
+  <div class="min-w-0">
+    @if (shouldShowResults()) {
+      <div class="mb-3 flex flex-wrap items-center gap-3">
+        <p class="text-sm font-semibold text-slate-600">{{ total() + ' resultat' }}</p>
+      </div>
+    }
+    @if (showFalseTopScroll()) {
+      <div #scrollTop class="scroll-top" (scroll)="onTopScroll()">
+        <div #scrollTopContent class="scroll-top-content"></div>
+      </div>
+    }
+    <div class="relative" [formGroup]="columnSearchForm">
+      <div
+        #scrollMain
+        (scroll)="onMainScroll()"
+        class="scroll-main table-scroll w-full overflow-x-auto overflow-y-visible"
+        [class.table-scroll--dropdown-open]="shouldAddDropdownSpace()"
+        [class.table-scroll--min-height]="hasDropdownFilters()"
+        [class.table-scroll--has-actions]="hasActionsColumn()"
+        [style.--table-actions-right]="showCsvExport() || isSettingsEnabled() ? '40px' : '0px'">
+        <table #content class="table-content w-full table-auto text-left text-sm whitespace-nowrap">
+          <colgroup>
+            @if (checkboxes()) {
+              <col />
+            }
+
+            @for (col of internalTableConfig(); track col.key) {
+              <col />
+            }
+          </colgroup>
+
+          <thead
+            [ngClass]="headerHeight()"
+            class="bg-table-header sticky top-0 text-slate-600"
+            cdkDropList
+            [cdkDropListOrientation]="'horizontal'"
+            (cdkDropListDropped)="onColumnDropped($event)">
+            <tr class="select-none [&>th]:px-4 [&>th]:py-3 [&>th]:align-top [&>th]:font-semibold">
+              @if (checkboxes()) {
+                <th class="w-6">
+                  <digi-form-checkbox
+                    [attr.af-aria-label]="'Markera alla rader'"
+                    [attr.af-variation]="'secondary'"
+                    [afChecked]="areAllDisplayedRowsChecked()"
+                    (afOnChange)="onToggleAll($event)">
+                  </digi-form-checkbox>
+                </th>
+              }
+
+              @for (col of internalTableConfig(); track col.key; let last = $last) {
+                @if (col.key === 'actions') {
+                  <th
+                    [ngClass]="{
+                      '!pr-10': showCsvExport() || isSettingsEnabled(),
+                    }"
+                    class="table-sticky-actions min-w-fit border-b border-slate-200 px-4 py-3 text-left font-semibold text-slate-600">
+                    <span class="inline-flex items-center gap-1">
+                      {{ col.label }}
+                    </span>
+                  </th>
+                } @else {
+                  <th
+                    [ngClass]="headerHeight() + ' ' + col.class"
+                    [class.!pr-20]="(showCsvExport() || isSettingsEnabled()) && last"
+                    class="border-b border-slate-200 px-4 py-3 text-left font-semibold text-slate-600"
+                    cdkDrag>
+                    @if (columnSearchEnabled() && (col.searchField || col.sortField)) {
+                      @if (getSearchInputType(col) === 'select') {
+                        <div lang="sv" class="table-search-gray flex h-full flex-col justify-between">
+                          <div class="table-search-labels">
+                            <span
+                              class="text-md font-semibold"
+                              [attr.id]="getSearchLabelId(col)"
+                              [attr.title]="col.label">
+                              {{ col.label }}
+                            </span>
+                            <span
+                              class="table-search-description"
+                              [class.table-search-description--empty]="!col.description"
+                              [attr.aria-hidden]="!col.description ? 'true' : null">
+                              {{ col.description || '' }}
+                            </span>
+                          </div>
+                          <div class="table-search-row">
+                            @if (isFilterableDropdownColumn(col)) {
+                              <digi-form-select-filter
+                                #columnFilter
+                                class="shrink-0"
+                                [formControlName]="col.key.toString()"
+                                [afListItems]="getDropdownOptions(col)"
+                                [value]="shouldBindDropdownValue(col) ? getDropdownValue(col) : []"
+                                [attr.af-filter-button-text-label]="' '"
+                                af-name=" "
+                                [sortAlphabetically]="false"
+                                [afFilterButtonText]="' '"
+                                [afFilterButtonAriaDescribedby]="getSearchLabelId(col)"
+                                [afMultipleItems]="isMultiSelectDropdownColumn(col)"
+                                [attr.data-col-key]="col.key"
+                                [afSubmitButtonText]="'Filtrera'"
+                                [afResetButtonText]="'Rensa'"
+                                (mousedown)="onDropdownMouseDown($event, col)"
+                                (click)="onDropdownOpened($event, col)"
+                                (afOnQueryChanged)="onColumnDropdownQuery($event, col)"
+                                (afOnSubmitFilters)="onColumnDropdownSubmit($event, col)"
+                                (afOnResetFilters)="onColumnDropdownReset(col)"
+                                (afOnFilterClosed)="onDropdownClosed(col)"
+                                (afOnSelect)="onColumnDropdownSelect($event, col, false)">
+                              </digi-form-select-filter>
+                            } @else {
+                              <digi-form-select
+                                class="shrink-0"
+                                [formControlName]="col.key.toString()"
+                                af-label=" "
+                                [attr.af-variation]="'medium'"
+                                [attr.af-validation]="'neutral'"
+                                [attr.af-aria-label]="col.label"
+                                [attr.af-placeholder]="' '"
+                                (click)="onDropdownOpened($event, col)">
+                                @for (option of getDropdownOptions(col); track option.id) {
+                                  <option [value]="option.id">
+                                    <span>{{ option.label }}</span>
+                                  </option>
+                                }
+                              </digi-form-select>
+                            }
+                            <button
+                              type="button"
+                              class="inline-flex items-center gap-1"
+                              [class.cursor-pointer]="col.sortField"
+                              [class.text-slate-400]="!col.sortField"
+                              [attr.title]="col.label"
+                              (click)="onHeaderSort(col, $event)">
+                              <span class="sr-only">{{ col.label }}</span>
+                              <span class="text-xs">{{ showSortingIcon(col) }}</span>
+                            </button>
+                          </div>
+                        </div>
+                      } @else {
+                        <div class="table-search-gray flex h-full flex-col justify-between">
+                          <div class="table-search-labels">
+                            <span
+                              class="text-md font-semibold"
+                              [attr.id]="getSearchLabelId(col)"
+                              [attr.title]="col.label">
+                              {{ col.label }}
+                            </span>
+                            <span
+                              class="table-search-description"
+                              [class.table-search-description--empty]="!col.description"
+                              [attr.aria-hidden]="!col.description ? 'true' : null">
+                              {{ col.description || '' }}
+                            </span>
+                          </div>
+                          <div class="table-search-row">
+                            <digi-form-input
+                              class="max-w-full shrink-0"
+                              [formControlName]="col.key.toString()"
+                              [attr.af-aria-labelledby]="getSearchLabelId(col)"
+                              af-label=" "
+                              [attr.af-type]="getSearchInputType(col)"
+                              [attr.af-variation]="'medium'"
+                              [attr.af-validation]="'neutral'"
+                              (afOnChange)="
+                                getSearchInputType(col) === 'date' ? onColumnDateSearchChange($event, col) : null
+                              ">
+                            </digi-form-input>
+                            <button
+                              type="button"
+                              class="inline-flex items-center gap-1"
+                              [class.cursor-pointer]="col.sortField"
+                              [class.text-slate-400]="!col.sortField"
+                              [attr.title]="col.label"
+                              (click)="onHeaderSort(col, $event)">
+                              <span class="sr-only">{{ col.label }}</span>
+                              <span class="text-xs">{{ showSortingIcon(col) }}</span>
+                            </button>
+                          </div>
+                        </div>
+                      }
+                    } @else {
+                      <div class="flex items-center gap-2">
+                        <button
+                          type="button"
+                          class="inline-flex items-center gap-1"
+                          [class.cursor-pointer]="col.sortField"
+                          [class.text-slate-400]="!col.sortField"
+                          (click)="onHeaderSort(col, $event)">
+                          <span>{{ col.label }}</span>
+                          <span class="text-xs">{{ showSortingIcon(col) }}</span>
+                        </button>
+                      </div>
+                    }
+                  </th>
+                }
+              }
+            </tr>
+          </thead>
+
+          <tbody class="divide-y divide-slate-100">
+            @if (loading()) {
+              <tr>
+                <td colspan="100%" class="px-4 py-6 text-center text-slate-500">Laddar...</td>
+              </tr>
+            } @else if (!displayItems().length) {
+              <tr>
+                <td colspan="100%" class="px-4 py-6 text-center text-slate-500">Inga resultat</td>
+              </tr>
+            } @else {
+              @for (item of displayItems(); let i = $index; track item['id']) {
+                <tr
+                  class="transition-colors hover:bg-slate-50"
+                  [class.bg-slate-50]="i % 2 === 0"
+                  (click)="selectRow(item, $event)">
+                  @if (checkboxes()) {
+                    <td class="px-4 py-3">
+                      <digi-form-checkbox
+                        [afChecked]="isChecked(item)"
+                        [attr.af-aria-label]="'Markera rad'"
+                        [attr.af-variation]="'secondary'"
+                        (afOnChange)="onToggle(item, $event)"
+                        (click)="$event.stopPropagation()">
+                      </digi-form-checkbox>
+                    </td>
+                  }
+
+                  @for (col of internalTableConfig(); track col.key) {
+                    <td
+                      [ngClass]="col.class"
+                      class="px-4 py-3 text-left align-middle"
+                      [class.table-sticky-actions]="col.key === 'actions'">
+                      @if (col.key === 'actions' && actionsTemplate()) {
+                        <div class="flex flex-wrap gap-2">
+                          <ng-container *ngTemplateOutlet="actionsTemplate(); context: { $implicit: item }">
+                          </ng-container>
+                        </div>
+                      } @else {
+                        @if (getCellType(col, item) === 'input' || getCellType(col, item) === 'number') {
+                          <digi-form-input
+                            [attr.af-value]="getValue(item, col)"
+                            (afOnChange)="updateEditedField($event, item, col.key)"
+                            af-label=" "
+                            [attr.af-type]="getCellType(col, item) === 'number' ? 'number' : 'text'"
+                            [attr.inputmode]="getCellType(col, item) === 'number' ? 'numeric' : null"
+                            [attr.pattern]="getCellType(col, item) === 'number' ? '[0-9]*' : null"
+                            af-validation="neutral"
+                            af-variation="medium">
+                          </digi-form-input>
+                        } @else if (getCellType(col, item) === 'checkbox') {
+                          <digi-form-checkbox
+                            [afChecked]="item[col.key] === 'Ja'"
+                            (afOnChange)="updateCheckboxField($event, item, col.key)"
+                            [attr.af-label]="' '"
+                            af-variation="secondary">
+                          </digi-form-checkbox>
+                        } @else if (getCellType(col, item) === 'datepicker') {
+                          <digi-form-input
+                            [attr.af-value]="item[col.key]"
+                            (afOnChange)="updateEditedField($event, item, col.key)"
+                            af-label=" "
+                            af-type="date"
+                            af-validation="neutral"
+                            af-variation="medium">
+                          </digi-form-input>
+                        } @else if (getCellType(col, item) === 'multiselect') {
+                          <mat-form-field [ngClass]="{ 'w-full': true }" appearance="outline" subscriptSizing="dynamic">
+                            <mat-select
+                              [value]="getMultiselectValues(item, col)"
+                              [multiple]="true"
+                              (selectionChange)="updateMultiselect($event, item, col.key)">
+                              @for (option of col?.inputConfig?.options; track option.id) {
+                                <mat-option [value]="option.id">
+                                  <span>{{ option.label }}</span>
+                                </mat-option>
+                              }
+                            </mat-select>
+                          </mat-form-field>
+                        } @else if (getCellType(col, item) === 'dropdown') {
+                          <digi-form-select
+                            [attr.af-value]="item[col.key]"
+                            (afOnChange)="updateEditedField($event, item, col.key)"
+                            af-label=" "
+                            af-variation="medium"
+                            af-validation="neutral"
+                            af-placeholder="Välj ...">
+                            @for (option of col?.inputConfig?.options; track option.id) {
+                              <option [value]="option.id">{{ option.label }}</option>
+                            }
+                          </digi-form-select>
+                        } @else {
+                          @if (col.key === 'behorighetsstatus') {
+                            @if (hasBehorighetsProgress(item, col)) {
+                              <div
+                                class="case-list-table__progress-circle"
+                                [class.case-list-table__progress-circle--closed]="
+                                  isBehorighetsClosed(getBehorighetsStatusLabel(item, col))
+                                "
+                                [attr.title]="getBehorighetsStatusLabel(item, col)"
+                                [attr.aria-label]="getBehorighetsStatusLabel(item, col)">
+                                <digi-progress-indicator
+                                  [attr.af-total-steps]="behorighetsStepOrder.length"
+                                  [attr.af-completed-steps]="getBehorighetsCompletedStepsForItem(item, col)"
+                                  af-variation="primary">
+                                </digi-progress-indicator>
+                              </div>
+                            } @else {
+                              <span class="text-slate-400">—</span>
+                            }
+                          } @else if (isStatusColumn(col) && getStatusValue(item, col)) {
+                            <digi-badge-status
+                              [attr.af-type]="getStatusColor(getStatusValue(item, col))"
+                              [attr.af-variation]="getStatusVariation(getStatusValue(item, col))"
+                              [attr.af-text]="getStatusText(getStatusValue(item, col))"
+                              af-size="large">
+                            </digi-badge-status>
+                          } @else if (col.asLink && (typeof item['link'] === 'string' || isArray(item['link']))) {
+                            <a
+                              [title]="getValue(item, col)"
+                              [routerLink]="item['link']"
+                              [queryParams]="item['linkQueryParams'] ?? null"
+                              (click)="$event.stopPropagation()"
+                              [class.line-clamp-2]="col.key === 'title'"
+                              [class.whitespace-normal]="col.key === 'title'"
+                              class="w-full font-medium text-slate-800 hover:text-blue-700 hover:underline">
+                              {{ getValue(item, col) }}
+                            </a>
+                          } @else if (getCellType(col, item) === 'textWithIcon') {
+                            <div class="text-primary flex gap-4">
+                              <nuxeo-svg-icon
+                                size="20px"
+                                class="my-icon text-primary h-5 w-5"
+                                [src]="getIconSrc(item?.['type'])">
+                              </nuxeo-svg-icon>
+                              <div>{{ getValue(item, col) }}</div>
+                            </div>
+                          } @else {
+                            <span
+                              [title]="item[col.key]"
+                              [class.sekretess-highlight]="
+                                col.key === 'sekretess' &&
+                                !!item[col.key] &&
+                                item[col.key] !== 'Ingen sekretess' &&
+                                item[col.key] !== 'Ej klassad'
+                              "
+                              [class.sekretess-highlight--strong]="
+                                col.key === 'sekretess' && item[col.key] === 'Stark sekretess'
+                              "
+                              [class.text-slate-400]="getValue(item, col) === '—'">
+                              {{ getValue(item, col) }}
+                            </span>
+                          }
+                        }
+                      }
+                    </td>
+                  }
+                </tr>
+              }
+            }
+          </tbody>
+        </table>
+      </div>
+      @if (showCsvExport() || isSettingsEnabled()) {
+        <div
+          [ngClass]="[headerHeight(), !hasActionsColumn() ? 'border-l border-gray-400' : '']"
+          class="bg-table-header absolute top-0 right-0 z-5 flex w-10 flex-col items-center">
+          @if (isSettingsEnabled()) {
+            <button
+              type="button"
+              (click)="openColumnSettings($event)"
+              class="flex w-full cursor-pointer justify-center py-2 text-slate-500 hover:text-slate-700">
+              <digi-icon-settings class="h-5 w-5"></digi-icon-settings>
+            </button>
+          }
+          @if (showCsvExport()) {
+            <button
+              type="button"
+              (click)="onCsvExportClick()"
+              class="flex w-full cursor-pointer justify-center py-2 text-slate-500 hover:text-slate-700"
+              title="Exportera till CSV">
+              <digi-icon-file-export class="h-5 w-5"></digi-icon-file-export>
+            </button>
+          }
+        </div>
+      }
+    </div>
+
+    @if (shouldShowPageSizeOption() || totalPages() > 1) {
+      <div class="relative flex items-center pt-4">
+        @if (shouldShowPageSizeOption()) {
+          <div
+            class="flex items-center gap-3"
+            [class.absolute]="totalPages() > 1"
+            [class.z-20]="totalPages() > 1"
+            [class.flex-1]="totalPages() > 1">
+            <div class="text-sm font-semibold text-slate-600" id="pageSizeSelect-label">Rader per sida</div>
+            <digi-form-select
+              id="pageSizeSelect"
+              class="min-w-[140px]"
+              af-label=" "
+              [attr.aria-labelledby]="'pageSizeSelect-label'"
+              [attr.af-variation]="'medium'"
+              [attr.af-validation]="'neutral'"
+              [attr.af-value]="pageSize() + ''"
+              [attr.af-placeholder]="'Rader per sida'"
+              (afOnChange)="pageSizeSelect.emit($event.target.value)">
+              @for (size of pageSizeOptions(); track size) {
+                <option [value]="size">
+                  <span>{{ size }}</span>
+                </option>
+              }
+            </digi-form-select>
+          </div>
+        }
+        @if (totalPages() > 1) {
+          <div class="flex-2">
+            <digi-navigation-pagination
+              #pagination
+              (afOnPageChange)="changePageNumber($event)"
+              [attr.af-total-pages]="totalPages()"
+              [attr.af-init-active-page]="page() + 1"
+              class="relative">
+            </digi-navigation-pagination>
+          </div>
+        }
+      </div>
+    }
+  </div>
+}
+
+@if (isTableOptionsOpen()) {
+  <digi-dialog
+    (afOnClose)="isTableOptionsOpen.set(false)"
+    [attr.af-size]="'large'"
+    [attr.af-show-dialog]="isTableOptionsOpen()">
+    <nuxeo-table-col-options
+      [defaultColumnOptions]="newDefaultColumnOptions()"
+      [columnOptions]="columnOptions()"
+      [tableName]="tableName()"
+      (newColumnOptions)="onColumnOptionsUpdated($event)"
+      (closeDialog)="isTableOptionsOpen.set(false)">
+    </nuxeo-table-col-options>
+  </digi-dialog>
+}

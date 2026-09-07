@@ -1,0 +1,28 @@
+@if (controllers() && controllers().length > 0) {
+  <div class="flex flex-col gap-6">
+    @for (controller of controllers(); track controller) {
+      @if (controller && controller.options) {
+        <div>
+          <h4>
+            {{ controller.title }}
+            @if (controller.isRequired) {
+              <span class="text-red-600">*</span>
+            }
+          </h4>
+          <digi-form-select-filter
+            [afListItems]="controller.options"
+            [value]="getSelectedItems(controller)"
+            [attr.af-filter-button-text-label]="' '"
+            af-name=" "
+            [attr.af-validation]="controller.isRequired ? getValidationState(controller.controller) : 'neutral'"
+            [attr.af-validation-text]="'Detta fält är obligatoriskt'"
+            [attr.af-multiple-items]="multipleItems()"
+            af-filter-button-text="Inget valt"
+            (afOnSelect)="onSelect(controller.controller, $event)"
+            (afOnSubmitFilters)="onSelect(controller.controller, $event)">
+          </digi-form-select-filter>
+        </div>
+      }
+    }
+  </div>
+}

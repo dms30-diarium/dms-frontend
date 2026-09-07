@@ -1,0 +1,3 @@
+cd dms-frontend-web
+npx lint-staged
+git update-index --again

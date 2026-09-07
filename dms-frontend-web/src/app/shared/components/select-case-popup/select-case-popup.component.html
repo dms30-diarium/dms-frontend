@@ -1,0 +1,304 @@
+<div class="flex h-170 flex-col gap-4">
+  <nuxeo-tabs
+    [shouldStretch]="true"
+    [tabs]="tabs"
+    [activeTabId]="activeTabId"
+    (tabChanged)="onTabChanged($event)"></nuxeo-tabs>
+  <nuxeo-autocomplete
+    [path]="path()"
+    [hasDocuments]="!!availableDocuments().length"
+    [options]="autocompleteOptionsPaths()"
+    (valueChange)="updateOptions($event)"></nuxeo-autocomplete>
+  @if (activeTabId === 'create') {
+    <div class="h-[100%] overflow-auto">
+      <div class="grid h-fit grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
+        @for (item of availableDocuments(); track item.type) {
+          <button (click)="onDocumentClick(item.type)">
+            <div
+              class="flex cursor-pointer flex-col justify-center rounded-md bg-gray-100 px-4 py-10 hover:bg-gray-200">
+              <nuxeo-svg-icon size="45px" class="my-icon text-primary self-center" [src]="getIcon(item.type)">
+              </nuxeo-svg-icon>
+            </div>
+            <span class="inline-block w-30 truncate text-gray-800">{{ store.getLabelByType(item.type) }}</span>
+          </button>
+        }
+      </div>
+      @if (parentType === 'Arende' || parentType === 'Handling') {
+        <div class="flex w-full gap-4 pt-4">
+          <div class="flex flex-col justify-center gap-2">
+            <div class="flex flex-col justify-center rounded-md bg-gray-100 px-4 py-10 hover:bg-gray-200">
+              <nuxeo-svg-icon
+                size="45px"
+                class="my-icon text-primary self-center"
+                src="/nuxeo/app/assets/figmaIcons/arende.svg">
+              </nuxeo-svg-icon>
+            </div>
+            <nuxeo-case-reference
+              (saveReferences)="saveReferences()"
+              [shouldShowTable]="false"
+              class="w-full"
+              [tableFields]="intArendeRefs"
+              refType="Arende"
+              [parentRef]="parentUid()"
+              fieldName="internArendereferens"></nuxeo-case-reference>
+          </div>
+          <div class="flex flex-col justify-center gap-2">
+            <div class="flex flex-col justify-center rounded-md bg-gray-100 px-4 py-10 hover:bg-gray-200">
+              <nuxeo-svg-icon
+                size="45px"
+                class="my-icon text-primary self-center"
+                src="/nuxeo/app/assets/figmaIcons/handling.svg">
+              </nuxeo-svg-icon>
+            </div>
+            <nuxeo-case-reference
+              (saveReferences)="saveReferences()"
+              [shouldShowTable]="false"
+              class="w-full"
+              [tableFields]="intHandlingRefs"
+              refType="Handling"
+              [parentRef]="parentUid()"
+              fieldName="internHandlingsreferens"></nuxeo-case-reference>
+          </div>
+          <div class="flex flex-col justify-center gap-2">
+            <div class="flex justify-center rounded-md bg-gray-100 px-4 py-10 hover:bg-gray-200">
+              <nuxeo-svg-icon
+                size="45px"
+                class="my-icon text-primary self-center"
+                src="/nuxeo/app/assets/figmaIcons/domain.svg">
+              </nuxeo-svg-icon>
+            </div>
+            <nuxeo-extern-referens
+              (saveReferences)="saveReferences()"
+              [shouldShowTable]="false"
+              class="w-full"
+              [tableFields]="externArendeRefs"></nuxeo-extern-referens>
+          </div>
+        </div>
+      }
+    </div>
+  } @else {
+    <nuxeo-file-upload
+      class="h-[100%]"
+      [errorMessage]="errorMessage()"
+      [maxFiles]="10"
+      type="large"
+      (filesChange)="uploadFile($event)"></nuxeo-file-upload>
+  }
+  <div class="flex gap-2 pt-10">
+    <digi-button
+      (afOnClick)="dialogClose.emit()"
+      [attr.af-size]="'medium'"
+      [attr.af-variation]="'secondary'"
+      [attr.af-full-width]="false">
+      Avbryt
+    </digi-button>
+
+    @if (activeTabId === 'import') {
+      <digi-button
+        (afOnClick)="createDocumentFile()"
+        [attr.af-size]="'medium'"
+        [attr.af-variation]="'primary'"
+        [attr.af-full-width]="false">
+        Skapa
+      </digi-button>
+    }
+  </div>
+</div>
+<digi-dialog
+  (afOnClose)="closeDialog(null); $event.stopPropagation()"
+  [attr.af-size]="'large'"
+  [ngClass]="{ isFullSize: selectedType() === 'Arende' }"
+  [attr.af-show-dialog]="!!selectedType()"
+  [attr.af-heading]="heading()">
+  @if (!!selectedType()) {
+    @if (['Arendefas', 'Beredningsbeslut', 'Handlaggningsstatus', 'Lagrum', 'Klasstyp'].includes(selectedType())) {
+      <nuxeo-create-cv-document-form
+        (dialogClosed)="closeDialog($event)"
+        [docType]="selectedType()"
+        [formName]="'New ' + selectedType()"
+        [path]="path()"></nuxeo-create-cv-document-form>
+    } @else if (simpleDocumentTypes.includes(selectedType())) {
+      <nuxeo-create-simple-document-form
+        (dialogClosed)="closeDialog($event)"
+        [docType]="selectedType()"
+        [formName]="'New ' + selectedType()"
+        [path]="path()"></nuxeo-create-simple-document-form>
+    } @else {
+      @switch (selectedType()) {
+        @case ('Arende') {
+          <nuxeo-reduced-create-case-form
+            (dialogClosed)="closeDialog($event)"
+            [parentUid]="this.parentUid()"
+            [path]="path()"></nuxeo-reduced-create-case-form>
+        }
+        @case ('Handling') {
+          <nuxeo-create-handling
+            (dialogClosed)="closeDialog($event)"
+            [parentUid]="this.parentUid()"
+            [path]="path()"
+            [itemType]="selectedType()"></nuxeo-create-handling>
+        }
+        @case ('Utkast') {
+          <nuxeo-create-handling
+            (dialogClosed)="closeDialog($event)"
+            [parentUid]="this.parentUid()"
+            [path]="path()"
+            [itemType]="selectedType()"></nuxeo-create-handling>
+        }
+        @case ('Ar') {
+          <nuxeo-create-folder-form
+            (dialogClosed)="closeDialog($event)"
+            [parentUid]="this.parentUid()"
+            [path]="path()"></nuxeo-create-folder-form>
+        }
+        @case ('ArkivArMapp') {
+          <nuxeo-create-arkiv-ar-mapp-form
+            (dialogClosed)="closeDialog($event)"
+            [path]="path()"></nuxeo-create-arkiv-ar-mapp-form>
+        }
+        @case ('Arkiv') {
+          <nuxeo-create-arkiv-form (dialogClosed)="closeDialog($event)" [path]="path()"></nuxeo-create-arkiv-form>
+        }
+        @case ('Folder') {
+          <nuxeo-create-personal-folder-form
+            (dialogClosed)="closeDialog($event)"
+            [path]="path()"></nuxeo-create-personal-folder-form>
+        }
+        @case ('Workspace') {
+          <nuxeo-create-workspace-form
+            (dialogClosed)="closeDialog($event)"
+            [path]="path()"></nuxeo-create-workspace-form>
+        }
+        @case ('Beslut') {
+          <nuxeo-create-beslut
+            (dialogClosed)="closeDialog($event)"
+            [parentUid]="this.parentUid()"
+            [path]="path()"></nuxeo-create-beslut>
+        }
+        @case ('Klassificeringsstruktur') {
+          <nuxeo-create-klassificeringsstruktur
+            (dialogClosed)="closeDialog($event)"
+            [docType]="selectedType()"
+            [parentUid]="this.parentUid()"
+            [path]="path()"></nuxeo-create-klassificeringsstruktur>
+        }
+        @case ('Klass') {
+          <nuxeo-create-klassific
+            (dialogClosed)="closeDialog($event)"
+            [parentUid]="this.parentUid()"
+            [path]="path()"></nuxeo-create-klassific>
+        }
+        @case ('Handlingstyp') {
+          <nuxeo-create-handlingtype
+            (dialogClosed)="closeDialog($event)"
+            [parentUid]="this.parentUid()"
+            [path]="path()"></nuxeo-create-handlingtype>
+        }
+        @case ('MailFolder') {
+          <nuxeo-create-mailfolder-form
+            (dialogClosed)="closeDialog($event)"
+            [parentUid]="this.parentUid()"
+            [path]="path()"></nuxeo-create-mailfolder-form>
+        }
+        @case ('Checklista') {
+          <nuxeo-create-checklist (dialogClosed)="closeDialog($event)" [path]="path()"></nuxeo-create-checklist>
+        }
+        @case ('Note') {
+          <nuxeo-create-note-form (dialogClosed)="closeDialog($event)" [path]="path()"></nuxeo-create-note-form>
+        }
+        @case ('File') {
+          <nuxeo-create-file-form
+            (dialogClosed)="closeDialog($event)"
+            [path]="path()"
+            [itemType]="selectedType()"></nuxeo-create-file-form>
+        }
+        @case ('Fil') {
+          <nuxeo-create-file-form
+            (dialogClosed)="closeDialog($event)"
+            [path]="path()"
+            [itemType]="selectedType()"></nuxeo-create-file-form>
+        }
+        @case ('EPostmall') {
+          <nuxeo-create-file-form
+            (dialogClosed)="closeDialog($event)"
+            [path]="path()"
+            [itemType]="selectedType()"></nuxeo-create-file-form>
+        }
+        @case ('Utkastmall') {
+          <nuxeo-create-file-form
+            (dialogClosed)="closeDialog($event)"
+            [path]="path()"
+            [itemType]="selectedType()"></nuxeo-create-file-form>
+        }
+        @case ('Picture') {
+          <nuxeo-create-picture-form
+            (dialogClosed)="closeDialog($event)"
+            [path]="path()"
+            [itemType]="selectedType()"></nuxeo-create-picture-form>
+        }
+        @case ('Audio') {
+          <nuxeo-create-audio-form
+            (dialogClosed)="closeDialog($event)"
+            [path]="path()"
+            [itemType]="selectedType()"></nuxeo-create-audio-form>
+        }
+        @case ('Video') {
+          <nuxeo-create-video-form
+            (dialogClosed)="closeDialog($event)"
+            [path]="path()"
+            [itemType]="selectedType()"></nuxeo-create-video-form>
+        }
+        @case ('Collection') {
+          <nuxeo-create-collection-form
+            (dialogClosed)="closeDialog($event)"
+            [path]="path()"></nuxeo-create-collection-form>
+        }
+        @case ('Domain') {
+          <nuxeo-general-form
+            [config]="buildDomainFormConfig()"
+            (formResult)="onDomainFormResult($event, 'Domain')"
+            (dialogClose)="closeDialog(null)"></nuxeo-general-form>
+        }
+        @case ('Myndighet') {
+          <nuxeo-general-form
+            [config]="buildMyndighetFormConfig()"
+            (formResult)="onMyndighetFormResult($event)"
+            (dialogClose)="closeDialog(null)"></nuxeo-general-form>
+        }
+        @case ('Export') {
+          <nuxeo-create-export-form (dialogClosed)="closeDialog($event)" [path]="path()"></nuxeo-create-export-form>
+        }
+        @case ('ExportArMapp') {
+          <nuxeo-general-form
+            [config]="buildExportArMappFormConfig()"
+            (formResult)="onExportArMappFormResult($event)"
+            (dialogClose)="closeDialog(null)"></nuxeo-general-form>
+        }
+        @case ('Exportutrymme') {
+          <nuxeo-general-form
+            [config]="buildExportutrymmeFormConfig()"
+            (formResult)="onExportutrymmeFormResult($event)"
+            (dialogClose)="closeDialog(null)"></nuxeo-general-form>
+        }
+        @case ('Informationsforvaltning') {
+          <nuxeo-general-form
+            [config]="buildInformationsforvaltningFormConfig()"
+            (formResult)="onInformationsforvaltningFormResult($event)"
+            (dialogClose)="closeDialog(null)"></nuxeo-general-form>
+        }
+        @case ('Organisation') {
+          <nuxeo-general-form
+            [config]="buildOrganisationFormConfig()"
+            (formResult)="onOrganisationFormResult($event)"
+            (dialogClose)="closeDialog(null)"></nuxeo-general-form>
+        }
+        @case ('Diarium') {
+          <nuxeo-general-form
+            [config]="buildDiariumFormConfig()"
+            (formResult)="onDiariumFormResult($event)"
+            (dialogClose)="closeDialog(null)"></nuxeo-general-form>
+        }
+      }
+    }
+  }
+</digi-dialog>

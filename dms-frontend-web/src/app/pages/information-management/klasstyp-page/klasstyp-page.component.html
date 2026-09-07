@@ -1,0 +1,25 @@
+@if (isLoading()) {
+  <div class="p-6">Laddar klasstyp...</div>
+} @else if (loadError()) {
+  <div class="p-6">Kan inte ladda klasstyp.</div>
+} @else if (document()) {
+  <nuxeo-document-info-page
+    [docId]="document()!.uid"
+    [title]="document()!.title"
+    subtitle="Klasstyp"
+    detailTitle="Klasstyp"
+    [statusItems]="statusItems()"
+    [detailItems]="detailItems()"
+    [auditEntries]="auditEntries()"
+    [showEdit]="canEdit()"
+    editDialogHeading="Redigera klasstyp"
+    [editConfig]="editConfig()"
+    [isEditOpen]="isEditOpen()"
+    [isSaving]="isSaving()"
+    (editOpen)="openEdit()"
+    (editClose)="closeEdit()"
+    (formResult)="handleEditResult($event)">
+  </nuxeo-document-info-page>
+} @else {
+  <div class="p-6">Kan inte ladda klasstyp.</div>
+}

@@ -1,0 +1,143 @@
+@if (selectedItemIds().length) {
+  <nuxeo-top-buttons-panel
+    [selectedFiles]="selectedItemIds()"
+    [shouldDisplayTrashButton]="true"
+    [trashButtonTitle]="'Radera'"
+    [showFavorites]="false"
+    [showRedo]="false"
+    (restoreSelection)="selectedItemIds.set([])"
+    (downloadFiles)="downloadSelectedAsZip()"
+    (assignToCollection)="addSelectedToCollection()"
+    (deleteSelectedItems)="deleteSelectedItems()"></nuxeo-top-buttons-panel>
+}
+
+<div class="p-6">
+  <div class="mb-2">
+    <digi-navigation-breadcrumbs af-current-page="Personlig yta">
+      <a href="/">Start</a>
+    </digi-navigation-breadcrumbs>
+  </div>
+  <h1 class="mb-4 pb-4 text-3xl font-semibold">Personlig yta</h1>
+  <div class="rounded-lg border border-slate-200 bg-white p-4 text-slate-700">
+    <p>Här visas dina personliga projekt, mappar, dokument och filer.</p>
+  </div>
+
+  <div class="mt-6">
+    <div class="mb-4 flex items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        @if (viewMode() === 'folder') {
+          <digi-button
+            (afOnClick)="backToWorkspace()"
+            [attr.af-size]="'medium'"
+            [attr.af-variation]="'secondary'"
+            [attr.af-full-width]="false">
+            Tillbaka
+          </digi-button>
+        }
+        <h2 class="text-xl font-semibold">{{ getActiveTitle() }}</h2>
+      </div>
+    </div>
+    @if (viewMode() === 'folder') {
+      @if (canEditSelectedFolder()) {
+        <div class="mb-3 flex justify-end">
+          <digi-button
+            (afOnClick)="openEditDialog()"
+            [attr.af-size]="'medium'"
+            [attr.af-variation]="'primary'"
+            [attr.af-full-width]="false">
+            Redigera
+          </digi-button>
+        </div>
+      }
+      <div class="mb-6">
+        @if (selectedFolderDoc(); as doc) {
+          <nuxeo-entity-overview
+            [document]="doc"
+            [folderTitle]="doc.properties[schemaFields.dc.title] ?? doc.title"
+            [showTaxonomy]="true"></nuxeo-entity-overview>
+        }
+      </div>
+    }
+    <nuxeo-case-list-table
+      [shouldShowPageSizeOption]="true"
+      [pageSizeOptions]="pageSizeOptions"
+      [defaultColumnOptions]="getActiveColumnOptions()"
+      [tableItems]="getActiveItems()"
+      [tableConfig]="getActiveTableConfig()"
+      [loading]="getActiveLoading()"
+      [total]="getActiveTotal()"
+      [page]="page()"
+      [pageSize]="pageSize()"
+      [sortBy]="sortBy()"
+      [sortOrder]="sortOrder()"
+      [rowClickEnabled]="false"
+      [checkboxes]="true"
+      [restoreCheckboxSelection]="!selectedItemIds().length"
+      (toggleCheckboxes)="onSelectedCheckboxes($event)"
+      (rowSelected)="onRowSelected($event)"
+      (sortChange)="onSortChange($event)"
+      (pageChange)="onPageChange($event)"
+      (pageSizeSelect)="onPageSizeSelect($event)">
+    </nuxeo-case-list-table>
+
+    @if (isAssignCollectionOpen()) {
+      <digi-dialog
+        (afOnClose)="isAssignCollectionOpen.set(false)"
+        [attr.af-size]="'small'"
+        [attr.af-show-dialog]="isAssignCollectionOpen()">
+        <nuxeo-assign-collection-modal
+          [items]="selectedItemIds()"
+          (closeDialog)="isAssignCollectionOpen.set(false)"></nuxeo-assign-collection-modal>
+      </digi-dialog>
+    }
+
+    @if (getActiveError()) {
+      <p class="mt-2 text-sm text-red-600">{{ getActiveError() }}</p>
+    }
+  </div>
+
+  <div class="fixed right-4 bottom-4 z-50">
+    <nuxeo-add-button (addButtonClick)="openDialog()"></nuxeo-add-button>
+  </div>
+  <digi-dialog
+    (afOnClose)="isDialogOpened.set(false)"
+    [attr.af-heading]="'Lägg till innehåll'"
+    [attr.af-size]="'large'"
+    [attr.af-show-dialog]="isDialogOpened()">
+    <nuxeo-select-case-popup
+      (dialogClose)="isDialogOpened.set(false)"
+      [documentPath]="getCreatePath()"></nuxeo-select-case-popup>
+  </digi-dialog>
+
+  <digi-dialog
+    (afOnClose)="closeEditDialog()"
+    [attr.af-heading]="getEditDialogHeading()"
+    [attr.af-size]="'small'"
+    [attr.af-show-dialog]="isEditDialogOpen()">
+    <div class="bg-gray-100 p-4">
+      <nuxeo-general-form
+        #folderEditForm
+        [config]="folderEditConfig()"
+        [isLoading]="isSavingEdit()"
+        [shouldShowButtons]="false"
+        (formResult)="saveFolderEdits($event)"></nuxeo-general-form>
+    </div>
+    <div class="mt-6 flex gap-2">
+      <digi-button
+        (afOnClick)="closeEditDialog()"
+        [attr.af-size]="'medium'"
+        [attr.af-variation]="'secondary'"
+        [attr.af-full-width]="false">
+        Avbryt
+      </digi-button>
+      <digi-button
+        (afOnClick)="submitFolderEdit()"
+        [attr.af-size]="'medium'"
+        [attr.af-variation]="'primary'"
+        [attr.af-full-width]="false"
+        [attr.af-disabled]="isSavingEdit()">
+        Spara
+      </digi-button>
+    </div>
+  </digi-dialog>
+</div>

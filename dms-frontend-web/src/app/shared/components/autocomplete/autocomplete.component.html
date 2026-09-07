@@ -1,0 +1,20 @@
+<form class="example-form">
+  <mat-form-field class="w-full">
+    <mat-label>Plats</mat-label>
+    <input
+      type="text"
+      placeholder="location"
+      matInput
+      [formControl]="autocompleteControl"
+      [matAutocomplete]="auto"
+      (focus)="showSuggestions()" />
+    <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete" (optionSelected)="showSuggestions()">
+      @for (option of filteredOptions | async; track option) {
+        <mat-option (click)="showSuggestions()" class="bg-amber-50" [value]="option">{{ option }}</mat-option>
+      }
+    </mat-autocomplete>
+    @if (!hasDocuments()) {
+      <mat-hint class="text-sm text-gray-400">Select a different container to create your content.</mat-hint>
+    }
+  </mat-form-field>
+</form>

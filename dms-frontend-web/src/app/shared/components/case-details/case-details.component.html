@@ -1,0 +1,181 @@
+<div lang="sv" class="px-10 pb-6">
+  <div class="mb-10 flex flex-col gap-10">
+    <div class="flex flex-col gap-2">
+      <div class="detail-pair">
+        <span class="detail-label">{{ store.getSchemaByType('arende', 'arendenummer') }}:</span>
+        <span class="detail-value">{{ props()[schemaFields.arende.arendenummer] ?? '' }}</span>
+      </div>
+      <div class="detail-pair">
+        <span class="detail-label">{{ store.getSchemaByType('arende', 'arendemening') }}: </span>
+        <span class="detail-value">{{ props()[schemaFields.arende.arendemening] ?? '' }}</span>
+      </div>
+      <div class="detail-pair">
+        <span class="detail-label"> {{ store.getValue('label.ui.schema.arende.internArendemening') }}: </span>
+        <span class="detail-value">{{ props()[schemaFields.arende.internArendemening] ?? '' }}</span>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+      <div class="flex flex-col gap-1">
+        <div class="detail-pair">
+          <span class="detail-label">{{ store.getSchemaByType('arende', 'arendestatus') }}: </span>
+          <span class="detail-value">
+            {{ props()[schemaFields.arende.arendestatus]?.properties?.label }},
+            {{ props()[schemaFields.arende.behorighetsstatus]?.properties?.label }}
+          </span>
+        </div>
+        <div class="detail-pair">
+          <span class="detail-label">{{ store.getSchemaByType('arende', 'arendetyp') }}: </span>
+          <span class="detail-value">{{ props()[schemaFields.arende.arendetyp]?.title ?? '' }}</span>
+        </div>
+        <div class="detail-pair">
+          <span class="detail-label">{{ store.getSchemaByType('arende', 'riktning') }}:</span>
+          <span class="detail-value">{{ props()[schemaFields.arende.riktning]?.properties?.label ?? '' }}</span>
+        </div>
+      </div>
+
+      <div class="flex flex-col gap-1">
+        <div class="detail-pair">
+          <span class="detail-label">{{ store.getSchemaByType('arende', 'motpart') }}:</span>
+          <span class="detail-value">{{ props()[schemaFields.arende.motpart]?.motpart ?? '' }}</span>
+        </div>
+        <div class="detail-pair">
+          <span class="detail-label">{{ store.getValue('label.ui.schema.arende.ansvarigOrganisatoriskEnhet') }}:</span>
+          <span class="detail-value">{{ props()[schemaFields.arende.ansvarigOrganisatoriskEnhet]?.title ?? '' }}</span>
+        </div>
+        <div class="detail-pair">
+          <span class="detail-label"> {{ store.getValue('label.ui.schema.arende.ansvarigHandlaggare') }}:</span>
+          <span class="detail-value">
+            @if (props()[schemaFields.arende.ansvarigHandlaggare]) {
+              {{
+                props()[schemaFields.arende.ansvarigHandlaggare]?.properties?.firstName +
+                  ' ' +
+                  props()[schemaFields.arende.ansvarigHandlaggare]?.properties?.lastName
+              }}
+            }
+          </span>
+        </div>
+      </div>
+
+      <div class="flex flex-col gap-1">
+        <div class="detail-pair">
+          <span class="detail-label">{{ store.getValue('label.ui.schema.arende.arendetRegistreratDatum') }}:</span>
+          <span class="detail-value">{{ getDate(props()[schemaFields.dc.created]) }}</span>
+        </div>
+        <div class="detail-pair">
+          <span class="detail-label">{{ store.getValue('label.ui.schema.arende.beslutatDatum') }}:</span>
+          <span class="detail-value">{{ getDate(props()[schemaFields.arende.beslutatDatum]) }}</span>
+        </div>
+        <div class="detail-pair">
+          <span class="detail-label">{{ store.getValue('label.ui.schema.arende.arendetAvslutatDatum') }}:</span>
+          <span class="detail-value">{{ getDate(props()[schemaFields.arende.arendetAvslutatDatum]) }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+    <section class="md:col-span-1">
+      <h2 class="mb-2 text-lg font-medium">{{ store.getValue('label.document.type.Beslut') }}:</h2>
+      <div class="flex flex-col gap-1">
+        <div class="detail-pair">
+          <span class="detail-label">{{ store.getValue('label.document.type.beredningsbeslut') }}: </span>
+          <span class="detail-value">{{ getBeredningsbeslutTitle() }}</span>
+        </div>
+        <div class="detail-pair">
+          <span class="detail-label">{{ store.getValue('label.document.type.Beslut') }}:</span>
+          <span class="detail-value">{{ props()[schemaFields.arende.beslutstyp]?.title ?? '' }}</span>
+        </div>
+        <div class="detail-pair">
+          <span class="detail-label">{{ store.getValue('label.ui.schema.arende.beslutatDatum') }}:</span>
+          <span class="detail-value">{{ getDate(props()[schemaFields.arende.beslutatDatum]) }}</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="md:col-span-1">
+      <!-- doesn't have label on BE  -->
+      <h2 class="mb-2 text-lg font-medium">Informationssäkerhet och Sekretess</h2>
+      <div class="flex flex-col gap-1">
+        <div class="detail-pair">
+          <span class="detail-label"
+            >{{ store.getValue('label.ui.schema.arende.sakerhetsskyddsklassificering') }}:</span
+          >
+          <span class="detail-value">{{
+            props()[schemaFields.arende.sakerhetsskyddsklassificering]?.properties?.label ?? ''
+          }}</span>
+        </div>
+        <div class="detail-pair">
+          <span class="detail-label">{{ store.getValue('label.ui.schema.arende.sekretess') }}:</span>
+          <span class="detail-value">{{ props()[schemaFields.arende.sekretess]?.properties?.label ?? '' }}</span>
+        </div>
+        @if (shouldShowLagrum()) {
+          <div class="detail-pair">
+            <span class="detail-label">{{ store.getValue('label.ui.schema.handling.lagrumsbeskrivning') }}:</span>
+            <span class="detail-value">{{ props()[schemaFields.arende.lagrumsbeskrivning]?.[0]?.title ?? '' }}</span>
+          </div>
+        }
+        <div class="detail-pair">
+          <span class="detail-label"
+            >{{ store.getValue('label.ui.schema.arende.innehallerPersonuppgifterGdpr') }}:</span
+          >
+          <span class="detail-value">{{
+            props()[schemaFields.arende.innehallerPersonuppgifterGdpr] ? 'Ja' : 'Nej'
+          }}</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="md:col-span-1">
+      <!-- doesn't have label on BE -->
+      <h2 class="mb-2 text-lg font-medium">Bevarande och gallring</h2>
+      <div class="flex flex-col gap-1">
+        <div class="detail-pair">
+          <span class="detail-label">{{ store.getValue('label.ui.schema.handling.bevarasGallras') }}:</span>
+          <span class="detail-value">{{ props()[schemaFields.arende.bevarasGallras]?.properties?.label ?? '' }}</span>
+        </div>
+        <div class="detail-pair">
+          <span class="detail-label">{{ store.getValue('label.ui.schema.arende.gallringsforeskrift') }}:</span>
+          <span class="detail-value">{{ getGallringsregelTitle() }}</span>
+        </div>
+        <div class="detail-pair">
+          <span class="detail-label">{{ store.getValue('label.ui.schema.arende.arendetArkiveratDatum') }}:</span>
+          <span class="detail-value">{{ getDate(props()[schemaFields.arende.arendetArkiveratDatum]) }}</span>
+        </div>
+        <div class="detail-pair">
+          <span class="detail-label">{{ store.getValue('label.ui.schema.arende.arendetGallratDatum') }}:</span>
+          <span class="detail-value">{{ getDate(props()[schemaFields.arende.arendetGallratDatum]) }}</span>
+        </div>
+        <div class="detail-pair">
+          <span class="detail-label">{{ store.getValue('label.ui.schema.arende.arendetMakuleratDatum') }}:</span>
+          <span class="detail-value">{{ getDate(props()[schemaFields.arende.arendetMakuleratDatum]) }}</span>
+        </div>
+        <div class="detail-pair">
+          <span class="detail-label">{{ store.getValue('label.ui.schema.handling.bevarande') }}:</span>
+          <span class="detail-value">{{ doc().retainUntil ?? '' }}</span>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="mt-8 flex flex-col gap-8">
+    <section>
+      <h2 class="mb-2 text-lg font-medium">{{ store.getValue('label.ui.schema.handling.kommentarer') }}:</h2>
+      <div class="flex flex-col gap-1">
+        <div class="detail-pair">
+          <span class="detail-label">{{ store.getValue('label.ui.schema.arende.allmanKommentar') }}:</span>
+          <span class="detail-value">{{ props()[schemaFields.arende.allmanKommentar] ?? '' }}</span>
+        </div>
+        <div class="detail-pair">
+          <span class="detail-label">{{ store.getValue('label.ui.schema.arende.jkKommentar') }}:</span>
+          <span class="detail-value">{{ props()[schemaFields.arende.jkKommentar] ?? '' }}</span>
+        </div>
+        <div class="detail-pair">
+          <!--  doesn't have label on BE -->
+          <span class="detail-label">Makulering:</span>
+          <span class="detail-value"></span>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>

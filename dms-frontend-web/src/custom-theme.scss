@@ -1,0 +1,45 @@
+@use '@angular/material' as mat;
+@import '@angular/cdk/overlay-prebuilt.css';
+
+@include mat.core();
+
+$my-primary: mat.m2-define-palette(mat.$m2-indigo-palette, A400, A100, A700);
+$my-accent: mat.m2-define-palette(mat.$m2-blue-palette, 900, 700, 500);
+$my-warn: mat.m2-define-palette(mat.$m2-red-palette);
+
+$myapp-theme: mat.m2-define-light-theme(
+  (
+    color: (
+      primary: $my-primary,
+      accent: $my-accent,
+      warn: $my-warn,
+    ),
+  )
+);
+
+@include mat.core-theme($myapp-theme);
+@include mat.button-theme($myapp-theme);
+@include mat.form-field-theme($myapp-theme);
+@include mat.input-theme($myapp-theme);
+@include mat.select-theme($myapp-theme);
+@include mat.autocomplete-theme($myapp-theme);
+@include mat.option-theme($myapp-theme);
+@include mat.dialog-theme($myapp-theme);
+@include mat.snack-bar-theme($myapp-theme);
+
+.success-snack {
+  @include mat.snack-bar-overrides(
+    (
+      container-color: rgb(103, 213, 103),
+      button-color: white,
+    )
+  );
+}
+.error-snack {
+  @include mat.snack-bar-overrides(
+    (
+      container-color: #f74747,
+      button-color: white,
+    )
+  );
+}

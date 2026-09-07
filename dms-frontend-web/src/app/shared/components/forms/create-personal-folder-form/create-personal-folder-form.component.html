@@ -1,0 +1,8 @@
+<div class="bg-gray-100 p-4">
+  <nuxeo-general-form
+    formName="Ny mapp"
+    [isLoading]="isLoading()"
+    [config]="createFolderConfig()"
+    (formResult)="createDocument($event)"
+    (dialogClose)="dialogClosed.emit(null)"></nuxeo-general-form>
+</div>

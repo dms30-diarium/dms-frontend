@@ -1,0 +1,72 @@
+<div class="p-6">
+  <digi-navigation-breadcrumbs af-current-page="Favoriter">
+    <a href="/">Start</a>
+  </digi-navigation-breadcrumbs>
+  <h1 class="pt-5 pb-8 text-3xl font-semibold">Favoriter</h1>
+  <ng-template #actionsTpl let-item>
+    <digi-button
+      (afOnClick)="removeFromFavorites(item)"
+      [attr.af-size]="'small'"
+      [attr.af-variation]="'function'"
+      [attr.af-full-width]="false">
+      <digi-icon-star slot="icon" />
+      Ta bort från favoriter
+    </digi-button>
+  </ng-template>
+
+  @if (arendeEntries().length) {
+    <h2 class="pb-4 text-xl font-semibold">Ärenden</h2>
+    <nuxeo-case-list-table
+      [defaultColumnOptions]="getDefaultColumnOptions(arendeTableConfig)"
+      [tableItems]="arendeEntries()"
+      [tableConfig]="arendeTableConfig"
+      [loading]="false"
+      [total]="arendeTotal()"
+      [pageSize]="arendeEntries().length || 1"
+      actionsHeader="Åtgärd"
+      [actionsTemplate]="actionsTpl">
+    </nuxeo-case-list-table>
+  }
+
+  @if (handlingEntries().length) {
+    <h2 class="pt-10 pb-4 text-xl font-semibold">Handlingar</h2>
+    <nuxeo-case-list-table
+      [defaultColumnOptions]="getDefaultColumnOptions(handlingTableConfig)"
+      [tableItems]="handlingEntries()"
+      [tableConfig]="handlingTableConfig"
+      [loading]="false"
+      [total]="handlingTotal()"
+      [pageSize]="handlingEntries().length || 1"
+      actionsHeader="Åtgärd"
+      [actionsTemplate]="actionsTpl">
+    </nuxeo-case-list-table>
+  }
+
+  @if (utkastEntries().length) {
+    <h2 class="pt-10 pb-4 text-xl font-semibold">Utkast</h2>
+    <nuxeo-case-list-table
+      [defaultColumnOptions]="getDefaultColumnOptions(utkastTableConfig)"
+      [tableItems]="utkastEntries()"
+      [tableConfig]="utkastTableConfig"
+      [loading]="false"
+      [total]="utkastTotal()"
+      [pageSize]="utkastEntries().length || 1"
+      actionsHeader="Åtgärd"
+      [actionsTemplate]="actionsTpl">
+    </nuxeo-case-list-table>
+  }
+
+  @if (otherEntries().length) {
+    <h2 class="pt-10 pb-4 text-xl font-semibold">Övrigt</h2>
+    <nuxeo-case-list-table
+      [defaultColumnOptions]="getDefaultColumnOptions(otherTableConfig)"
+      [tableItems]="otherEntries()"
+      [tableConfig]="otherTableConfig"
+      [loading]="false"
+      [total]="otherTotal()"
+      [pageSize]="otherEntries().length || 1"
+      actionsHeader="Åtgärd"
+      [actionsTemplate]="actionsTpl">
+    </nuxeo-case-list-table>
+  }
+</div>

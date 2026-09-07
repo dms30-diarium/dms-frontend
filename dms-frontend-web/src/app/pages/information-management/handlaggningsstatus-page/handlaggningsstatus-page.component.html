@@ -1,0 +1,25 @@
+@if (isLoading()) {
+  <div class="p-6">Laddar handläggningsstatus...</div>
+} @else if (loadError()) {
+  <div class="p-6">Kan inte ladda handläggningsstatus.</div>
+} @else if (document()) {
+  <nuxeo-document-info-page
+    [docId]="document()!.uid"
+    [title]="props()[schemaFields.dc.title] ?? ''"
+    subtitle="Handläggningsstatus"
+    detailTitle="Handläggningsstatus"
+    [statusItems]="statusItems()"
+    [detailItems]="detailItems()"
+    [auditEntries]="auditEntries()"
+    [showEdit]="canEdit()"
+    editDialogHeading="Redigera handläggningsstatus"
+    [editConfig]="editConfig()"
+    [isEditOpen]="isEditOpen()"
+    [isSaving]="isSaving()"
+    (editOpen)="openEdit()"
+    (editClose)="closeEdit()"
+    (formResult)="handleEditResult($event)">
+  </nuxeo-document-info-page>
+} @else {
+  <div class="p-6">Kan inte ladda handläggningsstatus.</div>
+}

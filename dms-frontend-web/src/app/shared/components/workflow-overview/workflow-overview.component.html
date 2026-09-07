@@ -1,0 +1,56 @@
+<div class="flex flex-col gap-4 pt-3 pb-4 pl-4 lg:pt-0 lg:pb-0 lg:pl-3">
+  <div>
+    <div class="pb-3 text-xl font-semibold">Översikt</div>
+    <div class="max-h-[250px] overflow-y-auto">
+      <div class="flex items-start gap-2">
+        <div class="bg-brown-text mt-[4px] h-[12px] w-[12px] shrink-0 rounded-full"></div>
+        <div>
+          <div>Påminnelse</div>
+          @for (reminder of reminders(); track $index) {
+            <div>{{ reminder | date: 'dd.MM.yyyy' : 'UTC' }}</div>
+          }
+        </div>
+      </div>
+      <div class="flex items-start gap-2">
+        <div class="mt-[4px] h-[12px] w-[12px] shrink-0 rounded-full bg-red-700"></div>
+        <div>
+          <div>Deadline</div>
+          @if (deadlineCommentGroups()?.length) {
+            @for (deadlineGroup of deadlineCommentGroups(); track $index) {
+              <div>
+                <div>{{ deadlineGroup.date | date: 'dd.MM.yyyy' : 'UTC' }}</div>
+                @if (deadlineGroup.description) {
+                  <div class="text-sm text-gray-500">{{ deadlineGroup.description }}</div>
+                }
+                @if (deadlineGroup.comments?.length) {
+                  @for (taskComment of deadlineGroup.comments; track $index) {
+                    @if (taskComment?.kommentar) {
+                      <div class="text-sm text-gray-500">{{ taskComment.kommentar }}</div>
+                    }
+                  }
+                }
+              </div>
+            }
+          } @else {
+            @for (deadline of deadlines(); track $index) {
+              <div>{{ deadline | date: 'dd.MM.yyyy' : 'UTC' }}</div>
+            }
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+  @if (runningWorkflows()?.length) {
+    <div>
+      <div class="mb-2 text-sm font-semibold text-gray-700">Arbetsflöden:</div>
+      <div class="flex max-h-[250px] flex-col gap-2 overflow-y-auto">
+        @for (workflow of runningWorkflows(); track $index) {
+          <nuxeo-workflow
+            (update)="reloadDocument.emit()"
+            [tasks]="pendingTasks()"
+            [workFlow]="workflow"></nuxeo-workflow>
+        }
+      </div>
+    </div>
+  }
+</div>

@@ -1,0 +1,365 @@
+<div class="flex h-full">
+  <aside
+    [ngClass]="{ 'w-full sm:w-64': isOpen(), 'w-20': !isOpen() }"
+    class="bg-header-primary flex h-full flex-col border-r border-gray-200 text-zinc-800 transition-all duration-300">
+    <nav class="flex flex-1 flex-col justify-between px-4 py-8">
+      <ul class="space-y-1">
+        @for (item of menuItems(); track item) {
+          <li
+            #rla="routerLinkActive"
+            routerLinkActive
+            [ngClass]="{
+              'bg-primary text-white': isMenuItemHighlighted(item, isMenuItemActive(item, rla.isActive)),
+            }"
+            [routerLinkActiveOptions]="{ exact: item.path === '/' }"
+            class="rounded-lg transition hover:rounded-lg hover:bg-blue-300 focus:ring-blue-500 focus:outline-none">
+            <div class="group relative inline-block w-full">
+              @let isActive = isMenuItemActive(item, rla.isActive);
+              @let isHighlighted = isMenuItemHighlighted(item, isActive);
+              @if (item.path) {
+                <a
+                  (click)="clickOnOtherTab(item, $event)"
+                  aria-hidden="true"
+                  [routerLink]="
+                    item.icon === 'Search' && isSearchOpen()
+                      ? null
+                      : item.icon === 'Informationsforvaltning'
+                        ? null
+                        : item.path
+                  "
+                  class="flex cursor-pointer items-center gap-3 px-3 py-2"
+                  [attr.aria-current]="rla.isActive ? 'page' : null">
+                  <!-- ICON SWITCH: color controlled by rla.isActive -->
+                  @switch (item.icon) {
+                    @case ('Home') {
+                      <digi-icon-home
+                        class="h-5 w-5 transition-opacity duration-300"
+                        [ngStyle]="{
+                          '--digi--icon--color': isHighlighted ? 'white' : defaultIconColor(),
+                        }"></digi-icon-home>
+                    }
+                    @case ('Search') {
+                      <div>
+                        <digi-icon-search
+                          class="h-5 w-5 transition-opacity duration-300"
+                          [ngStyle]="{
+                            '--digi--icon--color': isHighlighted ? 'white' : defaultIconColor(),
+                          }"></digi-icon-search>
+                      </div>
+                    }
+                    @case ('History') {
+                      <digi-icon-history
+                        class="h-5 w-5 transition-opacity duration-300"
+                        [ngStyle]="{
+                          '--digi--icon--color': isHighlighted ? 'white' : defaultIconColor(),
+                        }"></digi-icon-history>
+                    }
+                    @case ('Star') {
+                      <digi-icon-star-reg
+                        class="h-5 w-5 transition-opacity duration-300"
+                        [ngStyle]="{
+                          '--digi--icon--color': isHighlighted ? 'white' : defaultIconColor(),
+                        }"></digi-icon-star-reg>
+                    }
+                    @case ('Folder') {
+                      <digi-icon-archive-outline
+                        class="h-5 w-5 transition-opacity duration-300"
+                        [ngStyle]="{
+                          '--digi--icon--color': isHighlighted ? 'white' : defaultIconColor(),
+                        }"></digi-icon-archive-outline>
+                    }
+                    @case ('User') {
+                      <digi-icon-user-alt
+                        class="h-5 w-5 transition-opacity duration-300"
+                        [ngStyle]="{
+                          '--digi--icon--color': isHighlighted ? 'white' : defaultIconColor(),
+                        }"></digi-icon-user-alt>
+                    }
+                    @case ('Trash') {
+                      <digi-icon-trash
+                        class="h-5 w-5 transition-opacity duration-300"
+                        [ngStyle]="{
+                          '--digi--icon--color': isHighlighted ? 'white' : defaultIconColor(),
+                        }"></digi-icon-trash>
+                    }
+                    @case ('BarChart2') {
+                      <digi-icon-chart
+                        class="h-5 w-5 transition-opacity duration-300"
+                        [ngStyle]="{
+                          '--digi--icon--color': isHighlighted ? 'white' : defaultIconColor(),
+                        }"></digi-icon-chart>
+                    }
+                    @case ('Samligar') {
+                      <nuxeo-svg-icon
+                        class="my-icon h-5 w-5"
+                        size="20px"
+                        [ngStyle]="{
+                          color: isHighlighted ? 'white' : defaultIconColor(),
+                        }"
+                        src="/nuxeo/app/assets/figmaIcons/samling.svg">
+                      </nuxeo-svg-icon>
+                    }
+                    @case ('Arkivera') {
+                      <nuxeo-svg-icon
+                        size="20px"
+                        class="my-icon h-5 w-5"
+                        [ngStyle]="{
+                          color: isHighlighted ? 'white' : defaultIconColor(),
+                        }"
+                        src="/nuxeo/app/assets/figmaIcons/arkivera.svg">
+                      </nuxeo-svg-icon>
+                    }
+                    @case ('Informationsforvaltning') {
+                      <nuxeo-svg-icon
+                        size="20px"
+                        class="my-icon h-5 w-5"
+                        [ngStyle]="{
+                          color: isHighlighted ? 'white' : defaultIconColor(),
+                        }"
+                        src="/nuxeo/app/assets/figmaIcons/informationsforvaltning.svg">
+                      </nuxeo-svg-icon>
+                    }
+                    @case ('Gallring') {
+                      <nuxeo-svg-icon
+                        size="20px"
+                        class="my-icon h-5 w-5"
+                        [ngStyle]="{
+                          color: isHighlighted ? 'white' : defaultIconColor(),
+                        }"
+                        src="/nuxeo/app/assets/figmaIcons/Gallring.svg">
+                      </nuxeo-svg-icon>
+                    }
+                    @case ('Scale') {
+                      <digi-icon-scale
+                        class="h-5 w-5 transition-opacity duration-300"
+                        [ngStyle]="{
+                          '--digi--icon--color': isHighlighted ? 'white' : defaultIconColor(),
+                        }"></digi-icon-scale>
+                    }
+
+                    @default {}
+                  }
+
+                  <!-- LABEL: opacity controlled by hamburger, color by active-route -->
+                  @if (isOpen()) {
+                    <span
+                      class="leading-5 whitespace-nowrap transition-opacity duration-300"
+                      [ngClass]="{
+                        'opacity-100': isOpen(),
+                        'opacity-0': !isOpen(),
+                        'text-white': isHighlighted || defaultIconColor() === 'white',
+                        'text-black': !isHighlighted && defaultIconColor() === 'black',
+                      }">
+                      {{ isOpen() ? item.label : '' }}
+                    </span>
+                  }
+                </a>
+              } @else {
+                <div
+                  (click)="showNavPanel()"
+                  aria-hidden="true"
+                  [ngClass]="{
+                    'bg-primary rounded-lg text-white transition hover:rounded-lg hover:bg-blue-300 focus:ring-blue-500 focus:outline-none':
+                      isHighlighted,
+                  }"
+                  class="flex cursor-pointer items-center gap-3 px-3 py-2">
+                  <digi-icon-folder-directory
+                    class="h-5 w-5 transition-opacity duration-300"
+                    [ngStyle]="{
+                      '--digi--icon--color': isHighlighted ? 'white' : defaultIconColor(),
+                    }"></digi-icon-folder-directory>
+                  <span
+                    class="leading-5 whitespace-nowrap transition-opacity duration-300"
+                    [ngClass]="{
+                      'opacity-100': isOpen(),
+                      'opacity-0': !isOpen(),
+                      'text-white': isHighlighted || defaultIconColor() === 'white',
+                      'text-black': !isHighlighted && defaultIconColor() === 'black',
+                    }">
+                    {{ isOpen() ? item.label : '' }}
+                  </span>
+                </div>
+              }
+              <!-- tooltip-->
+              @if (!isOpen()) {
+                <span
+                  class="bg-primary pointer-events-none absolute top-0 left-12 z-20 ml-2 -translate-y-1/2 scale-95 transform rounded-lg px-3 py-1.5 text-sm whitespace-nowrap text-white opacity-0 shadow-md transition-all duration-200 ease-out group-hover:scale-100 group-hover:opacity-100">
+                  {{ item.label }}
+                </span>
+              }
+            </div>
+          </li>
+        }
+      </ul>
+      @if (auth.adminViewEnabled() || auth.activeRole() === 'ADMIN' || openPage() !== 'start') {
+        <div class="flex flex-col gap-4">
+          @if (auth.adminViewEnabled() || auth.activeRole() === 'ADMIN') {
+            @let isAdminHighlighted = isAdminPanelOpen() || isAdminRouteActive();
+            <div class="group relative hidden w-full md:block">
+              <div
+                class="rounded-lg transition hover:rounded-lg hover:bg-blue-300 focus:ring-blue-500 focus:outline-none"
+                [ngClass]="{ 'bg-primary text-white': isAdminHighlighted }">
+                <button
+                  type="button"
+                  class="flex w-full cursor-pointer items-center justify-center gap-3 px-2 py-2"
+                  (click)="toggleAdminPanel()"
+                  [attr.aria-expanded]="isAdminPanelOpen()"
+                  aria-haspopup="true">
+                  <nuxeo-svg-icon
+                    size="25px"
+                    class="my-icon h-6 w-6"
+                    [ngStyle]="{
+                      color: isAdminHighlighted ? 'white' : defaultIconColor(),
+                    }"
+                    src="/nuxeo/app/assets/figmaIcons/System-assistance.svg">
+                  </nuxeo-svg-icon>
+
+                  @if (isOpen()) {
+                    <span
+                      class="leading-5 whitespace-nowrap transition-opacity duration-300"
+                      [ngClass]="{
+                        'opacity-100': isOpen(),
+                        'opacity-0': !isOpen(),
+                        'text-white': isAdminHighlighted || defaultIconColor() === 'white',
+                        'text-black': !isAdminHighlighted && defaultIconColor() === 'black',
+                      }">
+                      Systemadministration
+                    </span>
+                  } @else {
+                    <span class="sr-only">Systemadministration</span>
+                  }
+                </button>
+              </div>
+              @if (!isOpen()) {
+                <span
+                  class="bg-primary pointer-events-none absolute top-0 left-12 z-20 ml-2 -translate-y-1/2 scale-95 transform rounded-lg px-3 py-1.5 text-sm whitespace-nowrap text-white opacity-0 shadow-md transition-all duration-200 ease-out group-hover:scale-100 group-hover:opacity-100">
+                  Systemadministration
+                </span>
+              }
+            </div>
+          }
+          @if (openPage() !== 'start') {
+            <div class="hidden items-center justify-start gap-4 md:flex">
+              <div>
+                @let u = user();
+                @if (u?.properties?.firstName && u?.properties?.lastName) {
+                  <button
+                    class="flex cursor-pointer flex-col items-center gap-2 text-sm font-medium text-gray-700"
+                    (click)="isLogOutDialogOpened.set(true)"
+                    aria-haspopup="dialog">
+                    <digi-icon-user-alt class="image image-small"></digi-icon-user-alt>
+                    <span class="hidden sm:inline">
+                      {{ u?.properties?.firstName }} <br />
+                      {{ u?.properties?.lastName }}
+                    </span>
+                  </button>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </nav>
+  </aside>
+  <div
+    [ngClass]="{
+      'w-86': isNavigationOpen(),
+      'w-0': !isNavigationOpen(),
+      'overflow-visible': isNavigationOpen(),
+      'overflow-hidden': !isNavigationOpen(),
+    }"
+    class="bg-header-primary relative z-10 h-[calc(100vh-64px)] transition-all duration-300">
+    @if (isNavigationOpen()) {
+      <digi-button
+        class="search-panel-toggle"
+        af-type="button"
+        af-size="small"
+        af-variation="secondary"
+        [attr.af-full-width]="false"
+        aria-label="Close browse panel"
+        (afOnClick)="closeNavigationPanel()">
+        <digi-icon-arrow-left class="h-4 w-4"></digi-icon-arrow-left>
+      </digi-button>
+    }
+    <div
+      class="h-full pr-3"
+      [ngClass]="{
+        'overflow-y-auto': isNavigationOpen(),
+        'overflow-y-hidden': !isNavigationOpen(),
+        'pointer-events-none': !isNavigationOpen(),
+      }">
+      <nuxeo-navigation></nuxeo-navigation>
+    </div>
+  </div>
+  <div
+    [ngClass]="{
+      'w-95': isSearchOpen(),
+      'w-0': !isSearchOpen(),
+      'transition-all duration-300': !resizing(),
+      'overflow-visible': isSearchOpen(),
+      'overflow-hidden': !isSearchOpen(),
+    }"
+    [ngStyle]="{
+      width: isSearchOpen() && searchPanelWidth() > 350 ? 'min(100vw, ' + searchPanelWidth() + 'px)' : '',
+    }"
+    class="bg-header-primary relative h-[calc(100vh-64px)]">
+    @if (isSearchOpen()) {
+      <digi-button
+        class="search-panel-toggle"
+        af-type="button"
+        af-size="small"
+        af-variation="secondary"
+        [attr.af-full-width]="false"
+        aria-label="Close search panel"
+        (afOnClick)="closeSearchPanel()">
+        <digi-icon-arrow-left class="h-4 w-4"></digi-icon-arrow-left>
+      </digi-button>
+    }
+    <div
+      class="h-full overflow-x-hidden"
+      [ngClass]="{
+        'overflow-y-auto': isSearchOpen(),
+        'overflow-y-hidden': !isSearchOpen(),
+        'pointer-events-none': !isSearchOpen(),
+      }">
+      <nuxeo-sidebar-search [user]="user()"></nuxeo-sidebar-search>
+    </div>
+    <div
+      class="absolute top-0 right-0 z-20 h-full w-[12px] translate-x-1/2 cursor-e-resize"
+      (pointerdown)="startResize($event)"></div>
+  </div>
+  @if (auth.adminViewEnabled() || auth.activeRole() === 'ADMIN') {
+    <div
+      [ngClass]="{ 'w-86': isAdminPanelOpen(), 'w-0': !isAdminPanelOpen() }"
+      class="bg-header-primary z-10 h-[calc(100vh-64px)] overflow-x-hidden overflow-y-auto transition-all duration-300">
+      <div class="admin-panel flex h-full flex-col gap-4 px-4 py-6">
+        <h3 class="text-xs font-semibold tracking-wide text-gray-500 uppercase">Administration</h3>
+        <ul class="space-y-1">
+          @for (item of adminMenu; track item.label) {
+            <li>
+              <digi-button
+                class="admin-panel__button w-full"
+                [attr.af-size]="'small'"
+                [attr.af-variation]="'function'"
+                [attr.af-full-width]="true"
+                (afOnClick)="openAdminItem(item)">
+                {{ item.label }}
+              </digi-button>
+            </li>
+          }
+        </ul>
+      </div>
+    </div>
+  }
+</div>
+
+<digi-dialog
+  (afPrimaryButtonClick)="logOut()"
+  (afSecondaryButtonClick)="isLogOutDialogOpened.set(false)"
+  (afOnClose)="isLogOutDialogOpened.set(false)"
+  [attr.af-size]="'small'"
+  [attr.af-show-dialog]="!!isLogOutDialogOpened()"
+  af-primary-button-text="Logga ut"
+  af-secondary-button-text="Avbryt">
+  <nuxeo-user-modal [user]="user()"></nuxeo-user-modal>
+</digi-dialog>

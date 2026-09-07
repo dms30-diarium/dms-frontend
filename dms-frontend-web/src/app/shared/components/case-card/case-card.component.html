@@ -1,0 +1,78 @@
+<article
+  class="group relative flex h-full flex-col rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition hover:shadow-md">
+  <div class="mb-2 flex items-center justify-between">
+    <div class="flex items-center gap-2 text-xs">
+      @if (getCaseStatus()) {
+        <digi-badge-status
+          [attr.af-type]="getCaseStatusColor()"
+          [attr.af-variation]="getCaseStatusVariation()"
+          [attr.af-text]="getCaseStatusLabel() || getCaseStatus()"
+          [attr.af-size]="'large'">
+        </digi-badge-status>
+      }
+    </div>
+
+    @if (getHeaderDate()) {
+      <span class="text-xs text-slate-500">
+        {{ getHeaderDate() }}
+      </span>
+    }
+  </div>
+
+  <h3
+    aria-hidden="true"
+    (click)="openDocument(caseData()?.['id'])"
+    class="line-clamp-1 cursor-pointer text-sm font-semibold text-slate-950">
+    {{ getTitle() }}
+  </h3>
+
+  <div class="mt-3 grid grid-cols-2 gap-3 text-xs text-slate-600">
+    @if (usesLegacyCaseLayout()) {
+      <div>
+        Arendetyp:
+        <span class="line-clamp-1 font-medium text-slate-700" [attr.title]="caseData()?.['arendetyp']">
+          {{ caseData()?.['arendetyp'] }}
+        </span>
+      </div>
+      <div>
+        Riktning:
+        <span class="line-clamp-1 font-medium text-slate-700" [attr.title]="caseData()?.['riktning']">
+          {{ caseData()?.['riktning'] }}
+        </span>
+      </div>
+      <div>
+        Motpart:
+        <span class="line-clamp-1 font-medium text-slate-700" [attr.title]="caseData()?.['arendepart']">
+          {{ caseData()?.['arendepart'] }}
+        </span>
+      </div>
+      <div>
+        Ansvarig handlaggare:
+        <span class="line-clamp-1 font-medium text-slate-700" [attr.title]="caseData()?.['handlaggare']">
+          {{ caseData()?.['handlaggare'] }}
+        </span>
+      </div>
+      <div>
+        Ansvarig enhet:
+        <span class="line-clamp-1 font-medium text-slate-700" [attr.title]="caseData()?.['ansvarigEnhet']">
+          {{ caseData()?.['ansvarigEnhet'] }}
+        </span>
+      </div>
+      <div>
+        Arendemening:
+        <span class="line-clamp-1 font-medium text-slate-700" [attr.title]="caseData()?.['arendemening']">
+          {{ caseData()?.['arendemening'] }}
+        </span>
+      </div>
+    } @else {
+      @for (col of getCardFields(); track col.key) {
+        <div>
+          {{ col.label }}:
+          <span class="line-clamp-1 font-medium text-slate-700" [attr.title]="getValue(col)">
+            {{ getValue(col) }}
+          </span>
+        </div>
+      }
+    }
+  </div>
+</article>

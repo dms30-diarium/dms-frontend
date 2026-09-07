@@ -1,0 +1,212 @@
+<div class="p-6">
+  <digi-navigation-breadcrumbs af-current-page="Användare & Grupper">
+    <a href="/">Start</a>
+  </digi-navigation-breadcrumbs>
+
+  <div class="flex flex-wrap items-center justify-between gap-4 pt-5">
+    <div>
+      <h1 class="text-3xl font-semibold">Användare & Grupper</h1>
+      <p class="mt-2 text-sm text-gray-600">Hantera användare och grupper i systemet.</p>
+      <p class="mb-2 text-xs text-gray-500">Tips: skriv * för att returnera alla resultat.</p>
+    </div>
+  </div>
+
+  <div class="mt-6 flex flex-wrap items-center justify-between gap-4">
+    <div class="min-w-[220px] flex-1">
+      <digi-form-input
+        class="w-full"
+        af-label=" "
+        af-variation="medium"
+        af-type="search"
+        placeholder="Search users or groups"
+        (afOnInput)="onSearchInput($event)">
+      </digi-form-input>
+    </div>
+    <div class="flex items-center gap-2">
+      <digi-button
+        af-size="small"
+        af-variation="primary"
+        af-full-width="false"
+        type="button"
+        (afOnClick)="openCreateUser()">
+        {{ store.getValue('createUser.heading') }}
+      </digi-button>
+      <digi-button
+        af-size="small"
+        af-variation="secondary"
+        af-full-width="false"
+        type="button"
+        (afOnClick)="openCreateGroup()">
+        {{ store.getValue('createGroup.heading') }}
+      </digi-button>
+    </div>
+  </div>
+
+  @if (searchTerm() && groupsRows().length) {
+    <div class="mt-6 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+      <div class="flex items-center justify-between border-b border-gray-200 px-5 py-4">
+        <div class="text-sm font-semibold text-gray-900">Grupper</div>
+        <digi-button
+          af-size="small"
+          af-variation="function"
+          af-full-width="false"
+          type="button"
+          (afOnClick)="refreshResults()"
+          aria-label="Refresh groups">
+          Refresh
+        </digi-button>
+      </div>
+      <nuxeo-case-list-table
+        [tableConfig]="groupsTableConfig"
+        [defaultColumnOptions]="groupsDefaultColumnOptions"
+        [tableItems]="groupsRows()"
+        [total]="groupsTotal()"
+        [page]="0"
+        [pageSize]="pageSize"
+        [loading]="false"
+        [isSettingsEnabled]="false">
+      </nuxeo-case-list-table>
+    </div>
+  }
+
+  @if (searchTerm() && usersRows().length) {
+    <div class="mt-6 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+      <div class="flex items-center justify-between border-b border-gray-200 px-5 py-4">
+        <div class="text-sm font-semibold text-gray-900">Användare</div>
+        <digi-button
+          af-size="small"
+          af-variation="function"
+          af-full-width="false"
+          type="button"
+          (afOnClick)="refreshResults()"
+          aria-label="Refresh users">
+          Refresh
+        </digi-button>
+      </div>
+      <nuxeo-case-list-table
+        [tableConfig]="usersTableConfig"
+        [defaultColumnOptions]="usersDefaultColumnOptions"
+        [tableItems]="usersRows()"
+        [total]="usersTotal()"
+        [page]="0"
+        [pageSize]="pageSize"
+        [loading]="false"
+        [isSettingsEnabled]="false">
+      </nuxeo-case-list-table>
+    </div>
+  }
+
+  <div class="mt-6 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+    <div class="flex items-center justify-between border-b border-gray-200 px-5 py-4">
+      <div class="text-sm font-semibold text-gray-900">Nyligen skapade användare och grupper</div>
+      <digi-button
+        af-size="small"
+        af-variation="function"
+        af-full-width="false"
+        type="button"
+        (afOnClick)="refreshRecent()"
+        aria-label="Refresh recent users and groups">
+        Uppdatera
+      </digi-button>
+    </div>
+    <nuxeo-case-list-table
+      [tableConfig]="recentTableConfig"
+      [defaultColumnOptions]="recentDefaultColumnOptions"
+      [tableItems]="recentRows()"
+      [total]="recentTotal()"
+      [page]="0"
+      [pageSize]="pageSize"
+      [loading]="false"
+      [isSettingsEnabled]="false">
+    </nuxeo-case-list-table>
+    @if (!recentRows().length) {
+      <div class="px-5 pb-5 text-sm text-gray-500">Ingen nyligen publicerad användare eller grupp.</div>
+    }
+  </div>
+
+  <digi-dialog
+    (afOnClose)="closeCreateGroup()"
+    [attr.af-heading]="'Ny grupp'"
+    [attr.af-size]="'large'"
+    [attr.af-show-dialog]="isCreateGroupOpen()">
+    <div class="bg-gray-100 p-4">
+      <nuxeo-general-form
+        #createGroupForm
+        [config]="createGroupFormConfig()"
+        [shouldShowButtons]="false"
+        (dropdownChanged)="handleCreateGroupDropdownChanged($event)"
+        (formResult)="handleCreateGroup($event)">
+      </nuxeo-general-form>
+    </div>
+
+    <div class="mt-6 flex items-center gap-2">
+      <digi-button
+        type="button"
+        (afOnClick)="closeCreateGroup()"
+        [attr.af-size]="'medium'"
+        [attr.af-variation]="'secondary'"
+        [attr.af-full-width]="false">
+        Avbryt
+      </digi-button>
+      <digi-button
+        type="button"
+        (afOnClick)="submitCreateGroup('close', createGroupForm)"
+        [attr.af-size]="'medium'"
+        [attr.af-variation]="'primary'"
+        [attr.af-full-width]="false">
+        Skapa
+      </digi-button>
+      <digi-button
+        type="button"
+        (afOnClick)="submitCreateGroup('another', createGroupForm)"
+        [attr.af-size]="'medium'"
+        [attr.af-variation]="'primary'"
+        [attr.af-full-width]="false">
+        Skapa en till
+      </digi-button>
+    </div>
+  </digi-dialog>
+
+  <digi-dialog
+    (afOnClose)="closeCreateUser()"
+    [attr.af-heading]="'New User'"
+    [attr.af-size]="'large'"
+    [attr.af-show-dialog]="isCreateUserOpen()">
+    <div class="bg-gray-100 p-4">
+      <nuxeo-general-form
+        #createUserForm
+        [config]="createUserFormConfig()"
+        [shouldShowButtons]="false"
+        (dropdownChanged)="handleCreateUserDropdownChanged($event)"
+        (formResult)="handleCreateUser($event)">
+      </nuxeo-general-form>
+    </div>
+
+    <div class="mt-6 flex items-center gap-2">
+      <digi-button
+        type="button"
+        (afOnClick)="closeCreateUser()"
+        [attr.af-size]="'medium'"
+        [attr.af-variation]="'secondary'"
+        [attr.af-full-width]="false">
+        Avbryt
+      </digi-button>
+      <digi-button
+        type="button"
+        (afOnClick)="submitCreateUser('close', createUserForm)"
+        [attr.af-size]="'medium'"
+        [attr.af-variation]="'primary'"
+        [attr.af-full-width]="false">
+        Skapa
+      </digi-button>
+      <digi-button
+        type="button"
+        (afOnClick)="submitCreateUser('another', createUserForm)"
+        [attr.af-size]="'medium'"
+        [attr.af-variation]="'primary'"
+        [attr.af-full-width]="false">
+        Skapa en till
+      </digi-button>
+    </div>
+  </digi-dialog>
+</div>

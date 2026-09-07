@@ -1,0 +1,104 @@
+<div lang="sv" class="px-10 pb-6">
+  <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
+    <div class="flex flex-col gap-1">
+      <div class="grid grid-cols-[30%_70%] gap-2">
+        <span class="word-normal text-sm break-words hyphens-auto text-gray-500"
+          >{{ store.getSchemaByType('arende', 'arendenummer') }}:</span
+        >
+        <span class="text-sm font-bold break-words">{{ props()[schemaFields.arende.arendenummer] }}</span>
+      </div>
+
+      <div class="grid grid-cols-[30%_70%] items-center gap-2">
+        <span class="word-normal text-sm break-words hyphens-auto text-gray-500"
+          >{{ store.getSchemaByType('arende', 'arendestatus') }}:</span
+        >
+        <div class="flex gap-1">
+          <digi-badge-status
+            [attr.af-type]="casesService.getStatusColor(props()[schemaFields.arende.arendestatus]?.id ?? '')"
+            [attr.af-variation]="casesService.getStatusVariation(props()[schemaFields.arende.arendestatus]?.id ?? '')"
+            [attr.af-text]="props()[schemaFields.arende.arendestatus]?.properties?.label"
+            [attr.af-size]="'large'">
+          </digi-badge-status>
+          <span class="font-bold">{{ ', ' + store.getValue(caseStateLabel()?.label ?? '-') }}</span>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-[30%_70%] gap-2">
+        <span class="word-normal text-sm break-words hyphens-auto text-gray-500"
+          >{{ store.getSchemaByType('arende', 'arendetyp') }}:</span
+        >
+        <span class="text-sm font-bold break-words">{{ props()[schemaFields.arende.arendetyp]?.title }}</span>
+      </div>
+
+      <div class="grid grid-cols-[30%_70%] gap-2">
+        <span class="word-normal text-sm break-words hyphens-auto text-gray-500"
+          >{{ store.getSchemaByType('arende', 'riktning') }}:</span
+        >
+        <span class="text-sm font-bold break-words">{{
+          props()[schemaFields.arende.riktning]?.properties?.label
+        }}</span>
+      </div>
+    </div>
+
+    <div class="flex flex-col gap-1">
+      <div class="grid grid-cols-[30%_70%] gap-2">
+        <span class="word-normal text-sm break-words hyphens-auto text-gray-500">
+          {{ store.getSchemaByType('arende', 'motpart') }}:</span
+        >
+        <span class="text-sm font-bold break-words">{{ props()[schemaFields.arende.motpart]?.motpart }}</span>
+        <span class="word-normal text-sm break-words hyphens-auto text-gray-500"
+          >{{ store.getSchemaByType('arende', 'motpart.typ') }}:
+        </span>
+        <span class="text-sm font-bold break-words">{{ motpartTypeLabel() }}</span>
+      </div>
+      <div class="grid grid-cols-[30%_70%] gap-2">
+        <span class="word-normal text-sm break-words hyphens-auto text-gray-500"
+          >{{ store.getValue('label.ui.schema.arende.ansvarigOrganisatoriskEnhet') }}:
+        </span>
+        <span class="text-sm font-bold break-words">{{
+          props()[schemaFields.arende.ansvarigOrganisatoriskEnhet]?.title
+        }}</span>
+      </div>
+    </div>
+
+    <div class="flex flex-col gap-1">
+      <div class="grid grid-cols-[30%_70%] gap-2">
+        <span class="word-normal text-sm break-words hyphens-auto text-gray-500"
+          >{{ store.getValue('label.ui.schema.arende.arendetRegistreratDatum') }}:
+        </span>
+        <span class="text-sm font-bold break-words">{{ getDate(props()[schemaFields.dc.created]) }}</span>
+      </div>
+
+      <div class="grid grid-cols-[30%_70%] gap-2">
+        <span class="word-normal text-sm break-words hyphens-auto text-gray-500"
+          >{{ store.getValue('label.ui.schema.arende.beslutatDatum') }}:
+        </span>
+        <span class="text-sm font-bold break-words">{{ getDate(props()[schemaFields.arende.beslutatDatum]) }}</span>
+      </div>
+
+      <div class="grid grid-cols-[30%_70%] gap-2">
+        <span class="word-normal text-sm break-words hyphens-auto text-gray-500"
+          >{{ store.getValue('label.ui.schema.arende.arendetAvslutatDatum') }}:</span
+        >
+        <span class="text-sm font-bold break-words">
+          {{ getDate(props()[schemaFields.arende.arendetAvslutatDatum]) }}
+        </span>
+      </div>
+
+      <div class="grid grid-cols-[30%_70%] gap-2">
+        <span class="word-normal text-sm break-words hyphens-auto text-gray-500">Stängt datum:</span>
+        <!-- don't have this field in messages.json -->
+        <span class="text-sm font-bold break-words">{{ getDate(props()[schemaFields.arende.stangtDatum]) }}</span>
+      </div>
+
+      <div class="grid grid-cols-[30%_70%] gap-2">
+        <span class="word-normal text-sm break-words hyphens-auto text-gray-500"
+          >{{ store.getValue('label.ui.schema.arende.beslutstyp') }}:</span
+        >
+        <span class="text-sm font-bold break-words">
+          {{ props()[schemaFields.arende.beslutstyp]?.title }}
+        </span>
+      </div>
+    </div>
+  </div>
+</div>

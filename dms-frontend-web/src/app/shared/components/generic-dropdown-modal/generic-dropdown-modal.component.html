@@ -1,0 +1,27 @@
+<div class="relative mb-4 flex w-150 flex-col justify-between rounded-lg bg-white p-6 shadow-lg">
+  <div>
+    <div class="absolute top-4 right-4">
+      <nuxeo-image-button
+        [icon]="icon"
+        text="Stäng"
+        slot="icon-secondary"
+        variation="secondary"
+        (buttonClick)="onCancel()"></nuxeo-image-button>
+    </div>
+    <h1 class="mb-4 text-xl font-semibold" mat-dialog-title>{{ title() }}</h1>
+
+    <nuxeo-dropdown-field [controllers]="controllers()" />
+  </div>
+
+  <div class="mt-6 flex justify-start gap-4">
+    <button
+      (click)="onCancel()"
+      class="rounded border border-gray-300 bg-white px-4 py-2 text-gray-700 transition hover:bg-gray-100">
+      Avbryt
+    </button>
+
+    <button (click)="onSuccess()" class="bg-primary rounded px-4 py-2 text-white transition hover:bg-blue-700">
+      {{ blueButton() }}
+    </button>
+  </div>
+</div>

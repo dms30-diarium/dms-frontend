@@ -1,0 +1,68 @@
+<div class="p-6">
+  <digi-navigation-breadcrumbs af-current-page="Rapporter">
+    <a href="/">Start</a>
+  </digi-navigation-breadcrumbs>
+
+  <h1 class="pt-5 pb-6 text-3xl font-semibold">Rapporter</h1>
+
+  <nuxeo-tabs
+    class="secondary-tabs"
+    [tabs]="tabs"
+    [activeTabId]="activeTabId()"
+    [shouldStretch]="false"
+    (tabChanged)="onTabChanged($event)">
+  </nuxeo-tabs>
+
+  @if (activeTabId() === 'jk-lista') {
+    <div class="pt-6">
+      <div class="mb-4 flex flex-wrap items-center justify-between gap-4">
+        <h2 class="text-xl font-semibold">JK-Lista</h2>
+        <digi-button af-size="small" af-variation="secondary" af-full-width="false">
+          <digi-icon-download slot="icon"></digi-icon-download>
+          Skapa JK-rapport
+        </digi-button>
+      </div>
+      <nuxeo-case-list-table
+        [tableConfig]="tableConfigProvider.openCasesTableConfig()"
+        [defaultColumnOptions]="tableConfigProvider.openCasesDefaultColumnOptions()"
+        [tableItems]="openCasesRows()"
+        [loading]="openCasesLoading()"
+        [total]="openCasesTotal()"
+        [page]="openCasesPage()"
+        [pageSize]="openCasesPageSize()"
+        [sortBy]="openCasesSortBy()"
+        [sortOrder]="openCasesSortOrder()"
+        [columnSearchEnabled]="false"
+        (pageChange)="onOpenCasesPageChange($event)"
+        (sortChange)="onOpenCasesSortChange($event)">
+      </nuxeo-case-list-table>
+    </div>
+  }
+
+  @if (activeTabId() === 'postlista') {
+    <div class="pt-8">
+      <div class="mb-4 flex flex-wrap items-center justify-between gap-4">
+        <h2 class="text-xl font-semibold">Postlista</h2>
+        <digi-button af-size="small" af-variation="secondary" af-full-width="false">
+          <digi-icon-download slot="icon"></digi-icon-download>
+          Exportera postlista
+        </digi-button>
+      </div>
+
+      <nuxeo-case-list-table
+        [tableConfig]="tableConfigProvider.postlistaTableConfig()"
+        [defaultColumnOptions]="tableConfigProvider.postlistaDefaultColumnOptions()"
+        [tableItems]="postlistaRows()"
+        [loading]="postlistaLoading()"
+        [total]="postlistaTotal()"
+        [page]="postlistaPage()"
+        [pageSize]="postlistaPageSize()"
+        [sortBy]="postlistaSortBy()"
+        [sortOrder]="postlistaSortOrder()"
+        [columnSearchEnabled]="false"
+        (pageChange)="onPostlistaPageChange($event)"
+        (sortChange)="onPostlistaSortChange($event)">
+      </nuxeo-case-list-table>
+    </div>
+  }
+</div>

@@ -1,0 +1,11 @@
+@let rootNodeConst = rootNode();
+<div>
+  @if (rootNodeConst) {
+    <nuxeo-navigation-tree
+      class="block w-full"
+      [rootNode]="rootNodeConst"
+      [ancestors]="ancestors()"
+      (loadChildren)="handleLoadChildren($event)">
+    </nuxeo-navigation-tree>
+  }
+</div>

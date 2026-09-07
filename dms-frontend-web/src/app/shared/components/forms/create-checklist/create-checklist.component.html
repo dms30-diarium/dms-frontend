@@ -1,0 +1,65 @@
+<form class="flex flex-col gap-2 bg-gray-100 p-4" [formGroup]="form">
+  <div>
+    <h4 class="font-semibold text-gray-500">Titel</h4>
+    <digi-form-input
+      [formControlName]="'checklistTitle'"
+      af-label=" "
+      af-variation="medium"
+      af-type="text"
+      placeholder="Titel">
+    </digi-form-input>
+  </div>
+
+  @if (checklistsArray.value.length) {
+    <div>
+      <h4 class="font-semibold text-gray-500">Checklistepunkt</h4>
+      <nuxeo-case-list-table
+        [tableItems]="checklistsArray.value"
+        [pageSize]="25"
+        [page]="0"
+        [loading]="false"
+        [tableConfig]="columnOptions"
+        [actionsHeader]="'Åtgärder'"
+        [actionsTemplate]="actions"
+        [defaultColumnOptions]="getDefaultColumnOptions()">
+      </nuxeo-case-list-table>
+      <ng-template #actions let-item>
+        <div class="flex">
+          <digi-button af-size="medium" af-variation="function" af-full-width="false" (click)="editItem(item)">
+            <digi-icon-pen slot="icon"></digi-icon-pen>
+          </digi-button>
+          <digi-button af-size="medium" af-variation="function" af-full-width="false" (click)="deleteItem(item)">
+            <digi-icon-trash slot="icon"></digi-icon-trash>
+          </digi-button>
+        </div>
+      </ng-template>
+    </div>
+  }
+
+  <digi-button class="mt-4" type="button" (afOnClick)="isDialogOpen.set(true)" af-variation="secondary">
+    Add checklist
+  </digi-button>
+
+  <div class="flex gap-2 pt-10">
+    <digi-button type="button" (afOnClick)="dialogClosed.emit(null)" af-variation="secondary"> Avbryt </digi-button>
+
+    <digi-button type="submit" af-variation="primary" (afOnClick)="submit()"> Spara formul?r </digi-button>
+  </div>
+</form>
+
+<digi-dialog
+  (afOnClose)="isDialogOpen.set(false)"
+  [attr.af-heading]="isEdit() ? 'Redigera fält' : 'Lägg till checklista'"
+  af-size="small"
+  [attr.af-show-dialog]="isDialogOpen()">
+  <form [formGroup]="dialogForm">
+    <h4 class="font-semibold text-gray-500">Namn</h4>
+    <digi-form-input [formControlName]="'name'" af-label=" " af-type="text" placeholder="Namn"> </digi-form-input>
+    <h4 class="font-semibold text-gray-500">Notering</h4>
+    <digi-form-input [formControlName]="'note'" af-label=" " af-type="text" placeholder="Notering"> </digi-form-input>
+    <h4 class="font-semibold text-gray-500">Klar</h4>
+    <digi-form-checkbox [formControlName]="'isChecked'" af-label=" " af-variation="secondary" />
+
+    <digi-button type="button" (afOnClick)="addToTheTable()" af-variation="primary"> Bekräfta </digi-button>
+  </form>
+</digi-dialog>

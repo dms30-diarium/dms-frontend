@@ -1,0 +1,37 @@
+/* Accordion component adjustments */
+.sc-digi-expandable-faq-item-h .digi-expandable-faq-item__header.sc-digi-expandable-faq-item,
+.sc-digi-expandable-faq-item-h .digi-expandable-faq-item.sc-digi-expandable-faq-item,
+.sc-digi-expandable-faq-item-h
+  .digi-expandable-faq-item__content.sc-digi-expandable-faq-item
+  > div.sc-digi-expandable-faq-item {
+  max-width: 100%;
+}
+.sc-digi-expandable-faq-item-h .digi-expandable-faq-item--primary.sc-digi-expandable-faq-item {
+  --BACKGROUND: #ffffff;
+}
+
+/* Accordion */
+
+digi-typography p,
+digi-typography a {
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+digi-typography h2,
+digi-typography .digi-h2 {
+  font-size: 1.125rem;
+  font-weight: 500;
+}
+
+.sc-digi-expandable-faq-h {
+  display: inline;
+}
+
+.sc-digi-expandable-faq-item-h
+  .digi-expandable-faq-item__content.sc-digi-expandable-faq-item
+  > div.sc-digi-expandable-faq-item {
+  padding: 0;
+}
+
+/*  */

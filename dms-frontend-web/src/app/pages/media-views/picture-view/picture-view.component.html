@@ -1,0 +1,161 @@
+@let doc = document();
+
+@if (doc) {
+  <div class="mb-4 ml-2.5">
+    <nuxeo-back-to-personal-button [path]="doc.path" [parentId]="doc.parentRef" [currentTitle]="title()" />
+  </div>
+  <div class="flex flex-col gap-4">
+    <h1 class="text-3xl font-semibold">{{ title() }}</h1>
+    <div class="flex flex-col gap-6 lg:flex-row">
+      <div class="min-h-[520px] w-full min-w-0 rounded-lg border border-slate-200 bg-white p-2 lg:flex-[2]">
+        <div class="h-full">
+          <nuxeo-pdf-viewer [doc]="doc" [showDownloadButton]="false" [showActionButtons]="false"></nuxeo-pdf-viewer>
+        </div>
+      </div>
+      <nuxeo-document-info-panel [document]="doc" (reloadDocument)="reloadDocument.emit()"></nuxeo-document-info-panel>
+    </div>
+
+    <div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
+      <div class="rounded-lg border border-slate-200 bg-white p-4">
+        <h3 class="mb-4 text-sm font-semibold">Picture Info</h3>
+        <div class="space-y-2 text-sm text-slate-700">
+          <div class="flex items-center justify-between gap-3">
+            <span class="text-slate-500">Dimensions</span>
+            <span>{{ getDimensionsLabel() }}</span>
+          </div>
+          <div class="flex items-center justify-between gap-3">
+            <span class="text-slate-500">Format</span>
+            <span>{{ getFormatLabel() }}</span>
+          </div>
+          <div class="flex items-center justify-between gap-3">
+            <span class="text-slate-500">Color Profile</span>
+            <span>{{ getColorProfileLabel() }}</span>
+          </div>
+          <div class="flex items-center justify-between gap-3">
+            <span class="text-slate-500">Bit Depth per Channel</span>
+            <span>{{ getBitDepthLabel() }}</span>
+          </div>
+          <div class="flex items-center justify-between gap-3">
+            <span class="text-slate-500">Weight</span>
+            <span>{{ getWeightLabel() }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="rounded-lg border border-slate-200 bg-white p-4">
+        <h3 class="mb-4 text-sm font-semibold">Additional Formats</h3>
+        @if (pictureViewGroups().length) {
+          <div class="grid grid-cols-1 gap-6 text-sm text-slate-700 lg:grid-cols-2">
+            @for (group of pictureViewGroups(); track $index) {
+              <div class="space-y-3">
+                @for (view of group; track view.title) {
+                  <div class="flex items-center justify-between gap-2">
+                    <div class="flex-1">
+                      <div class="font-medium text-slate-900">{{ view.title }}</div>
+                      <div class="text-xs text-slate-500">
+                        {{ view.widthLabel }} x {{ view.heightLabel }} · {{ view.sizeLabel }} · {{ view.formatLabel }}
+                      </div>
+                    </div>
+                    @if (view.downloadUrl) {
+                      <a class="text-slate-600 hover:text-slate-900" [href]="view.downloadUrl" title="Download">
+                        <digi-icon-download class="h-[18px] w-[18px]"></digi-icon-download>
+                      </a>
+                    }
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="text-sm text-slate-500">No additional formats available.</div>
+        }
+      </div>
+
+      <div class="rounded-lg border border-slate-200 bg-white p-4">
+        <h3 class="mb-4 text-sm font-semibold">EXIF</h3>
+        <div class="space-y-2 text-sm text-slate-700">
+          <div class="flex items-center justify-between gap-3">
+            <span class="text-slate-500">Date</span>
+            <span>{{ getExifDateLabel() }}</span>
+          </div>
+          <div class="flex items-center justify-between gap-3">
+            <span class="text-slate-500">Orientation</span>
+            <span>{{ getExifValue('imd:orientation') }}</span>
+          </div>
+          <div class="flex items-center justify-between gap-3">
+            <span class="text-slate-500">Aperture</span>
+            <span>{{ getExifValue('imd:fnumber') }}</span>
+          </div>
+          <div class="flex items-center justify-between gap-3">
+            <span class="text-slate-500">Exposure</span>
+            <span>{{ getExifValue('imd:exposure_time') }}</span>
+          </div>
+          <div class="flex items-center justify-between gap-3">
+            <span class="text-slate-500">ISO</span>
+            <span>{{ getExifValue('imd:iso_speed_ratings') }}</span>
+          </div>
+          <div class="flex items-center justify-between gap-3">
+            <span class="text-slate-500">Focal Length</span>
+            <span>{{ getExifValue('imd:focal_length') }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="rounded-lg border border-slate-200 bg-white p-4">
+      <h3 class="mb-4 text-sm font-semibold">IPTC</h3>
+      <div class="space-y-2 text-sm text-slate-700">
+        <div class="flex items-center justify-between gap-3">
+          <span class="text-slate-500">Copyright</span>
+          <span>{{ getIptcCopyright() }}</span>
+        </div>
+        <div class="flex items-center justify-between gap-3">
+          <span class="text-slate-500">Rights</span>
+          <span>{{ getIptcRights() }}</span>
+        </div>
+        <div class="flex items-center justify-between gap-3">
+          <span class="text-slate-500">Source</span>
+          <span>{{ getIptcSource() }}</span>
+        </div>
+        <div class="flex items-center justify-between gap-3">
+          <span class="text-slate-500">Beskrivning</span>
+          <span>{{ getIptcDescription() }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <digi-dialog
+    (afOnClose)="closeEditDialog()"
+    [attr.af-heading]="'Redigera bild'"
+    [attr.af-size]="'small'"
+    [attr.af-show-dialog]="!!isEditDialogOpen()">
+    <div class="bg-gray-100 p-4">
+      <nuxeo-general-form
+        #pictureEditForm
+        [config]="pictureEditConfig()"
+        [isLoading]="isSavingEdit()"
+        [shouldShowButtons]="false"
+        (formResult)="saveEdits($event)"></nuxeo-general-form>
+    </div>
+    <div class="mt-6 flex gap-2">
+      <digi-button
+        (afOnClick)="closeEditDialog()"
+        [attr.af-size]="'medium'"
+        [attr.af-variation]="'secondary'"
+        [attr.af-full-width]="false">
+        Avbryt
+      </digi-button>
+      <digi-button
+        (afOnClick)="submitPictureEdit()"
+        [attr.af-size]="'medium'"
+        [attr.af-variation]="'primary'"
+        [attr.af-full-width]="false"
+        [attr.af-disabled]="isSavingEdit()">
+        Spara
+      </digi-button>
+    </div>
+  </digi-dialog>
+} @else {
+  <div class="p-6">Can't load the doc</div>
+}

@@ -1,0 +1,70 @@
+<nuxeo-warning-card
+  [title]="getTitle()"
+  [message]="getMessage()"
+  [blueButtonTextSig]="'Markera som redo att avslutas'"
+  [showConfirmButton]="showConfirmButton()"
+  (action)="onAction($event)">
+  @if (!alreadyMarked()) {
+    <div class="mt-4 space-y-4">
+      @if (utkastCount() > 0) {
+        <p class="rounded border border-red-200 bg-red-50 p-3 text-sm text-red-800">
+          För att kunna markera ärendet som redo att avslutas måste det finnas 0 utkast. Ta bort eller hantera utkasten
+          först.
+        </p>
+      }
+
+      <div>
+        <h4 class="font-semibold text-gray-500">Beslut <span class="text-red-600">*</span></h4>
+        @if (decisionLocked()) {
+          <input
+            id="readyToCloseDecision"
+            type="text"
+            class="w-full rounded border border-gray-300 p-2 text-sm"
+            [value]="getDecisionLabel()"
+            readonly />
+        } @else {
+          <digi-form-select
+            id="readyToCloseDecision"
+            af-label=" "
+            [attr.af-variation]="'medium'"
+            [attr.af-placeholder]="'Välj beslut'"
+            [value]="decision()"
+            (change)="onDecisionInput($event)">
+            @if (decisionOptions()) {
+              @for (opt of decisionOptions(); track opt.id) {
+                <option [value]="opt.id">{{ opt.label }}</option>
+              }
+            }
+          </digi-form-select>
+        }
+      </div>
+
+      <div>
+        <h4 class="font-semibold text-gray-500">Beslutsfattare</h4>
+        <digi-form-select
+          id="readyToCloseBeslutsfattare"
+          af-label=" "
+          [attr.af-variation]="'medium'"
+          [attr.af-placeholder]="'Välj beslutsfattare'"
+          [value]="beslutsfattare()"
+          (change)="onBeslutsfattareInput($event)">
+          @if (beslutsfattareOptions()) {
+            @for (opt of beslutsfattareOptions(); track opt.id) {
+              <option [value]="opt.id">{{ opt.label }}</option>
+            }
+          }
+        </digi-form-select>
+      </div>
+
+      <div>
+        <h4 class="font-semibold text-gray-500">Datum för beslut <span class="text-red-600">*</span></h4>
+        <input
+          id="readyToCloseDecisionDate"
+          type="date"
+          class="w-full rounded border border-gray-300 p-2 text-sm"
+          [value]="decisionDate()"
+          (input)="onDecisionDateInput($event)" />
+      </div>
+    </div>
+  }
+</nuxeo-warning-card>

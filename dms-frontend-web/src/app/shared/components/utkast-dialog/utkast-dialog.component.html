@@ -1,0 +1,53 @@
+<h4 class="mb-4 text-2xl font-semibold">
+  {{
+    mode() === 'reassign'
+      ? 'Byt ansvarig handläggare'
+      : mode() === 'changeRequester'
+        ? 'Byt ansvarig godkännare'
+        : 'Skicka för beslutsfattare / godkännare'
+  }}
+</h4>
+<form [formGroup]="form" class="flex flex-col gap-4 py-6">
+  <digi-form-select-filter
+    formControlName="coworker"
+    [afListItems]="coworkerOptions()"
+    [attr.af-filter-button-text-label]="' '"
+    af-name="Sök"
+    af-filter-button-text="Välj ..."
+    [afHideResetButton]="true"
+    afSubmitButtonText="Filtrera"
+    af-validation="neutral">
+  </digi-form-select-filter>
+</form>
+
+@if (mode() !== 'approval' && confirmStep()) {
+  <div class="mb-2 rounded-md border border-orange-200 bg-orange-50 p-3 text-sm text-gray-800">
+    {{ confirmMessage() || 'Är du säker på att byta ansvarig handläggare?' }}
+  </div>
+}
+<div class="flex gap-4">
+  <digi-button
+    (afOnClick)="onCancel()"
+    [attr.af-size]="'medium'"
+    [attr.af-variation]="'secondary'"
+    [attr.af-full-width]="false">
+    Avbryt
+  </digi-button>
+  <digi-button
+    (afOnClick)="onAssignUser()"
+    [attr.af-size]="'medium'"
+    [attr.af-variation]="'primary'"
+    [attr.af-full-width]="false">
+    {{
+      mode() === 'reassign'
+        ? confirmStep()
+          ? 'Bekräfta'
+          : 'Uppdatera'
+        : mode() === 'changeRequester'
+          ? confirmStep()
+            ? 'Bekräfta'
+            : 'Uppdatera'
+          : 'Spara'
+    }}
+  </digi-button>
+</div>

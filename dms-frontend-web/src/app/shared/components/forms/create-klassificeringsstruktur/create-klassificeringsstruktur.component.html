@@ -1,0 +1,8 @@
+<div class="bg-gray-100 p-4">
+  <nuxeo-general-form
+    [isLoading]="isLoading()"
+    formName="Ny klassificeringsstruktur"
+    [config]="createKlassificeringsstrukturConfig()"
+    (formResult)="createDocument($event)"
+    (dialogClose)="dialogClosed.emit(null)"></nuxeo-general-form>
+</div>

@@ -1,0 +1,100 @@
+<div class="px-10 pb-6">
+  <section>
+    <div class="flex flex-col gap-1">
+      <div class="flex gap-1">
+        <span class="flex-1 text-sm text-gray-500">Registrerad av: </span>
+        <span class="flex-1 text-sm font-bold">{{
+          properties()[schemaFields.dc.creator]?.properties?.firstName +
+            ' ' +
+            properties()[schemaFields.dc.creator]?.properties?.lastName
+        }}</span>
+      </div>
+      <div class="flex gap-1">
+        <span class="flex-1 text-sm text-gray-500">Registreringsdatum: </span>
+        <span class="flex-1 text-sm font-bold">{{ getDate(properties()[schemaFields.dc.created]) }}</span>
+      </div>
+      <div class="flex gap-1">
+        <span class="flex-1 text-sm text-gray-500">Senast uppdaterad av: </span>
+        <span class="flex-1 text-sm font-bold">
+          {{
+            properties()[schemaFields.dc.lastContributor]?.properties?.firstName +
+              ' ' +
+              properties()[schemaFields.dc.lastContributor]?.properties?.lastName
+          }}
+        </span>
+      </div>
+      <div class="flex gap-1">
+        <span class="flex-1 text-sm text-gray-500">Granskad av: </span>
+        <span class="flex-1 text-sm font-bold">
+          @if (properties()[schemaFields.handling.granskare]) {
+            {{
+              properties()[schemaFields.handling.granskare]?.properties?.firstName +
+                ' ' +
+                properties()[schemaFields.handling.granskare]?.properties?.lastName
+            }}
+          }
+        </span>
+      </div>
+      <div class="flex gap-1">
+        <span class="flex-1 text-sm text-gray-500">Granskningsdatum: </span>
+        <span class="flex-1 text-sm font-bold">{{
+          getDate(properties()[schemaFields.handling.granskningsdatum])
+        }}</span>
+      </div>
+      <div class="flex gap-1">
+        <span class="flex-1 text-sm text-gray-500">Godkännande/ Fastställande datum: </span>
+        <span class="flex-1 text-sm font-bold">{{
+          getDate(properties()[schemaFields.handling.godkannandeDatum])
+        }}</span>
+      </div>
+      <div class="flex gap-1">
+        <span class="flex-1 text-sm text-gray-500">Beslutsfattare: </span>
+        <span class="flex-1 text-sm font-bold">
+          @if (properties()[schemaFields.handling.beslutsfattare]) {
+            {{
+              properties()[schemaFields.handling.beslutsfattare]?.properties?.firstName +
+                ' ' +
+                properties()[schemaFields.handling.beslutsfattare]?.properties?.lastName
+            }}
+          }
+        </span>
+      </div>
+      <div class="flex gap-1">
+        <span class="flex-1 text-sm text-gray-500">Beslutsdatum: </span>
+        <span class="flex-1 text-sm font-bold">{{ getDate(properties()[schemaFields.handling.beslutatDatum]) }}</span>
+      </div>
+      <div class="flex gap-1">
+        <span class="flex-1 text-sm text-gray-500">Beslut: </span>
+        <span class="flex-1 text-sm font-bold">{{
+          properties()[schemaFields.handling.beslut]?.properties?.label
+        }}</span>
+      </div>
+      <div class="flex gap-1">
+        <span class="flex-1 text-sm text-gray-500">Beslutstyp: </span>
+        <span class="flex-1 text-sm font-bold"></span>
+      </div>
+
+      <div class="flex gap-1">
+        <span class="flex-1 text-sm text-gray-500"> {{ directionInfo().dateLabel }}: </span>
+        <span class="flex-1 text-sm font-bold"> {{ getDate(directionInfo().date) }} </span>
+      </div>
+
+      <div class="flex gap-1">
+        <span class="flex-1 text-sm text-gray-500">Expedierad datum: </span>
+        <span class="flex-1 text-sm font-bold">{{ getDate(properties()[schemaFields.handling.expedieradDatum]) }}</span>
+      </div>
+      <div class="flex gap-1">
+        <span class="flex-1 text-sm text-gray-500">Arkiverad datum: </span>
+        <span class="flex-1 text-sm font-bold">{{ getDate(properties()[schemaFields.handling.arkiveradDatum]) }}</span>
+      </div>
+      <div class="flex gap-1">
+        <span class="flex-1 text-sm text-gray-500">Gallrad datum: </span>
+        <span class="flex-1 text-sm font-bold">{{ getDate(properties()[schemaFields.handling.gallradDatum]) }}</span>
+      </div>
+      <div class="flex gap-1">
+        <span class="flex-1 text-sm text-gray-500">Makulerad datum: </span>
+        <span class="flex-1 text-sm font-bold">{{ getDate(properties()[schemaFields.handling.makuleradDatum]) }}</span>
+      </div>
+    </div>
+  </section>
+</div>

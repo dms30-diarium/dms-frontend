@@ -1,0 +1,27 @@
+<h2 class="!p-0">
+  <div class="flex w-full flex-col items-center gap-2 py-4 text-center">
+    <div
+      class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gray-300 text-lg font-semibold text-white">
+      {{ initials || '•' }}
+    </div>
+
+    <div class="text-base font-semibold text-gray-950">
+      {{ displayName }}
+    </div>
+  </div>
+</h2>
+
+<div class="space-y-4">
+  <dl class="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+    <dt class="text-gray-500">Användarnamn</dt>
+    <dd class="truncate">
+      {{ displayName }}
+    </dd>
+
+    <dt class="text-gray-500">E-post</dt>
+    <dd class="truncate">{{ user()?.properties?.email || '' }}</dd>
+
+    <dt class="text-gray-500">Användar-Id</dt>
+    <dd class="truncate">{{ user()?.id || '' }}</dd>
+  </dl>
+</div>

@@ -1,0 +1,13 @@
+<div class="flex flex-col gap-2 p-2">
+  @for (item of localOptions(); track item.id) {
+    <label class="flex items-center gap-2">
+      <input type="checkbox" [id]="item.id" [checked]="item.visible" (change)="toggleVisibility(item, $event)" />
+      {{ item.label }}
+    </label>
+  }
+
+  <div class="mt-3 flex justify-end gap-2">
+    <digi-button variant="secondary" size="sm" (click)="resetToDefault()">Reset</digi-button>
+    <digi-button variant="primary" size="sm" (click)="applyChangesAndClose()">OK</digi-button>
+  </div>
+</div>

@@ -1,0 +1,42 @@
+<form class="bg-gray-100 p-4" [formGroup]="form">
+  <div class="flex flex-col gap-4">
+    <div>
+      <div>Välj användaren</div>
+      @if (anvandareSuggestions()) {
+        <digi-form-select-filter
+          [formControlName]="'anvandare'"
+          [attr.af-name]="'Sök språk'"
+          [attr.af-filter-button-text-label]="' '"
+          [attr.af-filter-button-text]="'Inget språk valt'"
+          [attr.af-submit-button-text]="'Filtrera'"
+          [attr.af-multiple-items]="true"
+          [afListItems]="anvandareSuggestions()">
+        </digi-form-select-filter>
+      }
+    </div>
+    <div>
+      <div>Beskrivning</div>
+      <digi-form-input formControlName="beskrivning" af-label=" " [attr.af-variation]="'medium'"></digi-form-input>
+    </div>
+    <div>
+      <div>Varje tilldelad person måste slutföra sin uppgift</div>
+      <digi-form-checkbox formControlName="multipel" [attr.af-label]="' '" af-variation="secondary" />
+    </div>
+  </div>
+</form>
+<div class="flex gap-4">
+  <digi-button
+    (afOnClick)="closeDialog.emit()"
+    [attr.af-size]="'medium'"
+    [attr.af-variation]="'secondary'"
+    [attr.af-full-width]="false">
+    Avbryt
+  </digi-button>
+  <digi-button
+    (afOnClick)="onSave()"
+    [attr.af-size]="'medium'"
+    [attr.af-variation]="'primary'"
+    [attr.af-full-width]="false">
+    Spara
+  </digi-button>
+</div>

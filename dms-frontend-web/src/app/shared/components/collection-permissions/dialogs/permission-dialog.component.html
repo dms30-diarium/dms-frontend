@@ -1,0 +1,107 @@
+<form [formGroup]="form()" class="flex flex-col gap-4">
+  @if (mode() !== 'edit') {
+    <div class="flex flex-col gap-2">
+      <div class="text-sm font-semibold" id="permission-principal-label">User / Group *</div>
+      <digi-form-select-filter
+        [formControlName]="'principal'"
+        [value]="form().controls.principal.value ? [form().controls.principal.value] : []"
+        [afListItems]="principalOptions()"
+        af-filter-button-text-label=" "
+        af-filter-button-text="Sök användare och grupper"
+        [afMultipleItems]="false"
+        af-name=" "
+        (afOnQueryChanged)="principalQueryChanged.emit($event)"
+        (afOnSelect)="principalSelected.emit($event)"
+        [attr.id]="'permission-principal'"
+        [attr.aria-labelledby]="'permission-principal-label'"
+        af-validation="neutral">
+      </digi-form-select-filter>
+    </div>
+  }
+
+  <div class="flex flex-col gap-2">
+    <div class="text-sm font-semibold" id="permission-right-label">Right *</div>
+    <digi-form-select
+      [formControlName]="'permission'"
+      af-label=" "
+      [attr.af-variation]="'medium'"
+      [attr.af-placeholder]="'Read'"
+      [attr.id]="'permission-right'"
+      [attr.aria-labelledby]="'permission-right-label'">
+      @for (option of permissionOptions(); track option.id) {
+        <option [value]="option.id">{{ option.label }}</option>
+      }
+    </digi-form-select>
+  </div>
+
+  <div class="flex flex-col gap-2">
+    <div class="text-sm font-semibold" id="permission-timeframe-label">Time Frame</div>
+    <digi-form-radiogroup
+      [formControlName]="'timeFrame'"
+      [attr.id]="'permission-timeframe'"
+      [attr.aria-labelledby]="'permission-timeframe-label'">
+      <div class="flex gap-8">
+        <digi-form-radiobutton [attr.af-label]="'Permanent'" [attr.af-value]="'permanent'"></digi-form-radiobutton>
+        <digi-form-radiobutton [attr.af-label]="'Date-based'" [attr.af-value]="'date'"></digi-form-radiobutton>
+      </div>
+    </digi-form-radiogroup>
+  </div>
+
+  @if (form().controls.timeFrame.value === 'date') {
+    <div class="grid gap-4 md:grid-cols-2">
+      <div class="flex flex-col gap-2">
+        <div class="text-sm font-semibold" id="permission-begin-label">Från</div>
+        <digi-calendar-datepicker
+          [afLabel]="''"
+          [formControlName]="'begin'"
+          [attr.id]="'permission-begin'"
+          [attr.aria-labelledby]="'permission-begin-label'">
+        </digi-calendar-datepicker>
+      </div>
+      <div class="flex flex-col gap-2">
+        <div class="text-sm font-semibold" id="permission-end-label">Till</div>
+        <digi-calendar-datepicker
+          [afLabel]="''"
+          [formControlName]="'end'"
+          [attr.id]="'permission-end'"
+          [attr.aria-labelledby]="'permission-end-label'">
+        </digi-calendar-datepicker>
+      </div>
+    </div>
+  }
+
+  <digi-form-checkbox
+    [formControlName]="'notify'"
+    [attr.af-label]="'Skicka e-post till användaren'"
+    af-variation="secondary"></digi-form-checkbox>
+
+  <div class="flex flex-col gap-2">
+    <div class="text-sm font-semibold" id="permission-comment-label">Notifikation</div>
+    <digi-form-textarea
+      [formControlName]="'comment'"
+      af-variation="medium"
+      [attr.id]="'permission-comment'"
+      [attr.aria-labelledby]="'permission-comment-label'"
+      [attr.af-placeholder]="'Hej! ...'">
+    </digi-form-textarea>
+  </div>
+
+  <div class="mt-4 flex items-center gap-2">
+    <digi-button
+      type="button"
+      (afOnClick)="dialogClose.emit()"
+      [attr.af-size]="'medium'"
+      [attr.af-variation]="'secondary'"
+      [attr.af-full-width]="false">
+      Avbryt
+    </digi-button>
+    <digi-button
+      type="button"
+      (afOnClick)="formSubmit.emit()"
+      [attr.af-size]="'medium'"
+      [attr.af-variation]="'primary'"
+      [attr.af-full-width]="false">
+      {{ mode() === 'edit' ? 'Spara' : 'Skapa' }}
+    </digi-button>
+  </div>
+</form>

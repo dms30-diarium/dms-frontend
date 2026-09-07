@@ -1,0 +1,290 @@
+@if (subLabel()) {
+  <h4 class="mb-4">{{ subLabel() }}</h4>
+}
+
+<form class="p-4" [formGroup]="form" (ngSubmit)="submit()">
+  <div class="flex flex-col gap-4 lg:flex-row">
+    @for (column of columnsItems(); track column.id) {
+      <div class="flex min-w-0 flex-1 flex-col gap-2">
+        @for (field of column.fields; track field.props?.key ?? field.name) {
+          @if (!field.isHidden) {
+            <ng-container>
+              <div>
+                @switch (field.type) {
+                  <!-- upload file -->
+                  @case ('uploadFile') {
+                    @if (form.get('handlingFormat')?.value !== 'paper') {
+                      @if (shouldShowTemplate() && field.name === 'uploadFile') {
+                        <digi-form-radiogroup>
+                          <div class="flex gap-4 p-4">
+                            <digi-form-radiobutton
+                              [afChecked]="isUpload() === 'upload'"
+                              (afOnChange)="isUpload.set('upload')"
+                              [attr.af-label]="'Bifoga fil'">
+                            </digi-form-radiobutton>
+                            <digi-form-radiobutton
+                              [afChecked]="isUpload() === 'template'"
+                              (afOnChange)="isUpload.set('template')"
+                              [attr.af-label]="'Välj från mall'">
+                            </digi-form-radiobutton>
+                          </div>
+                        </digi-form-radiogroup>
+                      }
+                      @if (isUpload() === 'upload') {
+                        <h4>
+                          {{ field.label }}
+                          @if (isRequired(field)) {
+                            <span class="text-red-600">*</span>
+                          }
+                        </h4>
+                        @if (field.subText) {
+                          <p class="mt-4">{{ field.subText }}</p>
+                        }
+                        <nuxeo-file-upload
+                          [maxFiles]="field.maxFiles ?? null"
+                          type="large"
+                          (filesChange)="uploadFile($event, field.name)"></nuxeo-file-upload>
+                        @if (field.maxFiles === 1) {
+                          <span class="font-semibold">Endast en fil kan laddas upp.</span>
+                        }
+                      } @else {
+                        <h4>Välj från mall</h4>
+                        <digi-form-select
+                          [formControlName]="'template'"
+                          af-label=" "
+                          [attr.af-variation]="'medium'"
+                          [attr.af-validation]="'neutral'"
+                          [attr.af-placeholder]="'Välj ...'">
+                          @for (template of templates(); track template.uid) {
+                            <option [value]="template.uid">
+                              <span>{{ template.title }}</span>
+                            </option>
+                          }
+                        </digi-form-select>
+                      }
+                    }
+                  }
+                  <!-- input field -->
+                  @case ('input') {
+                    @if (
+                      !(
+                        (field.name === 'rubrik' && form.get('handlingFormat')?.value === 'paper') ||
+                        (field.name === 'fysisk_forvaringsplats' && form.get('handlingFormat')?.value !== 'paper')
+                      )
+                    ) {
+                      @if (field.label) {
+                        <h4>
+                          {{ field.label }}
+                          @if (isRequired(field)) {
+                            <span class="text-red-600">*</span>
+                          }
+                        </h4>
+                      }
+                      <div class="flex items-center gap-4">
+                        <digi-form-input
+                          class="flex-1"
+                          af-label=" "
+                          [afValidation]="
+                            form.get(field.name)?.invalid && (isSubmitted || isSubmittedInput()) ? 'error' : 'neutral'
+                          "
+                          [attr.af-validation-text]="
+                            field.validationText ? field.validationText : 'Detta fält är obligatoriskt.'
+                          "
+                          [formControlName]="field.name"
+                          [attr.af-variation]="'medium'"
+                          [attr.af-type]="field.inputType || 'text'"
+                          [attr.placeholder]="field.placeholder || null"
+                          [attr.inputmode]="field.inputType === 'number' ? 'numeric' : null"
+                          [attr.pattern]="field.inputType === 'number' ? '[0-9]*' : null">
+                        </digi-form-input>
+                        @if (field.showContentProjection) {
+                          <ng-content class="flex-1"></ng-content>
+                        }
+                      </div>
+                    }
+                  }
+                  <!-- dropdown -->
+                  @case ('dropdown') {
+                    <h4>
+                      {{ field.label }}
+                      @if (isRequired(field)) {
+                        <span class="text-red-600">*</span>
+                      }
+                    </h4>
+                    <digi-form-select
+                      (afOnChange)="changeSelectedOptions($event.target.value, field.name)"
+                      [formControlName]="field.name"
+                      af-label=" "
+                      [attr.af-variation]="'medium'"
+                      [afValidation]="
+                        form.get(field.name)?.invalid && (isSubmitted || isSubmittedInput()) ? 'error' : 'neutral'
+                      "
+                      [attr.af-validation-text]="
+                        field.validationText ? field.validationText : 'Detta fält är obligatoriskt.'
+                      "
+                      [attr.af-placeholder]="'Välj ...'">
+                      @for (option of field.options; track option.id) {
+                        <option [value]="option.id">
+                          <span>{{ option.label }}</span>
+                        </option>
+                      }
+                    </digi-form-select>
+                  }
+                  <!-- text-->
+                  @case ('text') {
+                    <div class="flex gap-2">
+                      <h4>
+                        {{ field.label }}
+                      </h4>
+                      <div class="font-semibold">{{ field.defaultValue }}</div>
+                    </div>
+                  }
+                  <!-- dropdown search-->
+                  @case ('dropdown-search') {
+                    <h4>
+                      {{ field.label }}
+                      @if (isRequired(field)) {
+                        <span class="text-red-600">*</span>
+                      }
+                    </h4>
+                    <digi-form-select-filter
+                      [formControlName]="field.name"
+                      [attr.af-filter-button-text-label]="' '"
+                      (afOnSelect)="changeSelectedOptions($event.detail[0]?.id, field.name)"
+                      (afOnQueryChanged)="
+                        dropdownChanged.emit({ fieldName: field.name, value: $event.detail, formValue: form.value })
+                      "
+                      [afListItems]="getSelectFilterOptions(field)"
+                      af-name="Sök"
+                      af-filter-button-text="Inga objekt valda"
+                      [afValidation]="
+                        form.get(field.name)?.invalid && (isSubmitted || isSubmittedInput()) ? 'error' : 'neutral'
+                      "
+                      [attr.af-validation-text]="
+                        field.validationText ? field.validationText : 'Detta fält är obligatoriskt.'
+                      "
+                      [afHideResetButton]="true"
+                      [afMultipleItems]="field.multiple"
+                      afSubmitButtonText="Filtrera">
+                    </digi-form-select-filter>
+                  }
+                  <!-- radio button -->
+                  @case ('radio') {
+                    <h4 class="mb-2">
+                      {{ field.label }}
+                      @if (isRequired(field)) {
+                        <span class="text-red-600">*</span>
+                      }
+                    </h4>
+                    <digi-form-radiogroup [formControlName]="field.name" [attr.af-name]="field.name">
+                      <div class="flex gap-8">
+                        @for (opt of field.options; track opt) {
+                          <digi-form-radiobutton
+                            (afOnChange)="changeRadioOption(field.name, opt.id)"
+                            [afChecked]="form.get(field.name)?.value === opt.id"
+                            [attr.af-label]="opt.label"
+                            [attr.af-value]="opt.id">
+                          </digi-form-radiobutton>
+                        }
+                      </div>
+                    </digi-form-radiogroup>
+                    @if (isSubmitted && !form.get(field.name)?.valid) {
+                      <digi-form-validation-message af-variation="error"
+                        >Detta fält är obligatoriskt.</digi-form-validation-message
+                      >
+                    }
+                  }
+                  <!-- date -->
+                  @case ('datepicker') {
+                    <h4>
+                      {{ field.label }}
+                      @if (isRequired(field)) {
+                        <span class="text-red-600">*</span>
+                      }
+                    </h4>
+                    <digi-calendar-datepicker [afLabel]="''" [formControlName]="field.name"> </digi-calendar-datepicker>
+                  }
+                  <!-- checkbox file -->
+                  @case ('checkbox') {
+                    <h4 class="mb-2">
+                      {{ field.label }}
+                      @if (isRequired(field)) {
+                        <span class="text-red-600">*</span>
+                      }
+                    </h4>
+                    <digi-form-checkbox
+                      [formControlName]="field.name"
+                      [attr.af-label]="field.text"
+                      af-variation="secondary" />
+                  }
+                  <!-- textarea -->
+                  @case ('textarea') {
+                    <h4>
+                      {{ field.label }}
+                      @if (isRequired(field)) {
+                        <span class="text-red-600">*</span>
+                      }
+                    </h4>
+                    <digi-form-textarea
+                      [afValidation]="form.get(field.name)?.invalid && isSubmitted ? 'error' : 'neutral'"
+                      [attr.af-validation-text]="
+                        field.validationText ? field.validationText : 'Detta fält är obligatoriskt.'
+                      "
+                      [formControlName]="field.name"
+                      [attr.af-label]="' '"
+                      af-variation="medium">
+                    </digi-form-textarea>
+                  }
+                  <!-- rich text -->
+                  @case ('richtext') {
+                    <div class="flex items-center justify-between">
+                      <h4>
+                        {{ field.label }}
+                        @if (isRequired(field)) {
+                          <span class="text-red-600">*</span>
+                        }
+                      </h4>
+                      @if (form.get(field.name)?.invalid && isSubmitted) {
+                        <span class="text-sm text-red-600">Detta fält är obligatoriskt.</span>
+                      }
+                    </div>
+                    <angular-editor
+                      [formControlName]="field.name"
+                      [placeholder]="field.placeholder || ''"
+                      [config]="getEditorConfig(field)">
+                    </angular-editor>
+                  }
+                  <!-- custom component -->
+                  @case ('component') {
+                    @if (field.class) {
+                      <ng-container [ngComponentOutlet]="field.class" [ngComponentOutletInputs]="field.props">
+                      </ng-container>
+                    }
+                  }
+                }
+              </div>
+            </ng-container>
+          }
+        }
+      </div>
+    }
+  </div>
+</form>
+@if (shouldShowButtons()) {
+  <div class="flex gap-2 pt-10">
+    <digi-button
+      (afOnClick)="dialogClose.emit()"
+      [attr.af-size]="'medium'"
+      [attr.af-variation]="'secondary'"
+      [attr.af-full-width]="false">
+      Avbryt
+    </digi-button>
+    <digi-button
+      (afOnClick)="isLoading() ? '' : submit()"
+      [attr.af-size]="'medium'"
+      [attr.af-variation]="'primary'"
+      [attr.af-full-width]="false">
+      Skapa
+    </digi-button>
+  </div>
+}

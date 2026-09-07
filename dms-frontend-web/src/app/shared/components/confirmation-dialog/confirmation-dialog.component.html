@@ -1,0 +1,11 @@
+<digi-dialog
+  [attr.af-heading]="label()"
+  [attr.af-primary-button-text]="'Bekräfta'"
+  [attr.af-secondary-button-text]="'Avbryt'"
+  (afPrimaryButtonClick)="confirm.emit()"
+  (afOnClose)="canceled.emit()"
+  (afSecondaryButtonClick)="canceled.emit()"
+  af-show-dialog="true"
+  [attr.af-size]="'small'">
+  {{ text() }}
+</digi-dialog>

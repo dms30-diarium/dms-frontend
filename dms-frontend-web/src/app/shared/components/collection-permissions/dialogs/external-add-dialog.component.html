@@ -1,0 +1,84 @@
+<form [formGroup]="form()" class="flex flex-col gap-4">
+  <div class="flex flex-col gap-2">
+    <div class="text-sm font-semibold" id="external-email-label">E-post *</div>
+    <digi-form-input
+      [formControlName]="'email'"
+      af-label=" "
+      af-type="email"
+      af-variation="medium"
+      [attr.id]="'external-email'"
+      [attr.aria-labelledby]="'external-email-label'">
+    </digi-form-input>
+  </div>
+
+  <div class="flex flex-col gap-2">
+    <div class="text-sm font-semibold" id="external-right-label">Right *</div>
+    <digi-form-select
+      [formControlName]="'permission'"
+      af-label=" "
+      [attr.af-variation]="'medium'"
+      [attr.af-placeholder]="'Read'"
+      [attr.id]="'external-right'"
+      [attr.aria-labelledby]="'external-right-label'">
+      @for (option of permissionOptions(); track option.id) {
+        <option [value]="option.id">{{ option.label }}</option>
+      }
+    </digi-form-select>
+  </div>
+
+  <div class="grid gap-4 md:grid-cols-2">
+    <div class="flex flex-col gap-2">
+      <div class="text-sm font-semibold" id="external-begin-label">Från</div>
+      <digi-calendar-datepicker
+        [afLabel]="''"
+        [formControlName]="'begin'"
+        [attr.id]="'external-begin'"
+        [attr.aria-labelledby]="'external-begin-label'">
+      </digi-calendar-datepicker>
+    </div>
+    <div class="flex flex-col gap-2">
+      <div class="text-sm font-semibold" id="external-end-label">Till *</div>
+      <digi-calendar-datepicker
+        [afLabel]="''"
+        [formControlName]="'end'"
+        [attr.id]="'external-end'"
+        [attr.aria-labelledby]="'external-end-label'">
+      </digi-calendar-datepicker>
+    </div>
+  </div>
+
+  <digi-form-checkbox
+    [formControlName]="'notify'"
+    [attr.af-label]="'Skicka e-post till användaren'"
+    af-variation="secondary"></digi-form-checkbox>
+
+  <div class="flex flex-col gap-2">
+    <div class="text-sm font-semibold" id="external-comment-label">Notifikation</div>
+    <digi-form-textarea
+      [formControlName]="'comment'"
+      af-variation="medium"
+      [attr.id]="'external-comment'"
+      [attr.aria-labelledby]="'external-comment-label'"
+      [attr.af-placeholder]="'Hej! ...'">
+    </digi-form-textarea>
+  </div>
+
+  <div class="mt-4 flex items-center gap-2">
+    <digi-button
+      type="button"
+      (afOnClick)="dialogClose.emit()"
+      [attr.af-size]="'medium'"
+      [attr.af-variation]="'secondary'"
+      [attr.af-full-width]="false">
+      Avbryt
+    </digi-button>
+    <digi-button
+      type="button"
+      (afOnClick)="formSubmit.emit()"
+      [attr.af-size]="'medium'"
+      [attr.af-variation]="'primary'"
+      [attr.af-full-width]="false">
+      Skapa
+    </digi-button>
+  </div>
+</form>

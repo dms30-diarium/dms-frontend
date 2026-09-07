@@ -1,0 +1,40 @@
+@if (showPageSize() || totalPages() > 1) {
+  <div class="relative flex items-center pt-2">
+    @if (showPageSize()) {
+      <div
+        class="flex items-center gap-3"
+        [class.absolute]="totalPages() > 1"
+        [class.z-20]="totalPages() > 1"
+        [class.flex-1]="totalPages() > 1">
+        <div class="text-sm font-semibold text-slate-600" id="gridPageSizeSelect-label">{{ pageSizeLabel() }}</div>
+        <digi-form-select
+          id="gridPageSizeSelect"
+          class="min-w-[140px]"
+          af-label=" "
+          [attr.aria-labelledby]="'gridPageSizeSelect-label'"
+          [attr.af-variation]="'medium'"
+          [attr.af-validation]="'neutral'"
+          [attr.af-value]="pageSize() + ''"
+          [attr.af-placeholder]="pageSizePlaceholder()"
+          (afOnChange)="onPageSizeChange($event.target.value)">
+          @for (size of pageSizeOptions(); track size) {
+            <option [value]="size">
+              <span>{{ size }}</span>
+            </option>
+          }
+        </digi-form-select>
+      </div>
+    }
+
+    @if (totalPages() > 1) {
+      <div class="flex-2">
+        <digi-navigation-pagination
+          (afOnPageChange)="onPageChange($event)"
+          [attr.af-total-pages]="totalPages()"
+          [attr.af-init-active-page]="currentPage() + 1"
+          class="relative">
+        </digi-navigation-pagination>
+      </div>
+    }
+  </div>
+}

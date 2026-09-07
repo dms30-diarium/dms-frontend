@@ -1,0 +1,59 @@
+<div class="relative flex h-8 w-8 items-center justify-center text-[#1b345d]">
+  <digi-badge-notification
+    class="navbar-reminders__badge absolute -top-1 -right-1 z-10"
+    [afValue]="reminderCount()"
+    [afAriaLabel]="reminderBadgeLabel()">
+  </digi-badge-notification>
+  <div
+    class="flex h-8 w-8 cursor-pointer items-center justify-center"
+    tabindex="0"
+    (click)="toggleReminderPopup()"
+    (keydown.enter)="toggleReminderPopup()"
+    (keydown.space)="toggleReminderPopup()">
+    <digi-header-notification class="flex h-5 max-h-5 w-5 max-w-5 shrink-0">
+      <digi-icon-bell></digi-icon-bell>
+    </digi-header-notification>
+  </div>
+
+  @if (isReminderPopupOpen()) {
+    <div
+      class="absolute top-10 left-0 z-100 w-[calc(100vw-2rem)] max-w-[520px] rounded-lg border border-gray-200 bg-white py-2 shadow-lg lg:right-0 lg:left-auto lg:w-[520px]"
+      role="menu">
+      <div class="border-b border-gray-200 px-4 pb-2 text-sm font-semibold text-gray-900">Idag</div>
+      <div class="max-h-[320px] overflow-y-auto">
+        @for (notification of notificationItems(); track notification.id) {
+          <digi-button
+            class="block w-full cursor-pointer text-left hover:bg-gray-50"
+            (afOnClick)="openReminderDocument(notification.targetDocumentId)"
+            [attr.af-full-width]="true"
+            [attr.af-role]="'menuitem'"
+            [attr.af-size]="'small'"
+            [attr.af-variation]="'function'">
+            <div class="w-full px-4 py-3 text-left">
+              @if (notification.kind === 'workflow') {
+                <div class="flex items-center justify-between gap-3">
+                  <span class="text-xs font-medium text-gray-500 uppercase">{{ notification.type }}</span>
+                  <span class="truncate text-[10px] text-gray-400">{{ notification.workflowType }}</span>
+                </div>
+                <div class="mt-1 flex items-end justify-between gap-3">
+                  <span class="text-sm font-medium text-gray-900">{{ notification.title }}</span>
+                  <span class="shrink-0 text-[10px] leading-4 text-gray-400"
+                    >Deadline {{ notification.deadlineDate }}</span
+                  >
+                </div>
+              } @else {
+                <div class="flex items-center justify-between gap-3">
+                  <span class="truncate text-sm font-medium text-gray-900">{{ notification.title }}</span>
+                  <span class="shrink-0 text-[10px] font-medium text-gray-500 uppercase">{{
+                    notification.fileType
+                  }}</span>
+                </div>
+                <div class="mt-1 text-xs leading-5 text-gray-500">{{ notification.message }}</div>
+              }
+            </div>
+          </digi-button>
+        }
+      </div>
+    </div>
+  }
+</div>

@@ -1,0 +1,312 @@
+<div class="p-6">
+  <div class="flex items-center justify-between">
+    <h1 class="pb-4 text-3xl font-semibold">Avancerad sök</h1>
+    <div class="sidebar-search-actions flex shrink-0 items-center gap-4">
+      @if (shouldShowForm()) {
+        <digi-icon-redo
+          title="Nollställ filter"
+          aria-label="Nollställ filter"
+          (click)="restoreFilters()"
+          class="image image-small text-primary cursor-pointer"></digi-icon-redo>
+        <digi-icon-bookmark-outline
+          title="Spara sök"
+          aria-label="Spara sök"
+          (click)="showSaveSeachDialog.set(true)"
+          class="image image-small text-primary cursor-pointer"></digi-icon-bookmark-outline>
+        <digi-icon-filter
+          title="Visa lista"
+          aria-label="Visa lista"
+          (click)="openList(); resetPage()"
+          class="h-4 w-4 cursor-pointer"></digi-icon-filter>
+      } @else {
+        <digi-icon-list-ul
+          title="Visa filter"
+          aria-label="Visa filter"
+          (click)="openFilters(); resetPage()"
+          class="h-4 w-4 cursor-pointer"></digi-icon-list-ul>
+      }
+      @if (shouldShowForm()) {
+        <digi-icon-settings
+          title="Visa filter"
+          aria-label="Visa filter"
+          (click)="openFilterOptions()"
+          class="image image-small cursor-pointer"></digi-icon-settings>
+      }
+    </div>
+  </div>
+  @if (shouldShowForm()) {
+    <div class="my-4 flex flex-col gap-4">
+      @if (savedSearches()?.entries?.length) {
+        <nuxeo-accordion accordionTitle="Sparade sökningar" class="mb-4">
+          @for (search of savedSearches()?.entries; track search) {
+            <div class="mt-2 flex w-full justify-between rounded-md bg-gray-100 p-2 hover:bg-blue-100">
+              <button
+                class="cursor-pointer text-gray-700 transition-all hover:font-semibold hover:text-black"
+                (click)="applySavedSearch(search.params)">
+                <div>{{ search?.params?.searchName }}</div>
+              </button>
+              <div class="flex gap-4">
+                <digi-icon-share-alt
+                  slot="icon"
+                  class="image image-small cursor-pointer"
+                  (click)="getUserOptions(search.id)" />
+                <digi-icon-trash
+                  slot="icon"
+                  class="image image-small cursor-pointer"
+                  (click)="deleteSavedSearch(search.id)" />
+              </div>
+            </div>
+          }
+        </nuxeo-accordion>
+      }
+    </div>
+
+    <form
+      [formGroup]="form"
+      cdkDropList
+      [cdkDropListOrientation]="'vertical'"
+      [cdkDropListSortPredicate]="sortPredicate"
+      (cdkDropListDropped)="onInputDropped($event)">
+      @for (field of fields(); track $index) {
+        <div cdkDrag [attr.data-key]="field.key" [cdkDragDisabled]="field.type === 'search'">
+          @if (field.visible) {
+            <div>
+              @switch (field.type) {
+                <!--  input/search -->
+                @case ('search') {
+                  <div class="relative flex items-center">
+                    @if (field.key === 'motpart') {
+                      <digi-form-input-search
+                        [formControlName]="field.key"
+                        class="mb-4"
+                        slot="search"
+                        [attr.af-label]="field.label"
+                        af-variation="medium"
+                        af-type="search"
+                        af-button-text="Sök"
+                        (afOnInput)="onMotpartInput($event)"
+                        (afOnSubmitSearch)="onMotpartSubmit($event)">
+                      </digi-form-input-search>
+                    } @else {
+                      <digi-form-input-search
+                        [formControlName]="field.key"
+                        class="mb-4"
+                        slot="search"
+                        [attr.af-label]="field.label"
+                        af-variation="medium"
+                        af-type="search"
+                        af-button-text="Sök"
+                        (afOnSubmitSearch)="onSearchSubmit(field.key, $event)">
+                      </digi-form-input-search>
+                    }
+                  </div>
+                }
+                <!-- Select (mat-select) -->
+                @case ('select') {
+                  <div class="flex items-baseline gap-2">
+                    <digi-icon-table cdkDragHandle class="h-[16px] w-[16px] cursor-grab"></digi-icon-table>
+                    <mat-form-field [ngClass]="{ 'w-full': true }">
+                      <mat-label>{{ field.label }}</mat-label>
+                      <mat-select
+                        [formControlName]="field.key"
+                        [multiple]="field.multiple ?? true"
+                        (selectionChange)="onOptionChange()">
+                        @for (opt of field.options; track opt) {
+                          <mat-option [value]="opt.id">
+                            {{ opt.label }}
+                          </mat-option>
+                        }
+                      </mat-select>
+                      @if (field?.options?.length === 0) {
+                        <mat-hint>Inga resultat hittades</mat-hint>
+                      }
+                    </mat-form-field>
+                  </div>
+                }
+                <!-- Date -->
+                @case ('date') {
+                  <div class="flex items-baseline gap-2">
+                    <digi-icon-table cdkDragHandle class="h-[16px] w-[16px] cursor-grab"></digi-icon-table>
+                    <div class="w-full">
+                      <span class="mb-1 block text-sm text-slate-600">{{ field.label }}</span>
+                      <digi-calendar-datepicker
+                        [formControlName]="field.key"
+                        [afLabel]="''"
+                        [afSelectedDates]="getSelectedDates(field.key)"
+                        [afLabelDescription]="''"
+                        [afMinDate]="getDateMin(field.key)"
+                        [afMaxDate]="getDateMax(field.key)"
+                        (afOnDateChange)="onDateChange(field.key, $event)">
+                      </digi-calendar-datepicker>
+                    </div>
+                  </div>
+                }
+              }
+            </div>
+          }
+        </div>
+      }
+    </form>
+  } @else {
+    <div class="flex flex-col gap-4">
+      @for (doc of searchService.activeEntries(); track $index) {
+        <div
+          aria-hidden="true"
+          (click)="selectDocument(doc)"
+          [ngClass]="{
+            'border-2 border-blue-500 shadow-lg': doc?.['id'] === searchService.selectedItem()?.['id'],
+            'bg-arende-primary!': doc?.['type'] === 'Arende',
+            'bg-handling-primary!': doc?.['type'] === 'Handling',
+            'bg-utkast-primary!': doc?.['type'] === 'Utkast',
+          }"
+          class="flex cursor-pointer items-center justify-start gap-4 rounded-lg bg-white p-4 shadow-md hover:bg-gray-50 sm:flex-row">
+          @if (doc?.['type'] === 'Arende') {
+            <nuxeo-svg-icon size="20px" class="my-icon text-primary" [src]="arendeIcon"></nuxeo-svg-icon>
+          } @else if (doc?.['type'] === 'Handling') {
+            <nuxeo-svg-icon size="20px" class="my-icon text-primary" [src]="handlingIcon"></nuxeo-svg-icon>
+          } @else if (doc?.['type'] === 'Utkast') {
+            <nuxeo-svg-icon size="22px" class="my-icon text-primary" [src]="utkastIcon"></nuxeo-svg-icon>
+          }
+          <div class="min-w-0 flex-1">
+            <p class="truncate" [title]="doc?.['title']">{{ doc?.['title'] }}</p>
+            @if (doc?.['arendepart']) {
+              <p class="truncate" [title]="doc?.['arendepart']">{{ doc?.['arendepart'] }}</p>
+            }
+          </div>
+        </div>
+      }
+    </div>
+    @if (totalPages() > 1) {
+      <div class="pt-6">
+        <digi-navigation-pagination
+          (afOnPageChange)="changePageNumber($event)"
+          [attr.af-total-pages]="totalPages()"
+          [attr.af-init-active-page]="searchService.activePage()"
+          class="relative">
+        </digi-navigation-pagination>
+      </div>
+    }
+  }
+</div>
+
+@if (isFilterOptionsOpen()) {
+  <digi-dialog
+    class="search-dialog"
+    (afOnClose)="isFilterOptionsOpen.set(false)"
+    [attr.af-heading]="'Visa filter'"
+    [attr.af-size]="'small'"
+    [attr.af-show-dialog]="isFilterOptionsOpen()">
+    @defer (when isFilterOptionsOpen()) {
+      <nuxeo-search-filter-options
+        [filterOptions]="dialogFilterOptions()"
+        [defaultFilterOptions]="dialogDefaultFilterOptions()"
+        (filtersUpdated)="onFilterOptionsUpdated($event)"
+        (closeDialog)="isFilterOptionsOpen.set(false)">
+      </nuxeo-search-filter-options>
+    }
+  </digi-dialog>
+}
+
+<digi-dialog
+  class="search-dialog"
+  (afOnClose)="showSaveSeachDialog.set(false)"
+  [attr.af-heading]="'Lägg Söknamn'"
+  [attr.af-size]="'small'"
+  [attr.af-show-dialog]="showSaveSeachDialog()">
+  <digi-form-input #myInput class="flex-1" af-variation="medium" af-validation="neutral"></digi-form-input>
+
+  <div class="mt-4 flex gap-4">
+    <digi-button
+      (afOnClick)="showSaveSeachDialog.set(false)"
+      [attr.af-size]="'medium'"
+      [attr.af-variation]="'secondary'"
+      [attr.af-full-width]="false">
+      Avbryt
+    </digi-button>
+    <digi-button
+      (afOnClick)="saveSearch(myInput.value); showSaveSeachDialog.set(false)"
+      [attr.af-size]="'medium'"
+      [attr.af-variation]="'primary'"
+      [attr.af-full-width]="false">
+      Spara sök
+    </digi-button>
+  </div>
+</digi-dialog>
+
+<digi-dialog
+  class="search-dialog"
+  (afOnClose)="isShareSearchDialogOpen.set(false)"
+  [attr.af-heading]="'Lägg namn'"
+  [attr.af-size]="'small'"
+  [attr.af-show-dialog]="isShareSearchDialogOpen()">
+  <div class="flex flex-col gap-4">
+    <div>
+      <div class="mb-2 text-sm font-semibold">Användare</div>
+      <digi-form-select-filter
+        #shareUsersSelect
+        [afListItems]="shareUserOptions()"
+        af-filter-button-text="Inget valt"
+        af-submit-button-text="Filtrera"
+        [afMultipleItems]="true"
+        (afOnQueryChanged)="onShareUsersQuery($event)"
+        af-validation="neutral">
+      </digi-form-select-filter>
+    </div>
+    <div>
+      <div class="mb-2 text-sm font-semibold">Grupper</div>
+      <digi-form-select-filter
+        #shareGroupsSelect
+        [afListItems]="shareGroupOptions()"
+        af-filter-button-text="Inget valt"
+        af-submit-button-text="Filtrera"
+        [afMultipleItems]="true"
+        (afOnQueryChanged)="onShareGroupsQuery($event)"
+        af-validation="neutral">
+      </digi-form-select-filter>
+    </div>
+    <div>
+      <div class="mb-2 text-sm font-semibold">Gruppmedlemmar</div>
+      <digi-form-select-filter
+        #shareGroupPickSelect
+        [afListItems]="shareGroupOptions()"
+        af-filter-button-text="Välj grupp"
+        af-submit-button-text="Filtrera"
+        [afMultipleItems]="false"
+        (afOnQueryChanged)="onShareGroupsQuery($event)"
+        (afOnSelect)="onShareGroupPick($event)"
+        (afOnSubmitFilters)="onShareGroupPick($event)"
+        af-validation="neutral">
+      </digi-form-select-filter>
+      <div class="mt-3">
+        <digi-form-select-filter
+          #shareGroupUsersSelect
+          [afListItems]="shareGroupUserOptions()"
+          af-filter-button-text="Välj användare"
+          af-submit-button-text="Filtrera"
+          [afMultipleItems]="true"
+          (afOnQueryChanged)="onShareGroupUsersQuery($event)"
+          af-validation="neutral">
+        </digi-form-select-filter>
+      </div>
+    </div>
+  </div>
+  <div class="mt-4 flex gap-4">
+    <digi-button
+      (afOnClick)="isShareSearchDialogOpen.set(false)"
+      [attr.af-size]="'medium'"
+      [attr.af-variation]="'secondary'"
+      [attr.af-full-width]="false">
+      Avbryt
+    </digi-button>
+    <digi-button
+      (afOnClick)="
+        shareSearch(shareUsersSelect.value, shareGroupsSelect.value, shareGroupUsersSelect.value);
+        isShareSearchDialogOpen.set(false)
+      "
+      [attr.af-size]="'medium'"
+      [attr.af-variation]="'primary'"
+      [attr.af-full-width]="false">
+      Spara sök
+    </digi-button>
+  </div>
+</digi-dialog>

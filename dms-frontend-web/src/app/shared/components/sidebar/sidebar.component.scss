@@ -1,0 +1,38 @@
+.icon-white {
+  --digi--icon--color: white;
+}
+
+.icon-black {
+  --digi--icon--color: black;
+}
+
+.admin-panel__button {
+  --digi--button--text-align--full-width: left;
+  --digi--button--justify-content--full-width: flex-start;
+}
+
+:host {
+  display: block;
+  height: 100%;
+}
+
+.search-panel-toggle {
+  position: absolute;
+  top: 50%;
+  right: -12px;
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 36px;
+  border-radius: 4px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  transform: translateY(-50%);
+  cursor: pointer;
+}
+
+.search-panel-toggle:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}

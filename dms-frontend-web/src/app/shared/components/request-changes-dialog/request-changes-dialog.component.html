@@ -1,0 +1,29 @@
+<digi-dialog [attr.af-show-dialog]="!!open()" (afOnClose)="onCancel()" [attr.af-size]="'small'">
+  <div class="flex flex-col gap-4">
+    <h4 class="text-xl font-semibold">Begär ändringar</h4>
+    <p class="text-gray-600">Beskriv vad som behöver åtgärdas innan utkastet kan godkännas.</p>
+    <digi-form-textarea
+      [formControl]="commentControl"
+      [attr.af-variation]="'medium'"
+      [attr.af-validation]="commentControl.touched && !commentControl.value.trim() ? 'danger' : 'neutral'"
+      [attr.af-label]="'Kommentar'"
+      [attr.af-placeholder]="'Lägg till återkoppling'">
+    </digi-form-textarea>
+    <div class="flex justify-end gap-3 pt-2">
+      <digi-button
+        [attr.af-size]="'medium'"
+        [attr.af-variation]="'secondary'"
+        [attr.af-full-width]="false"
+        (afOnClick)="onCancel()">
+        Avbryt
+      </digi-button>
+      <digi-button
+        [attr.af-size]="'medium'"
+        [attr.af-variation]="'primary'"
+        [attr.af-full-width]="false"
+        (afOnClick)="onSubmit()">
+        Skicka
+      </digi-button>
+    </div>
+  </div>
+</digi-dialog>

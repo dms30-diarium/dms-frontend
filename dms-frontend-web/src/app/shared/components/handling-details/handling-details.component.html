@@ -1,0 +1,171 @@
+<div lang="sv" class="px-10 pb-6">
+  <div class="flex flex-col gap-6">
+    <!-- Rad 1: Grunduppgifter om handlingen -->
+    <section>
+      <div class="flex flex-col gap-2">
+        <div class="flex gap-1">
+          <span class="word-normal flex-1 text-sm break-words hyphens-auto text-gray-500">Handlingsnummer:</span>
+          <span class="flex-1 text-sm font-bold">{{ properties()[schemaFields.handling.handlingsnummer] }}</span>
+        </div>
+        <div class="flex gap-1">
+          <span class="word-normal flex-1 text-sm break-words hyphens-auto text-gray-500">Handlingsnamn:</span>
+          <span class="flex-1 text-sm font-bold">{{ properties()[schemaFields.handling.handlingsnamn] }}</span>
+        </div>
+        <div class="flex gap-1">
+          <span class="word-normal flex-1 text-sm break-words hyphens-auto text-gray-500">Handlingsstatus:</span>
+          <span class="flex-1 text-sm font-bold">{{
+            store.getValue(currentState()?.label ?? '') ?? currentState()?.id
+          }}</span>
+        </div>
+        <div class="flex gap-1">
+          <span class="word-normal flex-1 text-sm break-words hyphens-auto text-gray-500">Handlingstyp:</span>
+          <span class="flex-1 text-sm font-bold">{{
+            properties()[schemaFields.handling.handlingstyp]?.title ?? ''
+          }}</span>
+        </div>
+        <div class="flex gap-1">
+          <span class="word-normal flex-1 text-sm break-words hyphens-auto text-gray-500">Handlingsriktning:</span>
+          <span class="flex-1 text-sm font-bold">{{
+            properties()[schemaFields.handling.handlingsriktning]?.properties?.label
+          }}</span>
+        </div>
+        <div class="flex gap-1">
+          <span class="word-normal flex-1 text-sm break-words hyphens-auto text-gray-500">Ärendenummer:</span>
+          <span class="flex-1 text-sm font-bold">{{ properties()[schemaFields.handling.arendenummer] }}</span>
+        </div>
+        <div class="flex gap-1">
+          <span class="word-normal flex-1 text-sm break-words hyphens-auto text-gray-500"
+            >Extern referens/ beteckning:</span
+          >
+          <span class="flex-1 text-sm font-bold">{{
+            properties()[schemaFields.handling.externReferens] | joinFields: ['referens', 'referenskommentar']
+          }}</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Kommentarer -->
+    <section>
+      <h2 class="text-lg font-medium">Kommentarer</h2>
+      <div class="flex gap-1">
+        <span class="word-normal flex-1 text-sm break-words hyphens-auto text-gray-500">Allmän kommentar:</span>
+        <div class="flex-1 text-sm font-bold">{{ properties()[schemaFields.handling.kommentarer] }}</div>
+      </div>
+      <div class="mt-2 flex gap-1">
+        <span class="word-normal flex-1 text-sm break-words hyphens-auto text-gray-500">Makuleringskommentar:</span>
+        <div class="flex-1 text-sm font-bold">{{ properties()[schemaFields.handling.makuleringskommentar] }}</div>
+      </div>
+    </section>
+
+    <!-- Media -->
+    <section>
+      <h2 class="mb-1 text-lg font-medium">Media</h2>
+      <div class="flex flex-col gap-2">
+        <div class="flex gap-1">
+          <span class="word-normal flex-1 text-sm break-words hyphens-auto text-gray-500">Inkanal via:</span>
+          <span class="flex-1 text-sm font-bold">{{ properties()[schemaFields.handling.inkanalVia] }}</span>
+        </div>
+        <div class="flex gap-1">
+          <span class="word-normal flex-1 text-sm break-words hyphens-auto text-gray-500">Utkanal via:</span>
+          <span class="flex-1 text-sm font-bold">{{ properties()[schemaFields.handling.utkanalVia] }}</span>
+        </div>
+        <div class="flex gap-1">
+          <span class="word-normal flex-1 text-sm break-words hyphens-auto text-gray-500">Förvaringsmedia:</span>
+          <span class="flex-1 text-sm font-bold">{{
+            properties()[schemaFields.handling.forvaringsmedia]?.properties?.label
+          }}</span>
+        </div>
+        <div class="flex gap-1">
+          <span class="word-normal flex-1 text-sm break-words hyphens-auto text-gray-500">Fysisk förvaringsplats:</span>
+          <span class="flex-1 text-sm font-bold">{{ properties()[schemaFields.handling.fysiskForvaringsplats] }}</span>
+        </div>
+        <div class="flex gap-1">
+          <span class="word-normal flex-1 text-sm break-words hyphens-auto text-gray-500">Digitalt original:</span>
+          <span class="flex-1 text-sm font-bold">{{ properties()[schemaFields.handling.digitaltOriginal] }}</span>
+        </div>
+        <div class="flex gap-1">
+          <span class="word-normal flex-1 text-sm break-words hyphens-auto text-gray-500">Elektronisk signerat:</span>
+          <span class="flex-1 text-sm font-bold">{{
+            properties()[schemaFields.handling.signerad] ? 'Ja' : 'Nej'
+          }}</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Informationssäkerhet och Sekretess -->
+    <section>
+      <h2 class="mb-1 text-lg font-medium">Informationssäkerhet och Sekretess</h2>
+      <div class="flex flex-col gap-2">
+        <div class="flex gap-1">
+          <span class="word-normal flex-1 text-sm break-words hyphens-auto text-gray-500"
+            >Säkerhetsskyddsklassificering:</span
+          >
+          <span class="flex-1 text-sm font-bold">{{
+            properties()[schemaFields.handling.sakerhetsskyddsklassificering]?.properties?.label
+          }}</span>
+        </div>
+        <div class="flex gap-1">
+          <span class="word-normal flex-1 text-sm break-words hyphens-auto text-gray-500">Sekretess:</span>
+          <span class="flex-1 text-sm font-bold">{{
+            properties()[schemaFields.handling.sekretess]?.properties?.label
+          }}</span>
+        </div>
+        <div class="flex gap-1">
+          <span class="word-normal flex-1 text-sm break-words hyphens-auto text-gray-500">Lagrumbeskrivning:</span>
+          <span class="flex-1 text-sm font-bold">
+            {{ properties()[schemaFields.handling.lagrumsbeskrivning]?.title }}
+          </span>
+        </div>
+        <div class="flex gap-1">
+          <span class="word-normal flex-1 text-sm break-words hyphens-auto text-gray-500">Personuppgifter GDPR:</span>
+          <span class="flex-1 text-sm font-bold">{{
+            properties()[schemaFields.handling.innehallerPersonuppgifterGdpr] ? 'Ja' : 'Nej'
+          }}</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Bevarande och gallring -->
+    <section>
+      <h2 class="mb-1 text-lg font-medium">Bevarande och gallring</h2>
+      <div class="flex flex-col gap-2">
+        <div class="flex gap-1">
+          <span class="word-normal flex-1 text-sm break-words hyphens-auto text-gray-500">Bevaras / Gallras:</span>
+          <span class="flex-1 text-sm font-bold">{{
+            properties()[schemaFields.handling.bevarasGallras]?.properties?.label
+          }}</span>
+        </div>
+        <div class="flex gap-1">
+          <span class="word-normal flex-1 text-sm break-words hyphens-auto text-gray-500">Gallringsregel:</span>
+          <span class="flex-1 text-sm font-bold"></span>
+        </div>
+        <div class="flex gap-1">
+          <span class="word-normal flex-1 text-sm break-words hyphens-auto text-gray-500"
+            >Handlingen arkiverat datum:</span
+          >
+          <span class="flex-1 text-sm font-bold">{{
+            getDate(properties()[schemaFields.handling.arkiveradDatum])
+          }}</span>
+        </div>
+        <div class="flex gap-1">
+          <span class="word-normal flex-1 text-sm break-words hyphens-auto text-gray-500"
+            >Handlingen gallrat datum:</span
+          >
+          <span class="flex-1 text-sm font-bold">{{ getDate(properties()[schemaFields.handling.gallradDatum]) }}</span>
+        </div>
+        <div class="flex gap-1">
+          <span class="word-normal flex-1 text-sm break-words hyphens-auto text-gray-500"
+            >Handlingen makulerat datum:</span
+          >
+          <span class="flex-1 text-sm font-bold">{{
+            getDate(properties()[schemaFields.handling.makuleradDatum])
+          }}</span>
+        </div>
+        <div class="flex gap-1">
+          <span class="word-normal flex-1 text-sm break-words hyphens-auto text-gray-500">Bevarande:</span>
+          <span class="flex-1 text-sm font-bold">{{ properties()[schemaFields.handling.bevarande] }}</span>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>

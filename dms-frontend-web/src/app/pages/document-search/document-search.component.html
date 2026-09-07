@@ -1,0 +1,107 @@
+<div class="p-6">
+  @if (selectedFiles().length) {
+    <nuxeo-top-buttons-panel
+      [selectedFiles]="selectedFiles()"
+      [showDownloadCsv]="true"
+      (downloadFiles)="downloadFiles()"
+      (downloadCsv)="downloadCsv()"
+      (addToFavorites)="addToFavorites()"
+      (restoreSelection)="selectedFiles.set([])"
+      (assignToCollection)="isAssignCollectionOpened.set(selectedFiles())"></nuxeo-top-buttons-panel>
+  }
+  <div>
+    <div #scrolling>
+      @if (showDocTypeTabs()) {
+        <div class="pb-4">
+          <nuxeo-tabs
+            [tabs]="docTypeTabs()"
+            [activeTabId]="activeDocTypeTabId()"
+            (tabChanged)="onDocTypeTabChanged($event)">
+          </nuxeo-tabs>
+        </div>
+      }
+      @if (!searchService.visibleResultsCount()) {
+        <div>Inga resultat hittades</div>
+      }
+      @if (showStatusFilter() || showOrgFilter() || showDateFilter()) {
+        <div class="flex flex-wrap items-center gap-4 pb-4">
+          @if (showDateFilter()) {
+            <nuxeo-table-date-quick-filter
+              [quickRangeBuckets]="createdAggBuckets()"
+              [selectedItems]="selectedQuikDates()"
+              (selectedItemsChanged)="selectedQuikDates.set($event)"
+              (dateRangeChange)="onDateRangeChange($event)">
+            </nuxeo-table-date-quick-filter>
+            <nuxeo-table-date-range-filters
+              [dateColumns]="dateColumns()"
+              [dateRangeSelection]="activeDateRangeSelection()"
+              (dateRangeChange)="onDateRangeChange($event)">
+            </nuxeo-table-date-range-filters>
+          }
+          @if (showOrgFilter()) {
+            <digi-form-filter
+              (afSubmitFilter)="onOrgFiltersChanged($event.detail)"
+              (afResetFilter)="onOrgFiltersChanged({ checked: [] })"
+              [attr.af-filter-button-text]="'Organisatorisk enhet'"
+              [attr.af-submit-button-text]="'Filtrera'"
+              [attr.af-name]="'Organisatorisk enhet'"
+              [afCheckItems]="activeOrgChecked()"
+              [afListItems]="orgFilterItems()">
+            </digi-form-filter>
+          }
+          @if (showStatusFilter()) {
+            <digi-form-filter
+              (afSubmitFilter)="onStatusFiltersChanged($event.detail)"
+              (afResetFilter)="onStatusFiltersChanged({ checked: [] })"
+              [attr.af-filter-button-text]="'Status'"
+              [attr.af-submit-button-text]="'Filtrera'"
+              [attr.af-name]="'Status'"
+              [afCheckItems]="activeStatusChecked()"
+              [afListItems]="activeStatusOptions()">
+            </digi-form-filter>
+          }
+          <nuxeo-image-button
+            (buttonClick)="clearQuickFilters()"
+            icon="XButtonOutline"
+            text="Rensa valet"
+            size="small"
+            variation="function">
+          </nuxeo-image-button>
+        </div>
+      }
+      <nuxeo-case-list-table
+        [selectedItemIds]="selectedFiles()"
+        [checkboxes]="true"
+        [headerHeight]="'h-[80px]'"
+        [defaultColumnOptions]="activeDefaultColumnOptions()"
+        [tableItems]="searchService.activeEntries()"
+        [tableConfig]="activeTableConfig()"
+        [loading]="false"
+        [page]="searchService.activePage()"
+        [sortBy]="searchSortService.activeSortBy()"
+        [sortOrder]="searchSortService.activeSortOrder()"
+        [restoreCheckboxSelection]="!this.selectedFiles().length"
+        [total]="searchService.activeTotal()"
+        [showCsvExport]="true"
+        (sortChange)="onSortChange($event)"
+        (pageChange)="onPageChange($event)"
+        (toggleCheckboxes)="handleSelection($event)"
+        (toggleAllCheckboxes)="onSelectAll($event)"
+        (csvExportClick)="exportToCSV($event)"
+        [pageSize]="25">
+      </nuxeo-case-list-table>
+    </div>
+  </div>
+  <router-outlet></router-outlet>
+</div>
+
+@if (isAssignCollectionOpened()) {
+  <digi-dialog
+    (afOnClose)="isAssignCollectionOpened.set(null)"
+    [attr.af-size]="'small'"
+    [attr.af-show-dialog]="!!isAssignCollectionOpened()">
+    <nuxeo-assign-collection-modal
+      (closeDialog)="isAssignCollectionOpened.set(null)"
+      [items]="isAssignCollectionOpened()!"></nuxeo-assign-collection-modal>
+  </digi-dialog>
+}

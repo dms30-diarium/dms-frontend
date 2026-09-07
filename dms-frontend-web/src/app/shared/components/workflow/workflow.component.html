@@ -1,0 +1,198 @@
+<div
+  class="flex w-full items-center justify-between gap-4 rounded-md bg-white px-4 py-2 shadow-sm transition-shadow duration-200 hover:shadow-md">
+  <div class="text-sm text-gray-800">
+    <div>Du startade ett arbetsflöde för deadline och påminnelse på det här dokumentet.</div>
+    <div class="flex gap-2">
+      <span class="text-sm font-semibold text-gray-400">Användare</span>
+      <div class="text-sm text-gray-800">
+        @for (user of workFlow()?.variables?.anvandare; track user.id) {
+          {{ getUserFullName(user) }}
+          @if (!$last) {
+            ,
+          }
+        }
+      </div>
+    </div>
+  </div>
+  @if (canEditOrDelete()) {
+    <digi-icon-pen class="h-[16px] w-[16px] cursor-pointer" (click)="getWorkflowDetails()" slot="icon"></digi-icon-pen>
+    <digi-icon-trash class="h-[16px] w-[16px] cursor-pointer" (click)="deleteWorkflow()" slot="icon"></digi-icon-trash>
+  }
+</div>
+
+@if (editWorkflowDialog()) {
+  <digi-dialog
+    (afOnClose)="editWorkflowDialog.set(false)"
+    [attr.af-size]="'medium'"
+    [attr.af-show-dialog]="!!editWorkflowDialog()">
+    <div class="flex justify-between pb-4">
+      <div class="text-2xl font-semibold">Redigera task</div>
+      <div class="flex gap-2">
+        <digi-button
+          (afOnClick)="openDelegateDialog()"
+          [attr.af-size]="'medium'"
+          [attr.af-variation]="'function'"
+          [attr.af-full-width]="false">
+          Delegera
+        </digi-button>
+        <digi-button
+          (afOnClick)="openReassignDialog()"
+          [attr.af-size]="'medium'"
+          [attr.af-variation]="'function'"
+          [attr.af-full-width]="false">
+          Omtilldela
+        </digi-button>
+      </div>
+    </div>
+    <div class="flex w-full justify-between">
+      <div class="flex flex-col gap-2 pb-4">
+        <div class="flex gap-4">
+          <div class="text-gray-500">Status:</div>
+          <div>{{ workFlow()?.state }}</div>
+        </div>
+        <div class="flex gap-4">
+          <div class="text-gray-500">Aktörer i denna uppgift:</div>
+
+          @for (item of workFlow()?.actors; track $index) {
+            <div
+              class="inline-flex items-center rounded-full bg-indigo-100 px-3 py-1 text-sm font-semibold text-indigo-800">
+              {{ item['id'] }}
+            </div>
+          }
+        </div>
+        <div class="flex gap-4">
+          <div class="text-gray-500">Delegerade aktörer i denna uppgift:</div>
+
+          @for (item of workFlow()?.delegatedActors; track $index) {
+            <div
+              class="inline-flex items-center rounded-full bg-indigo-100 px-3 py-1 text-sm font-semibold text-indigo-800">
+              {{ item['id'] }}
+            </div>
+          }
+        </div>
+
+        <div class="flex gap-4">
+          <div class="text-gray-500">Initiativtagare:</div>
+          <span class="semi-bold">{{ workFlow()?.workflowInitiator }}</span>
+        </div>
+        <div class="flex gap-4">
+          <div class="text-gray-500">Skapad:</div>
+          <span class="semi-bold">{{ workFlow()?.created | date: 'dd.MM.yyyy' }}</span>
+        </div>
+
+        <div class="flex gap-4">
+          <div class="text-gray-500">Förfallodatum:</div>
+          <span class="semi-bold">{{ workFlow()?.dueDate | date: 'dd.MM.yyyy' }}</span>
+        </div>
+
+        <div class="flex gap-4">
+          <div class="text-gray-500">Deadline:</div>
+          <span class="semi-bold">{{ workFlow()?.variables?.deadline | date: 'dd.MM.yyyy' }}</span>
+        </div>
+
+        <div class="flex gap-4">
+          <div class="text-gray-500">Påminnelse:</div>
+          <span class="semi-bold">{{ workFlow()?.variables?.paminnelse | date: 'dd.MM.yyyy' }}</span>
+        </div>
+
+        <div class="flex gap-4">
+          <div class="text-gray-500">Beskrivning:</div>
+          <span class="semi-bold">{{ workFlow()?.variables?.beskrivning }}</span>
+        </div>
+      </div>
+    </div>
+    <digi-button
+      (afOnClick)="editWorkflowDialog.set(false)"
+      [attr.af-size]="'medium'"
+      [attr.af-variation]="'secondary'"
+      [attr.af-full-width]="false">
+      Avbryt
+    </digi-button>
+  </digi-dialog>
+}
+<digi-dialog
+  (afOnClose)="isDelegateDialogOpen.set(false)"
+  [attr.af-size]="'medium'"
+  [attr.af-heading]="'Delegera'"
+  [attr.af-show-dialog]="!!isDelegateDialogOpen()">
+  <form class="bg-gray-100 p-4" [formGroup]="formDelegate">
+    <div class="flex flex-col gap-4">
+      <div>
+        <div>Välj användaren</div>
+        <digi-form-select-filter
+          formControlName="delegatedUser"
+          [afListItems]="userSuggestion()"
+          [attr.af-filter-button-text-label]="' '"
+          af-name="Sök"
+          af-filter-button-text="Inga objekt valda"
+          [afHideResetButton]="true"
+          afSubmitButtonText="Filtrera"
+          af-validation="neutral">
+        </digi-form-select-filter>
+      </div>
+      <div>
+        <div>Inkludera en kommentar</div>
+        <digi-form-input formControlName="comment" af-label=" " [attr.af-variation]="'medium'"></digi-form-input>
+      </div>
+      <div class="flex gap-2">
+        <digi-button
+          (afOnClick)="isDelegateDialogOpen.set(false)"
+          [attr.af-size]="'medium'"
+          [attr.af-variation]="'secondary'"
+          [attr.af-full-width]="false">
+          Avbryt
+        </digi-button>
+        <digi-button
+          (afOnClick)="onDelegate(); isDelegateDialogOpen.set(false)"
+          [attr.af-size]="'medium'"
+          [attr.af-variation]="'primary'"
+          [attr.af-full-width]="false">
+          Delegera
+        </digi-button>
+      </div>
+    </div>
+  </form>
+</digi-dialog>
+<digi-dialog
+  (afOnClose)="isReassignDialogOpen.set(false)"
+  [attr.af-size]="'medium'"
+  [attr.af-heading]="'Omtilldela'"
+  [attr.af-show-dialog]="!!isReassignDialogOpen()">
+  <form class="bg-gray-100 p-4" [formGroup]="formReassign">
+    <div class="flex flex-col gap-4">
+      <div>
+        <div>Välj användaren</div>
+        <digi-form-select-filter
+          formControlName="reassignedUser"
+          [afListItems]="userSuggestion()"
+          [attr.af-filter-button-text-label]="' '"
+          af-name="Sök"
+          af-filter-button-text="Inga objekt valda"
+          [afHideResetButton]="true"
+          afSubmitButtonText="Filtrera"
+          af-validation="neutral">
+        </digi-form-select-filter>
+      </div>
+      <div>
+        <div>Inkludera en kommentar</div>
+        <digi-form-input formControlName="comment" af-label=" " [attr.af-variation]="'medium'"></digi-form-input>
+      </div>
+      <div class="flex gap-2">
+        <digi-button
+          (afOnClick)="isReassignDialogOpen.set(false)"
+          [attr.af-size]="'medium'"
+          [attr.af-variation]="'secondary'"
+          [attr.af-full-width]="false">
+          Avbryt
+        </digi-button>
+        <digi-button
+          (afOnClick)="onReassign(); isReassignDialogOpen.set(false)"
+          [attr.af-size]="'medium'"
+          [attr.af-variation]="'primary'"
+          [attr.af-full-width]="false">
+          Omtilldela
+        </digi-button>
+      </div>
+    </div>
+  </form>
+</digi-dialog>

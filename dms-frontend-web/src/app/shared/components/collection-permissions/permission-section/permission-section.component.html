@@ -1,0 +1,25 @@
+<section class="rounded-lg border border-gray-200 bg-white shadow-sm">
+  <div class="flex items-center justify-between border-b border-gray-200 px-5 py-4">
+    <div class="text-sm font-semibold text-gray-900">{{ title() }}</div>
+    @if (showAction() && actionLabel()) {
+      <digi-button
+        af-size="small"
+        [attr.af-variation]="actionVariation()"
+        af-full-width="false"
+        type="button"
+        [attr.disabled]="actionDisabled() ? '' : null"
+        [attr.aria-label]="actionAriaLabel() || actionLabel()"
+        (afOnClick)="actionClick.emit()">
+        {{ actionLabel() }}
+      </digi-button>
+    }
+  </div>
+  <div class="px-5 py-4">
+    @if (alertText()) {
+      <div class="mb-4 border-l-4 border-red-400 bg-red-50 px-4 py-3 text-sm text-gray-700">
+        {{ alertText() }}
+      </div>
+    }
+    <ng-content></ng-content>
+  </div>
+</section>

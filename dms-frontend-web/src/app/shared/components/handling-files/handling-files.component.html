@@ -1,0 +1,133 @@
+<div class="min-h-fit w-full space-y-3 px-6 pb-4">
+  @if (mainFiles().length) {
+    <div>
+      <h2 class="mb-2 text-base font-semibold text-gray-800">Huvudfil</h2>
+      @for (file of mainFiles(); track file) {
+        <div
+          tabindex="0"
+          (click)="onSelect(file)"
+          (keydown.enter)="onSelect(file)"
+          class="mt-2 grid cursor-pointer grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-4 rounded-md bg-white px-3 py-2 shadow-md hover:bg-gray-50">
+          <div class="flex items-center">
+            <input
+              type="checkbox"
+              class="h-4 w-4 cursor-pointer accent-blue-600"
+              aria-label="Välj fil för utskrift"
+              [checked]="selectedFileIds().has(file.uid)"
+              (click)="$event.stopPropagation()"
+              (change)="onSelectionChange(file, $event)" />
+          </div>
+          <div class="grid min-w-0 grid-cols-[repeat(auto-fit,minmax(12rem,1fr))] gap-x-4 gap-y-1">
+            <div class="items-top flex min-w-0 gap-1">
+              <span class="text-sm whitespace-nowrap text-gray-500">Titel:</span>
+              <span class="min-w-0 flex-1 text-sm break-words whitespace-normal text-gray-800" [title]="file.title">
+                {{ truncateTitle(file.title) }}
+              </span>
+            </div>
+            <div class="items-top flex min-w-0 gap-1">
+              <span class="text-sm whitespace-nowrap text-gray-500">Typ:</span>
+              <span
+                class="min-w-0 flex-1 truncate text-sm text-gray-800"
+                [title]="file.properties[schemaFields.fil.typ]">
+                {{ file.properties[schemaFields.fil.typ] }}
+              </span>
+            </div>
+            <div class="items-top flex min-w-0 gap-1">
+              <span class="text-sm whitespace-nowrap text-gray-500">Format:</span>
+              <span
+                class="min-w-0 flex-1 truncate text-sm whitespace-nowrap text-gray-800"
+                [title]="file.properties[schemaFields.file.content]['mime-type']">
+                {{ file.properties[schemaFields.file.content]['mime-type'] }}
+              </span>
+            </div>
+          </div>
+          <div class="flex items-center justify-end gap-3">
+            <a title="Ladda ner" [href]="getDownloadUrl(file.uid)">
+              <digi-icon-download class="h-[16px] w-[16px]" slot="icon"
+            /></a>
+            <digi-icon-print
+              title="Skriv ut"
+              class="h-[24px] w-[24px] cursor-pointer"
+              (click)="onPrint(file); $event.stopPropagation()">
+            </digi-icon-print>
+            <digi-icon-eye
+              title="Förhandsvisa fil"
+              class="h-[24px] w-[24px] cursor-pointer"
+              (click)="onSelect(file); onPreview(file); $event.stopPropagation()">
+            </digi-icon-eye>
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  @if (attachmentFiles().length) {
+    <div>
+      <div class="mb-0 flex items-center gap-2">
+        <h2 class="!mb-0 text-base font-semibold text-gray-800">Bilagor</h2>
+        <input
+          type="checkbox"
+          class="h-4 w-4 cursor-pointer accent-blue-600"
+          aria-label="Välj alla bilagor"
+          [checked]="allAttachmentFilesSelected()"
+          (change)="toggleAttachmentSelection()" />
+      </div>
+      @for (file of attachmentFiles(); track file) {
+        <div
+          tabindex="0"
+          (click)="onSelect(file)"
+          (keydown.enter)="onSelect(file)"
+          class="mt-2 grid cursor-pointer grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-4 rounded-md bg-white px-3 py-2 shadow-md hover:bg-gray-50">
+          <div class="flex items-center">
+            <input
+              type="checkbox"
+              class="h-4 w-4 cursor-pointer accent-blue-600"
+              aria-label="Välj fil för utskrift"
+              [checked]="selectedFileIds().has(file.uid)"
+              (click)="$event.stopPropagation()"
+              (change)="onSelectionChange(file, $event)" />
+          </div>
+          <div class="grid min-w-0 grid-cols-[repeat(auto-fit,minmax(12rem,1fr))] gap-x-4 gap-y-1">
+            <div class="flex min-w-0 items-center gap-1">
+              <span class="text-sm whitespace-nowrap text-gray-500">Titel:</span>
+              <span class="min-w-0 flex-1 text-sm break-words whitespace-normal text-gray-800" [title]="file.title">
+                {{ truncateTitle(file.title) }}
+              </span>
+            </div>
+            <div class="flex min-w-0 items-center gap-1">
+              <span class="text-sm whitespace-nowrap text-gray-500">Typ:</span>
+              <span
+                class="min-w-0 flex-1 truncate text-sm text-gray-800"
+                [title]="file.properties[schemaFields.fil.typ]">
+                {{ file.properties[schemaFields.fil.typ] }}
+              </span>
+            </div>
+            <div class="flex min-w-0 items-center gap-1">
+              <span class="text-sm whitespace-nowrap text-gray-500">Format:</span>
+              <span
+                class="min-w-0 flex-1 truncate text-sm whitespace-nowrap text-gray-800"
+                [title]="file.properties[schemaFields.file.content]['mime-type']">
+                {{ file.properties[schemaFields.file.content]['mime-type'] }}
+              </span>
+            </div>
+          </div>
+          <div class="flex items-center justify-end gap-3">
+            <a title="Ladda ner" [href]="getDownloadUrl(file.uid)">
+              <digi-icon-download class="h-[16px] w-[16px]" slot="icon"
+            /></a>
+            <digi-icon-print
+              title="Skriv ut"
+              class="h-[24px] w-[24px] cursor-pointer"
+              (click)="onPrint(file); $event.stopPropagation()">
+            </digi-icon-print>
+            <digi-icon-eye
+              title="Förhandsvisa fil"
+              class="h-[24px] w-[24px] cursor-pointer"
+              (click)="onSelect(file); onPreview(file); $event.stopPropagation()">
+            </digi-icon-eye>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

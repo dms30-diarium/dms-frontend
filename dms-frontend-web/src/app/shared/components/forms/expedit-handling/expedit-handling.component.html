@@ -1,0 +1,27 @@
+<div class="space-y-4">
+  <div class="bg-gray-100 p-4">
+    <nuxeo-general-form
+      [config]="emailFormConfig()"
+      [shouldShowButtons]="false"
+      [isLoading]="isSubmitting()"
+      (selectedRadioChanged)="selectedRadioChanged($event)"
+      (formResult)="handleFormResult($event)"
+      (dialogClose)="closeDialog.emit()"></nuxeo-general-form>
+  </div>
+  <div class="flex gap-2 pt-4">
+    <digi-button
+      (afOnClick)="closeDialog.emit()"
+      [attr.af-size]="'medium'"
+      [attr.af-variation]="'secondary'"
+      [attr.af-full-width]="false">
+      Avbryt
+    </digi-button>
+    <digi-button
+      (afOnClick)="isSubmitting() ? '' : submit()"
+      [attr.af-size]="'medium'"
+      [attr.af-variation]="'primary'"
+      [attr.af-full-width]="false">
+      Skicka
+    </digi-button>
+  </div>
+</div>

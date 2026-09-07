@@ -1,0 +1,98 @@
+<div lang="sv" class="px-10 pb-6">
+  <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
+    <div class="flex flex-col gap-1">
+      <div class="grid grid-cols-[30%_70%] gap-2">
+        <span class="word-normal text-sm break-words hyphens-auto text-gray-500"
+          >{{ store.getSchemaByType('handling', 'handlingsnummer') }}:
+        </span>
+        <span class="text-sm font-bold">{{ properties()[schemaFields.handling.handlingsnummer] ?? '' }}</span>
+      </div>
+      <div class="grid grid-cols-[30%_70%] gap-2">
+        <span class="word-normal text-sm break-words hyphens-auto text-gray-500"
+          >{{ store.getSchemaByType('handling', 'handlingsstatus') }}:
+        </span>
+        @if (statusValue()) {
+          <div class="flex gap-1">
+            <digi-badge-status
+              [attr.af-type]="statusType()"
+              [attr.af-variation]="statusVariation()"
+              [attr.af-text]="statusValue()"
+              [attr.af-size]="'large'">
+            </digi-badge-status>
+            <span class="font-bold">, {{ store.getValue(currentHandlingState()?.label ?? '') }}</span>
+          </div>
+        }
+      </div>
+      <div class="grid grid-cols-[30%_70%] gap-2">
+        <span class="word-normal text-sm break-words hyphens-auto text-gray-500"
+          >{{ store.getSchemaByType('handling', 'handlingstyp') }}:
+        </span>
+        <span class="text-sm font-bold">{{ properties()[schemaFields.handling.handlingstyp]?.title ?? '' }}</span>
+      </div>
+      <div class="grid grid-cols-[30%_70%] gap-2">
+        <span class="word-normal text-sm break-words hyphens-auto text-gray-500">
+          {{ store.getSchemaByType('handling', 'handlingsriktning') }}:
+        </span>
+        <span class="text-sm font-bold">{{
+          properties()[schemaFields.handling.handlingsriktning]?.properties?.label
+        }}</span>
+      </div>
+      <div class="grid grid-cols-[30%_70%] gap-2">
+        <span class="word-normal text-sm break-words hyphens-auto text-gray-500">
+          {{ store.getSchemaByType('arende', 'arendenummer') }}:
+        </span>
+        <span class="text-sm font-bold">{{ properties()[schemaFields.handling.arendenummer] ?? '' }}</span>
+      </div>
+    </div>
+
+    <div class="flex flex-col gap-1">
+      <div class="grid grid-cols-[15%_85%] gap-2">
+        <span class="word-normal text-sm whitespace-nowrap text-gray-500">
+          {{ store.getSchemaByType('handling', 'avsandare') }}:
+        </span>
+        <ul class="ml-6 list-disc text-sm">
+          @if (properties()[schemaFields.handling.avsandare]) {
+            @for (contact of properties()[schemaFields.handling.avsandare]; track $index) {
+              <li class="flex gap-x-2 text-sm">
+                <span class="text-sm font-bold">{{ contact?.namn }}</span>
+              </li>
+            }
+          }
+        </ul>
+      </div>
+      <div class="grid grid-cols-[15%_85%] gap-2">
+        <span class="word-normal text-sm whitespace-nowrap text-gray-500"
+          >{{ store.getSchemaByType('handling', 'mottagare') }}:
+        </span>
+        <ul class="ml-6 list-disc text-sm">
+          @if (properties()[schemaFields.handling.mottagare]) {
+            @for (contact of properties()[schemaFields.handling.mottagare]; track $index) {
+              <li class="flex gap-x-2 text-sm">
+                <span class="text-sm font-bold">{{ contact?.namn }}</span>
+              </li>
+            }
+          }
+        </ul>
+      </div>
+    </div>
+
+    <div class="flex flex-col gap-1">
+      <div class="grid grid-cols-[30%_70%] gap-2">
+        <span class="word-normal text-sm break-words hyphens-auto text-gray-500">{{ directionDateLabel() }}: </span>
+        <span class="text-sm font-bold">{{ directionDateValue() }}</span>
+      </div>
+      <div class="grid grid-cols-[30%_70%] gap-2">
+        <span class="word-normal text-sm break-words hyphens-auto text-gray-500"
+          >{{ store.getValue('label.ui.schema.handling.beslutatDatum') }}:
+        </span>
+        <span class="text-sm font-bold">{{ getDate(properties()[schemaFields.handling.beslutatDatum]) }}</span>
+      </div>
+      <div class="grid grid-cols-[30%_70%] gap-2">
+        <span class="word-normal text-sm break-words hyphens-auto text-gray-500"
+          >{{ store.getValue('label.ui.schema.handling.expedieradDatum') }}:
+        </span>
+        <span class="text-sm font-bold">{{ getDate(properties()[schemaFields.handling.expedieradDatum]) }}</span>
+      </div>
+    </div>
+  </div>
+</div>

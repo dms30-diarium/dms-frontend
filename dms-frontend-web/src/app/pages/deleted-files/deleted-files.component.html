@@ -1,0 +1,93 @@
+@if (selectedFiles().length) {
+  <nuxeo-top-buttons-panel
+    [shouldDisplayTrashButton]="true"
+    [selectedFiles]="selectedFiles()"
+    (restoreSelection)="selectedFiles.set([])"
+    [showRedo]="true"
+    [showDownload]="false"
+    [showFavorites]="false"
+    [showAssignToCollection]="false"
+    (redo)="restoreSelectedFiles(selectedFiles())"
+    (deleteSelectedItems)="deleteSelectedFiles(selectedFiles())"></nuxeo-top-buttons-panel>
+}
+<div class="p-6">
+  <digi-navigation-breadcrumbs af-current-page="Rensat">
+    <a href="/">Start</a>
+  </digi-navigation-breadcrumbs>
+  <h1 class="pt-5 pb-8 text-3xl font-semibold">Rensat</h1>
+  <div class="mb-4 flex w-full items-center justify-between">
+    <span class="text-gray-500"
+      >Total: <span class="font-bold">{{ totalSize() }}</span></span
+    >
+    <nuxeo-toggle-button
+      class="my-auto mr-4"
+      (choiceChange)="onToggleButtonChange($event)"
+      [activeButton]="viewMode() === 'grid' ? 1 : 2">
+    </nuxeo-toggle-button>
+  </div>
+  @if (deletedFiles()) {
+    @if (viewMode() !== 'grid') {
+      <nuxeo-case-list-table
+        class="flex-2"
+        [shouldShowPageSizeOption]="true"
+        [pageSizeOptions]="pageSizeOptions"
+        [tableConfig]="tableConfig"
+        [defaultColumnOptions]="defaultColumnOptions()"
+        [tableItems]="deletedFiles()!"
+        [total]="totalSize()"
+        [page]="page()"
+        [pageSize]="pageSize()"
+        [sortBy]="sortBy()"
+        [sortOrder]="sortOrder()"
+        [checkboxes]="true"
+        [restoreCheckboxSelection]="!this.selectedFiles().length"
+        [actionsTemplate]="actionButtons"
+        [actionsHeader]="'Åtgärder'"
+        (toggleCheckboxes)="selectFiles($event)"
+        (sortChange)="onSortChange($event)"
+        (pageChange)="onPageChange($event)"
+        (pageSizeSelect)="onPageSizeSelect($event)">
+      </nuxeo-case-list-table>
+      <ng-template #actionButtons let-item>
+        <div class="flex gap-4">
+          <nuxeo-image-button
+            icon="Redo"
+            text="Återställa"
+            size="small"
+            (buttonClick)="restoreSelectedFiles(item.uid)"
+            variation="function">
+          </nuxeo-image-button>
+          <digi-button
+            (afOnClick)="deleteSelectedFiles(item.uid)"
+            [attr.af-size]="'small'"
+            [attr.af-variation]="'function'"
+            [attr.af-full-width]="false">
+            <digi-icon-trash slot="icon" />
+            Ta bort
+          </digi-button>
+        </div>
+      </ng-template>
+    } @else {
+      <div class="flex flex-col gap-4">
+        <nuxeo-deleted-cards
+          (restoreSelectedFiles)="restoreSelectedFiles($event)"
+          (deleteSelectedFiles)="deleteSelectedFiles($event)"
+          (selectedItemsArray)="selectFiles($event)"
+          [columns]="4"
+          (selectedItemsArray)="selectFiles($event)"
+          class="flex-2"
+          [cards]="deletedFiles()!">
+        </nuxeo-deleted-cards>
+        <nuxeo-grid-pagination-controls
+          [totalPages]="totalPages()"
+          [currentPage]="page()"
+          [pageSize]="pageSize()"
+          [pageSizeOptions]="pageSizeOptions"
+          [showPageSize]="true"
+          (pageChange)="onGridPageChange($event)"
+          (pageSizeSelect)="onGridPageSizeSelect($event)">
+        </nuxeo-grid-pagination-controls>
+      </div>
+    }
+  }
+</div>

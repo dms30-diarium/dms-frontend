@@ -1,0 +1,23 @@
+<div class="p-6">
+  <div class="mb-2">
+    <digi-navigation-breadcrumbs af-current-page="Nyligen visade">
+      <a href="/">Start</a>
+    </digi-navigation-breadcrumbs>
+  </div>
+  <h1 class="mb-4 pb-4 text-3xl font-semibold">Nyligen visade</h1>
+  <nuxeo-case-list-table
+    [shouldShowPageSizeOption]="true"
+    [pageSizeOptions]="pageSizeOptions"
+    [defaultColumnOptions]="getDefaultColumnOptions()"
+    [tableConfig]="tableConfig"
+    [tableItems]="pagedHistoryItems()"
+    [total]="sortedHistoryItems().length"
+    [page]="page()"
+    [pageSize]="pageSize()"
+    [sortBy]="sortBy()"
+    [sortOrder]="sortOrder()"
+    (pageChange)="page.set($event)"
+    (pageSizeSelect)="onPageSizeSelect($event)"
+    (sortChange)="onSortChange($event)">
+  </nuxeo-case-list-table>
+</div>

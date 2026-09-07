@@ -1,0 +1,33 @@
+<div class="bg-white p-4">
+  <h1>
+    <b>{{ title() }}</b>
+  </h1>
+  <!-- loop for keu values -->
+  <div class="mt-6 grid grid-cols-3">
+    @for (field of fields(); track field) {
+      <div>
+        <p>{{ field.label }} :</p>
+      </div>
+      <div class="col-span-2">
+        <p>{{ field.value }}</p>
+      </div>
+    }
+  </div>
+  <div class="mt-6 flex justify-start gap-4">
+    <digi-button
+      (click)="onCancel()"
+      [attr.af-variation]="'secondary'"
+      [attr.af-size]="'small'"
+      [attr.af-full-width]="false">
+      Skicka tillbaka
+    </digi-button>
+
+    <digi-button
+      [attr.af-variation]="'primary'"
+      [attr.af-size]="'small'"
+      [attr.af-full-width]="false"
+      (click)="onSuccess()">
+      Avsluta ärende
+    </digi-button>
+  </div>
+</div>

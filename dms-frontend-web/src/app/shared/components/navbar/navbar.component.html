@@ -1,0 +1,262 @@
+<nav
+  [ngClass]="openPage() === 'start' ? 'px-4 py-4 min-[1112px]:py-0' : 'px-4 py-4 lg:py-0'"
+  class="bg-header-primary flex w-full flex-wrap items-center justify-start gap-2 border-b border-gray-200 px-4 py-4">
+  <div class="flex w-full flex-2 flex-wrap items-center gap-4 sm:w-auto sm:flex-nowrap">
+    <digi-button
+      (afOnClick)="onToggleSidebar()"
+      [attr.af-size]="'medium'"
+      [attr.af-variation]="'link'"
+      aria-label="Toggle sidebar via logo">
+      <img class="max-w-[190px]" [src]="logo" alt="logo" />
+    </digi-button>
+    @if (openPage() === 'start') {
+      <h1
+        class="mr-4 w-full min-w-[310px] text-2xl font-semibold"
+        [class.invisible]="!isStartPage()"
+        [attr.aria-hidden]="!isStartPage() ? 'true' : null">
+        Välkommen till vårt diarium
+      </h1>
+    }
+  </div>
+
+  <div class="w-full min-w-[300px] lg:flex lg:flex-1 lg:justify-center">
+    <div class="relative w-full lg:w-[380px] lg:min-w-[280px]">
+      <digi-form-input-search
+        class="w-full"
+        [attr.af-variation]="'medium'"
+        [attr.af-type]="'search'"
+        [attr.af-label]="' '"
+        [attr.af-button-text]="'Sök'"
+        (afOnFocusInside)="isSearchResultsOpen.set(true)"
+        (afOnClickOutside)="isSearchResultsOpen.set(false)"
+        (afOnInput)="onSeachEvent($event)">
+      </digi-form-input-search>
+      @if (isSearchResultsOpen() && searchResults()) {
+        <div
+          class="absolute top-15 z-100 h-[600px] w-full overflow-y-auto rounded-lg border border-gray-400 bg-white shadow-lg">
+          @for (item of searchResults(); track item.id) {
+            <div
+              aria-hidden="true"
+              (click)="openDocument(item.id)"
+              class="flex cursor-pointer gap-3 border-b border-gray-200 p-3 hover:bg-gray-100">
+              <div class="flex items-center justify-center">
+                @if (item.thumbnailUrl && !item.thumbnailError) {
+                  <img
+                    [src]="baseUrl + item.thumbnailUrl"
+                    alt="thumbnail"
+                    (error)="onThumbnailError(item)"
+                    class="h-20 w-20 min-w-20 rounded border border-gray-200 object-cover" />
+                } @else {
+                  <div class="flex h-20 w-20 min-w-20 items-center justify-center rounded">
+                    <digi-icon-file-document slot="icon" />
+                  </div>
+                }
+              </div>
+
+              <div class="flex flex-col overflow-hidden">
+                <span class="truncate font-medium text-gray-900">
+                  {{ item.label }}
+                </span>
+
+                <span class="text-sm text-gray-500">
+                  {{ item.type }}
+                </span>
+
+                <span class="truncate text-xs text-gray-400"> nuxeo/ui/{{ item.type + '/' + item.id }} </span>
+                @if (item?.highlights?.[1]) {
+                  <span class="text-xs text-gray-400"> File: {{ item?.highlights?.[1]?.segments?.join(' ') }} </span>
+                }
+              </div>
+            </div>
+          }
+
+          @if (searchResults()?.length === 0) {
+            <div class="p-4 text-center text-gray-500">Nothing found</div>
+          }
+        </div>
+      }
+    </div>
+  </div>
+
+  @if (
+    ['case', 'handling', 'utkast', 'mail', 'note', 'file', 'picture', 'video', 'personal'].includes(openPage() || '')
+  ) {
+    <div class="flex w-0 flex-2 items-center justify-start">
+      <nuxeo-button-menu class="block w-full" [buttons]="baseButtons()"></nuxeo-button-menu>
+    </div>
+  } @else {
+    <div class="flex w-0 min-w-[200px] flex-2 items-center justify-start gap-4 min-[1112px]:justify-end">
+      <digi-header-notification class="flex h-5 max-h-5 w-5 max-w-5 shrink-0">
+        <nuxeo-navbar-reminders></nuxeo-navbar-reminders>
+      </digi-header-notification>
+      @if (canOpenSettings()) {
+        <button
+          type="button"
+          class="flex h-8 w-8 cursor-pointer items-center justify-center"
+          (click)="openUiModeDialog()"
+          aria-label="Öppna inställningar"
+          aria-haspopup="dialog">
+          <digi-icon-settings class="shrink-0"></digi-icon-settings>
+        </button>
+      } @else {
+        <digi-icon-settings class="shrink-0"></digi-icon-settings>
+      }
+      <div>
+        @let currentUser = user();
+        @if (currentUser) {
+          <button
+            class="flex cursor-pointer items-center gap-2 text-sm font-medium text-gray-700"
+            (click)="isLogOutDialogOpened.set(true)"
+            aria-haspopup="dialog">
+            <div
+              class="flex h-[35px] w-[35px] shrink-0 items-center justify-center rounded-full bg-gray-300 text-white">
+              {{ userInitials }}
+            </div>
+            <span class="hidden max-w-[12rem] truncate sm:inline-block">
+              {{ userDisplayName }}
+            </span>
+          </button>
+        }
+      </div>
+    </div>
+  }
+</nav>
+
+<digi-dialog
+  (afPrimaryButtonClick)="logOut()"
+  (afSecondaryButtonClick)="isLogOutDialogOpened.set(false)"
+  (afOnClose)="isLogOutDialogOpened.set(false)"
+  [attr.af-size]="'small'"
+  [attr.af-show-dialog]="!!isLogOutDialogOpened()"
+  af-primary-button-text="Logga ut"
+  af-secondary-button-text="Avbryt">
+  <nuxeo-user-modal [user]="user()"></nuxeo-user-modal>
+</digi-dialog>
+
+<digi-dialog
+  (afPrimaryButtonClick)="confirmSettingsDialog()"
+  (afSecondaryButtonClick)="closeSettingsDialog()"
+  (afOnClose)="closeSettingsDialog()"
+  [attr.af-heading]="'Inställningar'"
+  [attr.af-size]="'small'"
+  [attr.af-show-dialog]="!!isUiModeDialogOpened()"
+  af-primary-button-text="Bekräfta"
+  af-secondary-button-text="Avbryt">
+  <div class="flex flex-col gap-4 py-2">
+    @if (auth.isAdmin()) {
+      <section class="flex flex-col gap-3">
+        <h2 class="text-lg font-semibold">Administratörsvy</h2>
+        <label class="flex cursor-pointer items-center justify-between gap-4">
+          <span class="text-sm">Visa administratörsvy</span>
+          <div class="relative">
+            <input
+              type="checkbox"
+              class="peer sr-only"
+              [checked]="pendingAdminViewEnabled()"
+              (change)="togglePendingAdminView()" />
+            <div
+              class="peer h-6 w-11 rounded-full bg-gray-300 transition-colors peer-checked:bg-blue-600 peer-focus:ring-2 peer-focus:ring-blue-400 peer-focus:ring-offset-1"></div>
+            <div
+              class="absolute top-[2px] left-[2px] h-5 w-5 rounded-full bg-white shadow transition-transform peer-checked:translate-x-5"></div>
+          </div>
+        </label>
+      </section>
+    }
+    @if (canChooseRole()) {
+      <section class="flex flex-col gap-3">
+        <h2 class="text-lg font-semibold">Aktiv roll</h2>
+        <digi-form-select
+          [attr.af-variation]="'medium'"
+          [attr.af-validation]="'neutral'"
+          [attr.af-value]="pendingActiveRole()"
+          af-label=" "
+          (afOnChange)="setPendingActiveRole($event.target.value)">
+          @for (role of auth.roles(); track role) {
+            <option [value]="role">
+              <span>{{ role }}</span>
+            </option>
+          }
+        </digi-form-select>
+      </section>
+    }
+    <section class="flex flex-col gap-3">
+      <h2 class="text-lg font-semibold">Tema</h2>
+      <digi-form-select
+        [attr.af-variation]="'medium'"
+        [attr.af-validation]="'neutral'"
+        [attr.af-value]="pendingTheme()"
+        af-label=" "
+        (afOnChange)="onThemeSelectChange($event.target.value)">
+        <option value="default">Standard</option>
+        <option value="blue">Blått</option>
+        <option value="dark">Mörkt</option>
+        <option value="kawaii">Kawaii</option>
+        <option value="custom">Anpassat</option>
+      </digi-form-select>
+      @if (pendingTheme() === 'custom') {
+        <div class="flex flex-col gap-2 rounded-lg border border-gray-200 p-3">
+          @for (field of customColorFields; track field.key) {
+            <label class="flex items-center justify-between gap-4">
+              <span class="text-sm">{{ field.label }}</span>
+              <input
+                type="color"
+                [value]="pendingCustomColors()[field.key]"
+                (input)="onCustomColorChange(field.key, $event)"
+                class="h-8 w-12 cursor-pointer rounded border border-gray-300" />
+            </label>
+          }
+        </div>
+      }
+    </section>
+    <section class="flex flex-col gap-3">
+      <h2 class="text-lg font-semibold">Startsida</h2>
+      <label class="flex cursor-pointer items-center justify-between gap-4">
+        <span class="text-sm">Dölj bilder på startsidan</span>
+        <div class="relative">
+          <input
+            type="checkbox"
+            class="peer sr-only"
+            [checked]="pendingHideStartImages()"
+            (change)="pendingHideStartImages.set(!pendingHideStartImages())" />
+          <div
+            class="peer h-6 w-11 rounded-full bg-gray-300 transition-colors peer-checked:bg-blue-600 peer-focus:ring-2 peer-focus:ring-blue-400 peer-focus:ring-offset-1"></div>
+          <div
+            class="absolute top-[2px] left-[2px] h-5 w-5 rounded-full bg-white shadow transition-transform peer-checked:translate-x-5"></div>
+        </div>
+      </label>
+      <label class="flex cursor-pointer items-center justify-between gap-4">
+        <span class="text-sm">Dölj veckans kalender</span>
+        <div class="relative">
+          <input
+            type="checkbox"
+            class="peer sr-only"
+            [checked]="pendingHideWeekCalendar()"
+            (change)="pendingHideWeekCalendar.set(!pendingHideWeekCalendar())" />
+          <div
+            class="peer h-6 w-11 rounded-full bg-gray-300 transition-colors peer-checked:bg-blue-600 peer-focus:ring-2 peer-focus:ring-blue-400 peer-focus:ring-offset-1"></div>
+          <div
+            class="absolute top-[2px] left-[2px] h-5 w-5 rounded-full bg-white shadow transition-transform peer-checked:translate-x-5"></div>
+        </div>
+      </label>
+    </section>
+    @if (canChooseUiMode()) {
+      <section class="flex flex-col gap-3">
+        <h2 class="text-lg font-semibold">Användargränssnitt</h2>
+        <digi-form-radiogroup>
+          <div class="flex flex-col gap-3">
+            <digi-form-radiobutton
+              [attr.af-label]="'Standard vy'"
+              [afChecked]="uiModeService.mode() === 'standard'"
+              (afOnChange)="setUiMode('standard')">
+            </digi-form-radiobutton>
+            <digi-form-radiobutton
+              [attr.af-label]="'Enkel vy'"
+              [afChecked]="uiModeService.mode() === 'simplified'"
+              (afOnChange)="setUiMode('simplified')">
+            </digi-form-radiobutton>
+          </div>
+        </digi-form-radiogroup>
+      </section>
+    }
+  </div>
+</digi-dialog>

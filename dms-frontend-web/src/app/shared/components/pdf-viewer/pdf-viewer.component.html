@@ -1,0 +1,182 @@
+<div class="w-full">
+  @if (!isPreview()) {
+    <div class="flex w-full items-center justify-between gap-4 bg-[#f9f9fa] py-4 pr-4 pl-4">
+      @if (hasFileMetadata()) {
+        <div class="flex max-w-[45%] min-w-0 flex-col text-sm text-[#4a4a4a]">
+          @if (fileName()) {
+            <a class="truncate text-[#4a4a4a] hover:underline" [routerLink]="filePreviewLink()" [title]="fileName()">
+              {{ fileName() }}
+            </a>
+          }
+          @if (fileSize()) {
+            <span class="shrink-0 text-gray-500">{{ fileSize() }}</span>
+          }
+        </div>
+      }
+      <div class="ml-auto flex justify-end gap-4">
+        <nuxeo-image-button
+          (buttonClick)="shouldShowPreview.set(true)"
+          icon="Eye"
+          text="Förhandsvisa fil"
+          size="small"
+          variation="function">
+        </nuxeo-image-button>
+        <nuxeo-image-button
+          (buttonClick)="printFile()"
+          icon="Printer"
+          text="Sammanfoga till PDF"
+          size="small"
+          variation="function">
+        </nuxeo-image-button>
+        <nuxeo-image-button
+          (buttonClick)="downloadFile()"
+          icon="Download"
+          text="Ladda ner"
+          size="small"
+          variation="function">
+        </nuxeo-image-button>
+        <nuxeo-image-button
+          icon="Redo"
+          text="Ersätta fil med ny version"
+          size="small"
+          (buttonClick)="showFileUpload.set(true)"
+          variation="function">
+        </nuxeo-image-button>
+
+        @if (canDelete()) {
+          <nuxeo-image-button
+            icon="Trash2"
+            text="Ta bort fil"
+            size="small"
+            (buttonClick)="showDeleteConfirmation.set(true)"
+            variation="function">
+          </nuxeo-image-button>
+        }
+      </div>
+    </div>
+  }
+  @if (fileType() === 'pdf') {
+    <iframe #pdfFrame [src]="fileLink()" width="100%" height="100%" class="min-h-screen" frameborder="0"></iframe>
+  }
+  @if (fileType() === 'img') {
+    <img width="100%" id="image" alt="test" [src]="getImageUrl()" class="cropper-hidden max-h-[80vh]" />
+  }
+  @if (fileType() === 'video') {
+    <video width="100%" id="video" controlslist="nodownload" preload="auto" controls="">
+      <source type="video/mp4" [src]="getImageUrl()" />
+    </video>
+  }
+  @if (!isPreview()) {
+    <div class="flex w-full items-center justify-between gap-4 bg-[#f9f9fa] py-4 pr-4 pl-4">
+      @if (hasFileMetadata()) {
+        <div class="flex max-w-[45%] min-w-0 flex-col text-sm text-[#4a4a4a]">
+          @if (fileName()) {
+            <a class="truncate text-[#4a4a4a] hover:underline" [routerLink]="filePreviewLink()" [title]="fileName()">
+              {{ fileName() }}
+            </a>
+          }
+          @if (fileSize()) {
+            <span class="shrink-0 text-gray-500">{{ fileSize() }}</span>
+          }
+        </div>
+      }
+      <div class="ml-auto flex justify-end gap-4">
+        <nuxeo-image-button
+          (buttonClick)="shouldShowPreview.set(true)"
+          icon="Eye"
+          text="Förhandsvisa fil"
+          size="small"
+          variation="function">
+        </nuxeo-image-button>
+        <nuxeo-image-button
+          (buttonClick)="printFile()"
+          icon="Printer"
+          text="Sammanfoga till PDF"
+          size="small"
+          variation="function">
+        </nuxeo-image-button>
+        <nuxeo-image-button
+          (buttonClick)="downloadFile()"
+          icon="Download"
+          text="Ladda ner"
+          size="small"
+          variation="function">
+        </nuxeo-image-button>
+        <nuxeo-image-button
+          icon="Redo"
+          text="Ersätta fil med ny version"
+          size="small"
+          (buttonClick)="showFileUpload.set(true)"
+          variation="function">
+        </nuxeo-image-button>
+
+        @if (canDelete()) {
+          <nuxeo-image-button
+            icon="Trash2"
+            text="Ta bort fil"
+            size="small"
+            (buttonClick)="showDeleteConfirmation.set(true)"
+            variation="function">
+          </nuxeo-image-button>
+        }
+      </div>
+    </div>
+  }
+</div>
+@if (shouldShowPreview()) {
+  <digi-dialog
+    (afOnClose)="shouldShowPreview.set(false)"
+    [attr.af-size]="'big'"
+    [attr.af-show-dialog]="!!shouldShowPreview()">
+    <nuxeo-pdf-viewer [isPreview]="true" [blobUrl]="blobUrl()" [doc]="doc()" [mimeType]="mimeType()">
+    </nuxeo-pdf-viewer>
+  </digi-dialog>
+}
+@if (canDelete() && showDeleteConfirmation()) {
+  <digi-dialog
+    (afOnClose)="showDeleteConfirmation.set(false)"
+    [attr.af-size]="'small'"
+    [attr.af-show-dialog]="!!showDeleteConfirmation()">
+    <h2>Är du säker på att du vill ta bort den här filen?</h2>
+    <div class="flex gap-2 pt-10">
+      <digi-button
+        (afOnClick)="showDeleteConfirmation.set(false)"
+        [attr.af-size]="'medium'"
+        [attr.af-variation]="'secondary'"
+        [attr.af-full-width]="false">
+        Avbryt
+      </digi-button>
+      <digi-button
+        (afOnClick)="deleteAttachment(); showDeleteConfirmation.set(false)"
+        [attr.af-size]="'medium'"
+        [attr.af-variation]="'primary'"
+        [attr.af-full-width]="false">
+        Radera
+      </digi-button>
+    </div>
+  </digi-dialog>
+}
+@if (showFileUpload()) {
+  <digi-dialog
+    (afOnClose)="showFileUpload.set(false)"
+    [attr.af-size]="'small'"
+    [attr.af-show-dialog]="!!showFileUpload()">
+    <nuxeo-file-upload [maxFiles]="1" type="large" (filesChange)="uploadFile($event)"></nuxeo-file-upload>
+    <div class="flex gap-2 pt-10">
+      <digi-button
+        (afOnClick)="showFileUpload.set(false)"
+        [attr.af-size]="'medium'"
+        [attr.af-variation]="'secondary'"
+        [attr.af-full-width]="false">
+        Avbryt
+      </digi-button>
+      <digi-button
+        (afOnClick)="confirmFileReplace(); showFileUpload.set(false)"
+        [attr.af-size]="'medium'"
+        [attr.af-variation]="'primary'"
+        [attr.af-full-width]="false">
+        Skapa
+      </digi-button>
+    </div>
+  </digi-dialog>
+}

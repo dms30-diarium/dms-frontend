@@ -1,0 +1,53 @@
+<div class="container mx-auto p-6">
+  <div class="grid grid-cols-1 gap-10 md:grid-cols-2">
+    <!-- Information -->
+    <section>
+      <h2 class="mb-2 text-lg font-medium">Information</h2>
+      <div class="flex flex-col gap-1">
+        <div class="grid grid-cols-[140px_1fr] gap-2">
+          <span class="text-sm text-gray-500">Tillstånd:</span>
+          <span class="text-sm font-bold">{{ properties()['state'] }}</span>
+        </div>
+        <div class="grid grid-cols-[140px_1fr] gap-2">
+          <span class="text-sm text-gray-500">Version:</span>
+          <span class="text-sm font-bold">{{ properties()['changeToken'] }}</span>
+        </div>
+        <div class="grid grid-cols-[140px_1fr] gap-2">
+          <span class="text-sm text-gray-500">Senast ändrad:</span>
+          <span class="text-sm font-bold">{{ getDate(properties()['lastModified']) }}</span>
+        </div>
+        <div class="grid grid-cols-[140px_1fr] gap-2">
+          <span class="text-sm text-gray-500">Skapad:</span>
+          <span class="text-sm font-bold">{{ getDate(properties()['created']) }}</span>
+        </div>
+        <div class="grid grid-cols-[140px_1fr] gap-2">
+          <span class="text-sm text-gray-500">Skapad av:</span>
+          <span class="text-sm font-bold">{{ properties()['creator'] }}</span>
+        </div>
+        <div class="grid grid-cols-[140px_1fr] gap-2">
+          <span class="text-sm text-gray-500">Deltagare:</span>
+          <span class="text-sm font-bold">
+            {{ properties().contributors[0] || '—' }}
+          </span>
+          @for (contributor of properties().contributors.slice(1); track contributor) {
+            <ng-container>
+              <span></span>
+              <span class="text-sm font-bold">{{ contributor }}</span>
+            </ng-container>
+          }
+        </div>
+      </div>
+    </section>
+
+    <!-- Egenskaper -->
+    <section>
+      <h2 class="mb-2 text-lg font-medium">Egenskaper</h2>
+      <div class="flex flex-col gap-1">
+        <div class="grid grid-cols-[140px_1fr] gap-2">
+          <span class="text-sm text-gray-500">Titel:</span>
+          <span class="text-sm font-bold">{{ properties()['title'] }}</span>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>

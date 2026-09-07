@@ -1,0 +1,21 @@
+<div class="grid content-around gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6">
+  @for (item of items(); track item) {
+    <div
+      class="cursor-pointer rounded-xl bg-white p-4"
+      tabindex="0"
+      (click)="selectCollection(item.uid)"
+      (keydown.enter)="selectCollection(item.uid)"
+      (keydown.space)="selectCollection(item.uid)">
+      <div class="flex aspect-square items-center justify-center rounded-xl bg-[#00005a]">
+        <nuxeo-svg-icon size="140px" class="text-white" src="/nuxeo/app/assets/figmaIcons/samling.svg">
+        </nuxeo-svg-icon>
+      </div>
+
+      <p class="py-4 text-xl break-words text-blue-800" [title]="item.title">
+        {{ truncateTitle(item.title) }}
+      </p>
+      <p class="text-sm text-gray-500">Senast ändrad: {{ getDate(item.date) }}</p>
+      <p class="text-sm text-gray-500">Ägs av: {{ item.property }}</p>
+    </div>
+  }
+</div>

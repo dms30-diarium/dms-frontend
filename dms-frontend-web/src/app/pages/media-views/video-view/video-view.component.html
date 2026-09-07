@@ -1,0 +1,113 @@
+@let doc = document();
+
+@if (doc) {
+  <div class="mb-4 ml-2.5">
+    <nuxeo-back-to-personal-button [path]="doc.path" [parentId]="doc.parentRef" [currentTitle]="title()" />
+  </div>
+  <div class="flex flex-col gap-4">
+    <h1 class="text-3xl font-semibold">{{ title() }}</h1>
+    <div class="flex flex-col gap-6 lg:flex-row">
+      <div class="min-h-[520px] w-full min-w-0 rounded-lg border border-slate-200 bg-white p-2 lg:flex-[2]">
+        <div class="h-full">
+          <nuxeo-pdf-viewer [doc]="doc" [showDownloadButton]="false" [showActionButtons]="false"></nuxeo-pdf-viewer>
+        </div>
+      </div>
+      <nuxeo-document-info-panel [document]="doc" (reloadDocument)="reloadDocument.emit()"> </nuxeo-document-info-panel>
+    </div>
+
+    <div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
+      <div class="rounded-lg border border-slate-200 bg-white p-4">
+        <h3 class="mb-4 text-sm font-semibold">Video Info</h3>
+        <div class="space-y-2 text-sm text-slate-700">
+          <div class="flex items-center justify-between gap-3">
+            <span class="text-slate-500">Format</span>
+            <span>{{ getVideoFormatLabel() }}</span>
+          </div>
+          <div class="flex items-center justify-between gap-3">
+            <span class="text-slate-500">Duration</span>
+            <span>{{ getVideoDurationLabel() }}</span>
+          </div>
+          <div class="flex items-center justify-between gap-3">
+            <span class="text-slate-500">Width</span>
+            <span>{{ getVideoWidthLabel() }}</span>
+          </div>
+          <div class="flex items-center justify-between gap-3">
+            <span class="text-slate-500">Height</span>
+            <span>{{ getVideoHeightLabel() }}</span>
+          </div>
+          <div class="flex items-center justify-between gap-3">
+            <span class="text-slate-500">Frame Rate</span>
+            <span>{{ getVideoFrameRateLabel() }}</span>
+          </div>
+          <div class="flex items-center justify-between gap-3">
+            <span class="text-slate-500">Size</span>
+            <span>{{ getVideoSizeLabel() }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="rounded-lg border border-slate-200 bg-white p-4">
+        <h3 class="mb-4 text-sm font-semibold">Conversions</h3>
+        @if (videoRenditionGroups().length) {
+          <div class="grid grid-cols-1 gap-6 text-sm text-slate-700 lg:grid-cols-2">
+            @for (group of videoRenditionGroups(); track $index) {
+              <div class="space-y-3">
+                @for (rendition of group; track rendition.title) {
+                  <div class="flex items-center justify-between gap-2">
+                    <div class="flex-1">
+                      <div class="font-medium text-slate-900">{{ rendition.title }}</div>
+                      @if (rendition.detailLabel) {
+                        <div class="text-xs text-slate-500">{{ rendition.detailLabel }}</div>
+                      }
+                    </div>
+                    @if (rendition.downloadUrl) {
+                      <a class="text-slate-600 hover:text-slate-900" [href]="rendition.downloadUrl" title="Download">
+                        <digi-icon-download class="h-[18px] w-[18px]"></digi-icon-download>
+                      </a>
+                    }
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="text-sm text-slate-500">No additional formats available.</div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <digi-dialog
+    (afOnClose)="closeEditDialog()"
+    [attr.af-heading]="'Redigera video'"
+    [attr.af-size]="'small'"
+    [attr.af-show-dialog]="!!isEditDialogOpen()">
+    <div class="bg-gray-100 p-4">
+      <nuxeo-general-form
+        #videoEditForm
+        [config]="videoEditConfig()"
+        [isLoading]="isSavingEdit()"
+        [shouldShowButtons]="false"
+        (formResult)="saveEdits($event)"></nuxeo-general-form>
+    </div>
+    <div class="mt-6 flex gap-2">
+      <digi-button
+        (afOnClick)="closeEditDialog()"
+        [attr.af-size]="'medium'"
+        [attr.af-variation]="'secondary'"
+        [attr.af-full-width]="false">
+        Avbryt
+      </digi-button>
+      <digi-button
+        (afOnClick)="submitVideoEdit()"
+        [attr.af-size]="'medium'"
+        [attr.af-variation]="'primary'"
+        [attr.af-full-width]="false"
+        [attr.af-disabled]="isSavingEdit()">
+        Spara
+      </digi-button>
+    </div>
+  </digi-dialog>
+} @else {
+  <div class="p-6">Can't load the doc</div>
+}

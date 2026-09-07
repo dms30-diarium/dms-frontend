@@ -1,0 +1,91 @@
+@if (this.isLoading()) {
+  <div
+    class="fixed top-0 left-0 z-50 flex h-full w-full items-center justify-center overflow-clip bg-white/60 backdrop-blur-xs">
+    <digi-loader-spinner [attr.af-size]="'medium'" [attr.af-text]="'Laddar'"> </digi-loader-spinner>
+  </div>
+}
+<digi-form-radiogroup>
+  <div class="flex gap-4 p-4">
+    <digi-form-radiobutton
+      [afChecked]="isExistingCase() === 'existing'"
+      (afOnChange)="setCaseMode('existing')"
+      [attr.af-label]="'Befintligt ärende'">
+    </digi-form-radiobutton>
+    <digi-form-radiobutton
+      [afChecked]="isExistingCase() === 'new'"
+      (afOnChange)="setCaseMode('new')"
+      [attr.af-label]="'Nytt ärende'">
+    </digi-form-radiobutton>
+  </div>
+</digi-form-radiogroup>
+@if (isExistingCase() === 'existing') {
+  <h2 class="text-lg font-semibold">Befintligt ärende</h2>
+  <nuxeo-general-form
+    (changeForm)="changeForm($event)"
+    [shouldShowButtons]="false"
+    [isSubmittedInput]="isHandlingSubmitted()"
+    [config]="existingArendeConfig()"
+    (selectedOptionChanged)="selectedOptionChanged($event)"
+    (dropdownChanged)="onExistingCaseQueryChanged($event)"
+    (dialogClose)="dialogClosed.emit(null)"></nuxeo-general-form>
+}
+@if (isExistingCase() === 'new') {
+  <h2 class="mt-2 text-lg font-semibold">Nytt ärende</h2>
+  <div class="flex gap-4 bg-gray-100 p-4">
+    <nuxeo-general-form
+      class="flex-2"
+      [columns]="2"
+      [firstColumnSize]="5"
+      [showFieldsInTwoCols]="true"
+      (changeForm)="changeForm($event)"
+      [shouldShowButtons]="false"
+      [isLoading]="isLoading()"
+      [isSubmittedInput]="isHandlingSubmitted()"
+      formName="Skapa ärende"
+      subLabel="Alla obligatoriska fält är uppmärkta med (obligatorisk uppgift)."
+      [config]="createArendeConfig()"
+      (selectedOptionChanged)="selectedOptionChanged($event)"
+      (selectedRadioChanged)="selectedOptionChanged($event)"
+      (dropdownChanged)="onArendeParentQueryChanged($event)"
+      (dialogClose)="dialogClosed.emit(null)">
+      <digi-button [attr.af-size]="'medium'" [attr.af-variation]="'secondary'" [attr.af-full-width]="false">
+        <digi-icon-home [nuxeoTooltipDirective]="caseSearchButtonText()" class="image image-medium"></digi-icon-home>
+      </digi-button>
+    </nuxeo-general-form>
+    <div class="mt-4 flex-1">
+      <nuxeo-assign-user-modal [item]="caseParentRef() || undefined" [hideButtons]="true"></nuxeo-assign-user-modal>
+    </div>
+  </div>
+}
+
+<h2 class="mt-2 text-lg font-semibold">Ny handling</h2>
+<div class="bg-gray-100 p-4">
+  <nuxeo-create-handling-from-mail-form
+    (changeForm)="changeForm($event)"
+    [isLoading]="isLoading()"
+    [isSubmitted]="isHandlingSubmitted()"
+    subLabel="Alla obligatoriska fält är uppmärkta med (obligatorisk uppgift)."
+    [handlingConfig]="createHandlingConfig()"
+    [fileConfig]="createFileConfig()"
+    (selectedOptionChanged)="selectedOptionChanged($event)"
+    (selectedRadioChanged)="selectedOptionChanged($event)"
+    (dropdownChanged)="onHandlingTypeQueryChanged($event)"
+    (dialogClose)="dialogClosed.emit(null)"></nuxeo-create-handling-from-mail-form>
+</div>
+
+<div class="flex gap-2 pt-10">
+  <digi-button
+    (afOnClick)="dialogClosed.emit(null)"
+    [attr.af-size]="'medium'"
+    [attr.af-variation]="'secondary'"
+    [attr.af-full-width]="false">
+    Avbryt
+  </digi-button>
+  <digi-button
+    (afOnClick)="isLoading() ? '' : createHandling()"
+    [attr.af-size]="'medium'"
+    [attr.af-variation]="'primary'"
+    [attr.af-full-width]="false">
+    Skapa
+  </digi-button>
+</div>

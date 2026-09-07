@@ -1,0 +1,44 @@
+<div class="my-2 font-semibold text-gray-800">Tillgängliga filer</div>
+
+@if (filesByHandling().length) {
+  <form [formGroup]="form">
+    <div class="mb-3 flex items-center gap-3 px-1">
+      <digi-form-checkbox
+        [formControl]="selectAllControl"
+        [attr.af-label]="'Välj alla filer'"
+        af-variation="secondary" />
+    </div>
+
+    <div class="max-h-80 min-h-26 divide-y divide-gray-200 overflow-y-auto rounded border border-gray-300 bg-white">
+      @for (handling of filesByHandling(); track handling.id) {
+        <section>
+          <div class="rounded bg-blue-50 px-3 py-2">
+            <div class="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-x-4">
+              <digi-form-checkbox
+                af-variation="secondary"
+                [attr.af-label]="' '"
+                [attr.af-checked]="isAllHandlingFilesSelected(handling.filer)"
+                (afOnChange)="toggleHandlingSelection(handling)" />
+              <div class="min-w-0">
+                <div class="truncate font-semibold text-gray-900" [title]="handling.title">{{ handling.title }}</div>
+                <div class="text-xs text-gray-600">
+                  {{ selectedCountForHandling(handling.filer) }} / {{ handling.filer.length }} markerade
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="divide-y divide-gray-100">
+            @for (file of handling.filer; track file.id) {
+              <div class="flex items-center gap-3 py-2 pr-2 pl-8">
+                <digi-form-checkbox [formControlName]="file.id" [attr.af-label]="file.title" af-variation="secondary" />
+              </div>
+            }
+          </div>
+        </section>
+      }
+    </div>
+  </form>
+} @else {
+  <div class="rounded-md border border-gray-200 bg-gray-50 p-4 text-sm text-gray-600">Inga filer att välja.</div>
+}

@@ -1,0 +1,25 @@
+<nuxeo-accordion accordionTitle="Ytterligare mottagare">
+  <form [formGroup]="form" class="flex flex-col gap-2 p-4">
+    <div>
+      <div>Kopia (CC)</div>
+      <digi-form-input
+        formControlName="ccRecipients"
+        af-label=" "
+        af-variation="medium"
+        af-type="text"
+        placeholder="Separera flera adresser med komma">
+      </digi-form-input>
+    </div>
+
+    <div>
+      <div>Hemlig kopia (BCC)</div>
+      <digi-form-input
+        formControlName="bccRecipients"
+        af-label=" "
+        af-variation="medium"
+        af-type="text"
+        placeholder="Separera flera adresser med komma">
+      </digi-form-input>
+    </div>
+  </form>
+</nuxeo-accordion>

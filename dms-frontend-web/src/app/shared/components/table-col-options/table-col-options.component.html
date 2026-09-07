@@ -1,0 +1,26 @@
+<div class="flex flex-col gap-2 p-2">
+  <div>
+    <digi-form-checkbox
+      [attr.af-label]="'Välj alla'"
+      [attr.af-variation]="'secondary'"
+      [afChecked]="allColumnsSelected()"
+      (afOnChange)="selectAll()">
+    </digi-form-checkbox>
+  </div>
+
+  <div class="grid grid-cols-1 gap-x-6 gap-y-2 md:grid-cols-2">
+    @for (item of localOptions(); track item.id) {
+      <digi-form-checkbox
+        [attr.af-label]="item.label"
+        [attr.af-variation]="'secondary'"
+        [afChecked]="item.visible"
+        (afOnChange)="toggleVisibility(item, $event)">
+      </digi-form-checkbox>
+    }
+  </div>
+
+  <div class="mt-3 flex justify-end gap-2">
+    <digi-button variant="secondary" size="sm" (click)="resetToDefault()">Avbryt</digi-button>
+    <digi-button variant="primary" size="sm" (click)="applyChangesAndClose()">OK</digi-button>
+  </div>
+</div>

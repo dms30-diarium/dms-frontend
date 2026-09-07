@@ -1,0 +1,23 @@
+<h4 class="mb-4 text-2xl font-semibold">{{ title() }}</h4>
+@for (text of message(); track text) {
+  <p>{{ text }}</p>
+}
+<ng-content></ng-content>
+<div class="mt-6 flex gap-4">
+  <digi-button
+    (afOnClick)="onCancel()"
+    [attr.af-size]="'medium'"
+    [attr.af-variation]="'secondary'"
+    [attr.af-full-width]="false">
+    Avbryt
+  </digi-button>
+  @if (showConfirmButton()) {
+    <digi-button
+      (afOnClick)="onConfirm()"
+      [attr.af-size]="'medium'"
+      [attr.af-variation]="'primary'"
+      [attr.af-full-width]="false">
+      {{ blueButtonTextSig() }}
+    </digi-button>
+  }
+</div>

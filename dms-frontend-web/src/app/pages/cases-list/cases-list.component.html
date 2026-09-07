@@ -1,0 +1,222 @@
+@if (isEditDialogOpen()) {
+  @if (editFormReady()) {
+    <nuxeo-edit-form
+      [internalContactsData]="internalContactsData()"
+      [doc]="editDoc()!"
+      [config]="editConfig()"
+      [canSeeCustomMetadataValues]="true"
+      (dialogClose)="isEditDialogOpen.set(false)"
+      (formResultCase)="formatEditForm($event)"
+      (updateDropdownValues)="updateDropdownValues($event)">
+    </nuxeo-edit-form>
+  } @else {
+    <div class="p-4 text-sm text-gray-500">Laddar metadata…</div>
+  }
+} @else {
+  @if (tableConfig.length === 0) {
+    <div class="p-6 text-center text-sm text-gray-500">Inga resultat.</div>
+  } @else if (isGrid()) {
+    @if (loading()) {
+      <div class="p-4 text-sm text-gray-500">Loading…</div>
+    } @else if (!casesSig().length) {
+      <div class="p-6 text-center text-sm text-gray-500">Inga resultat.</div>
+    } @else {
+      <div class="mb-3 flex flex-wrap items-center gap-3">
+        <p class="text-sm font-semibold text-slate-600">{{ total() + ' resultat' }}</p>
+      </div>
+      <div class="grid grid-cols-2 items-stretch gap-4 xl:grid-cols-3">
+        @for (item of casesSig(); track item['id']) {
+          <nuxeo-case-card [caseData]="item" [columns]="tableConfig" [tab]="tab()"> </nuxeo-case-card>
+        }
+      </div>
+      <nuxeo-grid-pagination-controls
+        [totalPages]="totalPages()"
+        [currentPage]="page()"
+        [pageSize]="pageSize()"
+        [pageSizeOptions]="pageSizeOptions"
+        [showPageSize]="shouldShowPageSizeOption()"
+        (pageChange)="onGridPageChange($event)"
+        (pageSizeSelect)="onGridPageSizeSelect($event)">
+      </nuxeo-grid-pagination-controls>
+    }
+  } @else {
+    <ng-template #actionsTpl let-item>
+      @if (auth.activeRole() === 'REGISTRATOR') {
+        @if (tab() === 'all-docs') {
+          <div class="flex justify-end gap-2">
+            <digi-button
+              nuxeoTooltipDirective="Hantera handläggare"
+              af-size="medium"
+              af-variation="function"
+              af-full-width="false"
+              (afOnClick)="openAssignUserOrg(item.id)">
+              <digi-icon-user-alt slot="icon"></digi-icon-user-alt>
+            </digi-button>
+
+            <digi-button
+              nuxeoTooltipDirective="Redigera metadata"
+              af-size="medium"
+              af-variation="function"
+              af-full-width="false"
+              (afOnClick)="openEditDialog(item.id)">
+              <digi-icon-pen slot="icon"></digi-icon-pen>
+            </digi-button>
+          </div>
+        } @else {
+          <div class="flex justify-end">
+            <digi-button af-size="medium" af-variation="function" af-full-width="false">
+              <digi-icon-search slot="icon" />
+              Sök befintligt ärende
+            </digi-button>
+            <digi-button af-size="medium" af-variation="function" af-full-width="false">
+              <digi-icon-plus slot="icon" />
+              Skapa nytt ärende
+            </digi-button>
+            <digi-button
+              (afOnClick)="isDeleteDialogOpened.set(item)"
+              af-size="medium"
+              af-variation="function"
+              af-full-width="false">
+              <digi-icon-trash slot="icon" />
+            </digi-button>
+          </div>
+        }
+      } @else if (auth.activeRole() === 'HANDLAGGARE') {
+        @if (item.assignedTo === '—') {
+          <digi-button af-size="medium" af-variation="function" af-full-width="false">
+            <digi-icon-check slot="icon"></digi-icon-check>
+            Acceptera
+          </digi-button>
+        } @else if (tab() === 'my-cases') {
+          <digi-button
+            nuxeoTooltipDirective="Hantera handläggare"
+            af-size="medium"
+            af-variation="function"
+            af-full-width="false"
+            (afOnClick)="openAssignUserOrg(item.id)">
+            <digi-icon-user-alt slot="icon"></digi-icon-user-alt>
+          </digi-button>
+        }
+      } @else if (this.auth.isAdmin()) {
+        @if (tab() === 'all-docs' || tab() === 'my-cases') {
+          <div class="flex justify-end gap-2">
+            <digi-button
+              nuxeoTooltipDirective="Hantera handläggare"
+              af-size="medium"
+              af-variation="function"
+              af-full-width="false"
+              (afOnClick)="openAssignUserOrg(item.id)">
+              <digi-icon-user-alt slot="icon"></digi-icon-user-alt>
+            </digi-button>
+
+            <digi-button
+              nuxeoTooltipDirective="Redigera metadata"
+              af-size="medium"
+              af-variation="function"
+              af-full-width="false"
+              (afOnClick)="openEditDialog(item.id)">
+              <digi-icon-pen slot="icon"></digi-icon-pen>
+            </digi-button>
+          </div>
+        } @else if (tab() === 'incoming-docs') {
+          <div class="flex justify-end gap-2">
+            <digi-button
+              af-size="medium"
+              af-variation="function"
+              af-full-width="false"
+              (afOnClick)="openCreateHandlingDialog(item.id)">
+              <digi-icon-file-document slot="icon"> </digi-icon-file-document>
+              Skapa handling
+            </digi-button>
+          </div>
+        }
+      } @else {
+        <div class="flex items-center justify-end gap-2">
+          <digi-button
+            (afOnClick)="isAssignUserOpened.set(item)"
+            af-size="medium"
+            af-variation="function"
+            af-full-width="false">
+            <digi-icon-user-alt slot="icon"></digi-icon-user-alt>
+            Tilldela ärende
+          </digi-button>
+          <digi-button af-size="medium" af-variation="function" af-full-width="false">
+            <digi-icon-arrow-back slot="icon"></digi-icon-arrow-back>
+            Skicka tillbaka till Registratorn
+          </digi-button>
+        </div>
+      }
+    </ng-template>
+
+    <nuxeo-case-list-table
+      [shouldHavePaddingRight]="true"
+      [shouldShowPageSizeOption]="shouldShowPageSizeOption()"
+      [pageSizeOptions]="pageSizeOptions"
+      [headerHeight]="'h-[110px]'"
+      [showFalseTopScroll]="true"
+      [defaultColumnOptions]="getDefaultColumnOptions()"
+      [tableConfig]="tableConfig"
+      [tableItems]="casesSig()"
+      [loading]="loading()"
+      [total]="total()"
+      [page]="page()"
+      [pageSize]="pageSize()"
+      [sortBy]="sortBy()"
+      [sortOrder]="sortOrder()"
+      [actionsHeader]="tableButtonColName()"
+      [actionsTemplate]="!tableButtonColName() ? null : actionsTpl"
+      [role]="auth.activeRole()"
+      [columnSearchEnabled]="true"
+      [columnSearchContext]="{ parentRef: columnSearchParentRef() }"
+      [externalColumnFilters]="externalColumnFilters()"
+      [showCsvExport]="showCsvExport()"
+      (pageChange)="onPageChange($event)"
+      (sortChange)="onSort($event)"
+      (pageSizeSelect)="pageSizeSelect.emit($event)"
+      (columnSearchChange)="onColumnSearch($event)"
+      (csvExportClick)="exportToCSV($event)">
+    </nuxeo-case-list-table>
+  }
+}
+@if (isAssignUserOpened()) {
+  <digi-dialog
+    (afOnClose)="isAssignUserOpened.set(null)"
+    [attr.af-size]="'small'"
+    [attr.af-show-dialog]="!!isAssignUserOpened()">
+    <nuxeo-assign-user-modal
+      (closeDialog)="isAssignUserOpened.set(null); updateDocument()"
+      [item]="isAssignUserOpened()!"></nuxeo-assign-user-modal>
+  </digi-dialog>
+}
+
+<digi-dialog
+  (afPrimaryButtonClick)="deleteItem()"
+  (afSecondaryButtonClick)="isDeleteDialogOpened.set(null)"
+  (afOnClose)="isDeleteDialogOpened.set(null)"
+  [attr.af-heading]="'Bekräfta radering'"
+  [attr.af-size]="'small'"
+  [attr.af-show-dialog]="!!isDeleteDialogOpened()"
+  af-primary-button-text="Radera"
+  af-secondary-button-text="Avbryt">
+  <p class="text-sm text-slate-600">
+    Är du säker på att du vill radera <strong>{{ isDeleteDialogOpened()?.['title'] }}</strong
+    >?
+  </p>
+</digi-dialog>
+
+@if (isCreateHandlingOpen()) {
+  <digi-dialog
+    (afOnClose)="isCreateHandlingOpen.set(false)"
+    class="isFullSize"
+    [attr.af-size]="'large'"
+    [attr.af-show-dialog]="!!isCreateHandlingOpen()">
+    <h2 class="mb-2 text-2xl font-semibold">Create Handling from mail</h2>
+
+    <nuxeo-create-handling-from-mail
+      [document]="selectedMailDoc() || undefined"
+      [parentId]="selectedMailDoc()?.uid!"
+      [attachments]="attachmentsOptions()"
+      (dialogClosed)="isCreateHandlingOpen.set(false)">
+    </nuxeo-create-handling-from-mail>
+  </digi-dialog>
+}

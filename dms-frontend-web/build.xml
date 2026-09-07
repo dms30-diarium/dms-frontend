@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<project name="Nuxeo Angular Sample App" default="build" basedir=".">
+
+  <!-- set executable names based on OS family -->
+  <condition property="cmd.npm" value="npm.cmd" else="npm">
+    <os family="windows"/>
+  </condition>
+  <condition property="cmd.mvn" value="mvn.cmd" else="mvn">
+    <os family="windows"/>
+  </condition>
+
+  <target name="init" description="Install dependencies">
+    <exec executable="${cmd.npm}" failonerror="true">
+      <arg value="install" />
+    </exec>
+  </target>
+
+  <target name="build" depends="init">
+    <exec executable="${cmd.npm}" failonerror="true">
+      <arg value="run" />
+      <arg value="build" />
+    </exec>
+  </target>
+
+  <target name="jsp" depends="build">
+    <exec executable="node" failonerror="true">
+      <arg value="./nuxeo_build_tools/htmlToJsp.mjs" />
+    </exec>
+  </target>
+
+  <target name="package" depends="jsp">
+    <copy todir="target/classes/nuxeo.war/app">
+      <fileset dir="./dist/dms-frontend/browser">
+        <exclude name="index.html"/>
+      </fileset>
+    </copy>
+     <copy todir="target/classes">
+      <fileset dir="./nuxeo"></fileset>
+    </copy>
+  </target>
+
+</project>

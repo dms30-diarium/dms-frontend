@@ -1,0 +1,150 @@
+<div class="mb-6">
+  <div class="overflow-visible">
+    @if (loading()) {
+      <div class="flex items-center justify-center p-6 text-sm text-gray-500">Laddar uppgifter...</div>
+    } @else {
+      <div class="relative">
+        <div class="flex">
+          @for (column of columns(); track column.key) {
+            <div class="flex min-w-0 flex-1 flex-col">
+              @if (!themeService.hideStartPageImages()) {
+                <div class="overflow-hidden">
+                  @if (column.imageSrc) {
+                    <img
+                      loading="lazy"
+                      decoding="async"
+                      [src]="column.imageSrc"
+                      class="h-[180px] w-full object-cover object-center"
+                      alt="weekday image" />
+                  } @else {
+                    <div class="h-[180px] w-full bg-slate-100"></div>
+                  }
+                </div>
+              }
+
+              <!-- HEADER -->
+              <div class="mb-2 px-3 pt-3 text-center text-sm font-semibold text-slate-700">
+                <div>
+                  {{ column.label }}
+                  @if (column.isToday) {
+                    (idag)
+                  }
+                </div>
+                <div class="text-xs font-normal text-slate-500">
+                  {{ getDayMonthLabel(column.date) }}
+                </div>
+              </div>
+
+              <!-- TASKS -->
+              <div class="relative flex flex-col items-center px-3 text-center">
+                @if (column.tasks.length <= 2) {
+                  @for (task of column.tasks; track task.id) {
+                    <div class="mb-2">
+                      @if (task.link?.length) {
+                        <a class="text-primary text-sm font-semibold hover:underline" [routerLink]="task.link">
+                          {{ task.title }}
+                        </a>
+                      } @else {
+                        <div class="text-sm font-semibold text-slate-700">
+                          {{ task.title }}
+                        </div>
+                      }
+
+                      @if (task.description) {
+                        <div class="text-xs text-slate-500">
+                          {{ task.description }}
+                        </div>
+                      }
+                    </div>
+                  }
+                } @else {
+                  @for (task of column.tasks.slice(0, 2); track task.id) {
+                    <div class="mb-2">
+                      @if (task.link?.length) {
+                        <a class="text-primary text-sm font-semibold hover:underline" [routerLink]="task.link">
+                          {{ task.title }}
+                        </a>
+                      } @else {
+                        <div class="text-sm font-semibold text-slate-700">
+                          {{ task.title }}
+                        </div>
+                      }
+
+                      @if (task.description) {
+                        <div class="text-xs text-slate-500">
+                          {{ task.description }}
+                        </div>
+                      }
+                    </div>
+                  }
+
+                  <div class="relative flex flex-col items-center">
+                    <button
+                      class="cursor-pointer text-xs text-blue-500 hover:underline"
+                      (click)="$event.stopPropagation(); this.togglePopover(column.key)">
+                      +{{ column.tasks.length - 2 }} ytterligare
+                    </button>
+
+                    <!-- popover -->
+                    @if (this.openPopoverKey() === column.key) {
+                      <div
+                        nuxeoBackdropClick
+                        (backdropClick)="this.closePopover()"
+                        class="absolute top-5 left-1/2 z-50 w-50 -translate-x-1/2 rounded-md border border-gray-200 bg-white p-3 text-left shadow-2xs">
+                        @for (task of column.tasks.slice(2); track task.id) {
+                          <div class="mb-2 last:mb-0">
+                            @if (task.link?.length) {
+                              <a class="text-primary text-sm font-semibold hover:underline" [routerLink]="task.link">
+                                {{ task.title }}
+                              </a>
+                            } @else {
+                              <div class="text-sm font-semibold text-slate-700">
+                                {{ task.title }}
+                              </div>
+                            }
+
+                            @if (task.description) {
+                              <div class="text-xs text-slate-500">
+                                {{ task.description }}
+                              </div>
+                            }
+                          </div>
+                        }
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+
+        <div class="pointer-events-none absolute inset-x-0 top-[196px]">
+          <div class="relative">
+            <div class="absolute top-0 left-0 flex items-start gap-2">
+              <button
+                type="button"
+                class="pointer-events-auto flex w-9 items-start justify-center text-sm font-semibold text-slate-500"
+                aria-label="Föregående vecka"
+                (click)="previousWeek.emit()">
+                <digi-icon-caret-left></digi-icon-caret-left>
+              </button>
+
+              <div class="pointer-events-auto pt-1 text-xs font-semibold whitespace-nowrap text-slate-500">
+                {{ weekLabel() }}
+              </div>
+            </div>
+
+            <button
+              type="button"
+              class="pointer-events-auto absolute top-0 right-0 flex w-9 items-start justify-center text-sm font-semibold text-slate-500"
+              aria-label="Nästa vecka"
+              (click)="nextWeek.emit()">
+              <digi-icon-caret-right></digi-icon-caret-right>
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</div>

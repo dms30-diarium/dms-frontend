@@ -1,0 +1,10 @@
+<digi-form-file-upload
+  [afFileMaxSize]="100"
+  [attr.af-max-files]="maxFiles()"
+  (afOnUploadFile)="addFiles($event.detail)"
+  [attr.af-variation]="type() ?? 'large'"
+  [attr.af-file-types]="'*'"
+  af-label=" "
+  [afUploadBtnText]="maxFiles() === 1 ? 'Välj fil' : 'Välj fil(er)'"
+  (afOnRemoveFile)="clearFiles($event.detail)"
+  [attr.af-validation-text]="errorMessage()"></digi-form-file-upload>

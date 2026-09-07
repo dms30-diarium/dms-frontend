@@ -1,0 +1,107 @@
+<div class="mt-4 flex flex-col gap-2">
+  <digi-button
+    (afOnClick)="isContactDialogOpen.set(true)"
+    [attr.af-size]="'small'"
+    [attr.af-variation]="'secondary'"
+    [attr.af-full-width]="false">
+    {{ heading() }}
+  </digi-button>
+  <digi-dialog
+    (afOnClose)="isContactDialogOpen.set(false)"
+    [attr.af-heading]="heading()"
+    [attr.af-size]="'small'"
+    [attr.af-show-dialog]="isContactDialogOpen()">
+    <div>
+      <form [formGroup]="form" class="">
+        <div class="flex flex-col gap-4">
+          <div>
+            <h4 class="font-semibold text-gray-500">Namn</h4>
+            <digi-form-input
+              [formControlName]="'name'"
+              af-label=" "
+              [attr.af-variation]="'medium'"
+              [attr.af-type]="'text'"
+              af-validation="neutral">
+            </digi-form-input>
+            <div>
+              <h4 class="font-semibold text-gray-500">E-post</h4>
+              <digi-form-input
+                [formControlName]="'email'"
+                af-label=" "
+                [attr.af-variation]="'medium'"
+                [attr.af-type]="'text'"
+                af-validation="neutral">
+              </digi-form-input>
+            </div>
+            <div>
+              <h4 class="font-semibold text-gray-500">Telefonnummer</h4>
+              <digi-form-input
+                [formControlName]="'phone'"
+                af-label=" "
+                [attr.af-variation]="'medium'"
+                [attr.af-type]="'text'"
+                af-validation="neutral">
+              </digi-form-input>
+            </div>
+            <div>
+              <h4 class="font-semibold text-gray-500">Organisation</h4>
+              <digi-form-input
+                [formControlName]="'org'"
+                af-label=" "
+                [attr.af-variation]="'medium'"
+                [attr.af-type]="'text'"
+                af-validation="neutral">
+              </digi-form-input>
+            </div>
+            <div>
+              <h4 class="font-semibold text-gray-500">Adress</h4>
+              <digi-form-input
+                [formControlName]="'adress'"
+                af-label=" "
+                [attr.af-variation]="'medium'"
+                [attr.af-type]="'text'"
+                af-validation="neutral">
+              </digi-form-input>
+            </div>
+            <div>
+              <h4 class="font-semibold text-gray-500">Postnummer</h4>
+              <digi-form-input
+                [formControlName]="'postnummer'"
+                af-label=" "
+                [attr.af-variation]="'medium'"
+                [attr.af-type]="'text'"
+                af-validation="neutral">
+              </digi-form-input>
+            </div>
+            <div>
+              <h4 class="font-semibold text-gray-500">Postort</h4>
+              <digi-form-input
+                [formControlName]="'city'"
+                af-label=" "
+                [attr.af-variation]="'medium'"
+                [attr.af-type]="'text'"
+                af-validation="neutral">
+              </digi-form-input>
+            </div>
+          </div>
+        </div>
+        <div class="flex gap-2 pt-10">
+          <digi-button
+            (afOnClick)="isContactDialogOpen.set(false)"
+            [attr.af-size]="'medium'"
+            [attr.af-variation]="'secondary'"
+            [attr.af-full-width]="false">
+            Avbryt
+          </digi-button>
+          <digi-button
+            (afOnClick)="addContact(); isContactDialogOpen.set(false)"
+            [attr.af-size]="'medium'"
+            [attr.af-variation]="'primary'"
+            [attr.af-full-width]="false">
+            Spara
+          </digi-button>
+        </div>
+      </form>
+    </div>
+  </digi-dialog>
+</div>

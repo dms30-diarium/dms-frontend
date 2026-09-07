@@ -1,0 +1,96 @@
+<div class="flex flex-col gap-2">
+  <h4>Egenskaper</h4>
+
+  <digi-button
+    (afOnClick)="openDialog()"
+    [attr.af-size]="'medium'"
+    [attr.af-variation]="'secondary'"
+    [attr.af-full-width]="false">
+    Lägg till egenskap
+  </digi-button>
+
+  @if (rows().length) {
+    <nuxeo-case-list-table
+      [shouldShowResults]="false"
+      class="max-h-[240px] overflow-auto"
+      [isSettingsEnabled]="false"
+      [tableItems]="rows()"
+      [tableConfig]="columnConfig"
+      [actionsHeader]="'Åtgärd'"
+      [actionsTemplate]="actionsTpl"
+      [loading]="false"
+      [pageSize]="25"
+      [defaultColumnOptions]="getDefaultColumnOptions()">
+    </nuxeo-case-list-table>
+  }
+
+  <digi-dialog
+    (afOnClose)="closeDialog()"
+    [attr.af-heading]="editingIndex() !== null ? 'Redigera egenskap' : 'Lägg till egenskap'"
+    [attr.af-size]="'small'"
+    [attr.af-show-dialog]="isDialogOpen()">
+    <div class="flex flex-col gap-4">
+      <div>
+        <h4 class="font-semibold text-gray-500">Nyckel *</h4>
+        <digi-form-input
+          [value]="draftNyckel()"
+          (afOnInput)="setDraftNyckel($event.target.value)"
+          af-label=" "
+          [attr.af-variation]="'medium'"
+          [attr.af-type]="'text'"
+          af-validation="neutral">
+        </digi-form-input>
+      </div>
+
+      <div>
+        <h4 class="font-semibold text-gray-500">Värde</h4>
+        <digi-form-input
+          [value]="draftVarde()"
+          (afOnInput)="setDraftVarde($event.target.value)"
+          af-label=" "
+          [attr.af-variation]="'medium'"
+          [attr.af-type]="'text'"
+          af-validation="neutral">
+        </digi-form-input>
+      </div>
+
+      <div class="flex gap-2 pt-4">
+        <digi-button
+          (afOnClick)="closeDialog()"
+          [attr.af-size]="'medium'"
+          [attr.af-variation]="'secondary'"
+          [attr.af-full-width]="false">
+          Avbryt
+        </digi-button>
+        <digi-button
+          (afOnClick)="saveField()"
+          [attr.af-size]="'medium'"
+          [attr.af-variation]="'primary'"
+          [attr.af-full-width]="false">
+          Spara
+        </digi-button>
+      </div>
+    </div>
+  </digi-dialog>
+
+  <ng-template #actionsTpl let-item>
+    <div class="flex items-center gap-4">
+      <digi-button
+        (afOnClick)="openDialog(item)"
+        [attr.af-size]="'small'"
+        [attr.af-variation]="'function'"
+        [attr.af-full-width]="false">
+        <digi-icon-pen slot="icon"></digi-icon-pen>
+        Redigera
+      </digi-button>
+      <digi-button
+        (afOnClick)="removeField(item)"
+        [attr.af-size]="'small'"
+        [attr.af-variation]="'function'"
+        [attr.af-full-width]="false">
+        <digi-icon-trash slot="icon" />
+        Ta bort
+      </digi-button>
+    </div>
+  </ng-template>
+</div>

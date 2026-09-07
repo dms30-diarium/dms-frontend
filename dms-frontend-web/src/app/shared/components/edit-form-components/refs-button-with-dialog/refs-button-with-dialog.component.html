@@ -1,0 +1,74 @@
+<div class="flex flex-col gap-2">
+  <digi-button
+    (afOnClick)="isContactDialogOpen.set(true)"
+    [attr.af-size]="'small'"
+    [attr.af-variation]="'secondary'"
+    [attr.af-full-width]="false">
+    {{ heading() }}
+  </digi-button>
+  <digi-dialog
+    (afOnClose)="isContactDialogOpen.set(false); $event.stopPropagation()"
+    [attr.af-heading]="heading()"
+    [attr.af-size]="'small'"
+    [attr.af-show-dialog]="isContactDialogOpen()">
+    <div>
+      <form [formGroup]="form" class="">
+        <div class="flex flex-col gap-4">
+          <div>
+            <h4 class="font-semibold text-gray-500">{{ refType() }}</h4>
+            <digi-form-select-filter
+              (afOnQueryChanged)="updateRefs($event)"
+              [formControlName]="'caseRef'"
+              [afListItems]="caseOptions()"
+              [attr.af-filter-button-text-label]="' '"
+              af-filter-button-text="Inget valt"
+              af-submit-button-text="Filtrera"
+              af-multiple-items="false"
+              af-name=" "
+              af-validation="neutral">
+            </digi-form-select-filter>
+
+            <div>
+              <h4 class="font-semibold text-gray-500">Referenstyp</h4>
+              <digi-form-select-filter
+                [formControlName]="'type'"
+                [afListItems]="typeOptions()"
+                af-filter-button-text-label=" "
+                af-filter-button-text="Inget valt"
+                af-submit-button-text="Filtrera"
+                af-multiple-items="false"
+                af-name=" "
+                af-validation="neutral">
+              </digi-form-select-filter>
+            </div>
+            <div>
+              <h4 class="font-semibold text-gray-500">Referenskommentar</h4>
+              <digi-form-textarea
+                [formControlName]="'comment'"
+                af-label=" "
+                af-variation="medium"
+                af-validation="neutral">
+              </digi-form-textarea>
+            </div>
+          </div>
+        </div>
+        <div class="flex gap-2 pt-10">
+          <digi-button
+            (afOnClick)="isContactDialogOpen.set(false)"
+            [attr.af-size]="'medium'"
+            [attr.af-variation]="'secondary'"
+            [attr.af-full-width]="false">
+            Avbryt
+          </digi-button>
+          <digi-button
+            (afOnClick)="setContact(); isContactDialogOpen.set(false)"
+            [attr.af-size]="'medium'"
+            [attr.af-variation]="'primary'"
+            [attr.af-full-width]="false">
+            Spara
+          </digi-button>
+        </div>
+      </form>
+    </div>
+  </digi-dialog>
+</div>

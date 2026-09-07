@@ -1,0 +1,21 @@
+@if (this.isLoading()) {
+  <div
+    class="fixed top-0 left-0 z-50 flex h-full w-full items-center justify-center overflow-clip bg-white/60 backdrop-blur-xs">
+    <digi-loader-spinner [attr.af-size]="'medium'" [attr.af-text]="'Laddar'"> </digi-loader-spinner>
+  </div>
+}
+<div class="bg-gray-100 p-4">
+  <nuxeo-general-form
+    (selectedRadioChanged)="selectedOptionChanged($event)"
+    [shouldShowTemplate]="itemType() === 'Utkast'"
+    [templateSourceId]="parentUid()"
+    [isLoading]="isLoading()"
+    formName="Ny handling"
+    [config]="createHandlingConfig()"
+    (formResult)="createDocument($event)"
+    (dropdownChanged)="onDropdownInputChange($event)"
+    (uploadFileOutput)="onFileUpload($event)"
+    (selectedOptionChanged)="selectedOptionChanged($event)"
+    (dialogClose)="dialogClosed.emit(null)"
+    subLabel="Alla obligatoriska fält är uppmärkta med (obligatorisk uppgift)."></nuxeo-general-form>
+</div>

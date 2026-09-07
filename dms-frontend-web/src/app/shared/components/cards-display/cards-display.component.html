@@ -1,0 +1,109 @@
+<div class="flex-2">
+  <div
+    class="grid [grid-template-columns:repeat(var(--colsSmall),_1fr)] gap-4 md:[grid-template-columns:repeat(var(--colsMedium),_1fr)] lg:[grid-template-columns:repeat(var(--cols),_1fr)]"
+    [style.--cols]="columns()"
+    [style.--colsSmall]="columns() - 2 > 0 ? columns() - 2 : 1"
+    [style.--colsMedium]="columns() - 1 > 0 ? columns() - 1 : 1">
+    @for (item of cardsWithDisplayValues(); track item.uid) {
+      <div
+        class="relative cursor-pointer rounded-lg border border-gray-200 bg-white p-4 shadow-sm"
+        (click)="itemClick.emit(item.uid)"
+        aria-hidden="true">
+        <div class="flex h-full items-center justify-between">
+          <div class="flex h-full min-w-0 flex-1 items-center gap-4">
+            <input
+              (click)="$event.stopPropagation()"
+              [checked]="selectedIds().includes(item.uid)"
+              (change)="selectItem.emit(item)"
+              type="checkbox"
+              class="mt-1 h-5 w-5 self-center rounded border-gray-300 text-blue-600" />
+            <div class="min-w-0 flex-1 self-start">
+              <div class="flex w-full items-center gap-2">
+                <digi-badge-status
+                  [attr.af-type]="getStatusColor(item.state)"
+                  [attr.af-variation]="getStatusVariation(item.state)"
+                  [attr.af-text]="getStatusLabel(item.state)"
+                  af-size="large">
+                </digi-badge-status>
+                @if (item.secretStampText) {
+                  <div
+                    class="secret-stamp-card"
+                    [class.secret-stamp-card--strong]="item.secretStampText === 'STARK - SEKRETESS'">
+                    <span class="secret-stamp-card__text">{{ item.secretStampText }}</span>
+                  </div>
+                }
+              </div>
+              <div class="text-primary mt-1 text-lg font-semibold">
+                {{ item.title }}
+              </div>
+
+              <div class="mt-2 text-sm text-gray-800">
+                <span class="font-medium">{{ store.getSchemaByType('handling', 'arendenummer') }}:</span>
+                <span class="text-sm font-bold"> {{ item.properties[schemaFields.handling.arendenummer] }}</span>
+              </div>
+              <div class="flex text-sm text-gray-800">
+                <span class="mr-2 font-medium">{{ store.getSchemaByType('handling', 'avsandare') }}:</span>
+                @for (contact of item.properties[schemaFields.handling.avsandare]; track $index) {
+                  <li class="flex flex-col text-sm">
+                    <span class="text-sm font-bold">{{ $index > 0 ? ', ' + contact?.namn : contact?.namn }}</span>
+                  </li>
+                }
+              </div>
+              <div class="flex text-sm text-gray-800">
+                <span class="mr-2 font-medium">{{ store.getSchemaByType('handling', 'mottagare') }}:</span>
+                @for (contact of item.properties[schemaFields.handling.mottagare]; track $index) {
+                  <li class="flex flex-col text-sm">
+                    <span class="text-sm font-bold">{{ $index > 0 ? ', ' + contact?.namn : contact?.namn }}</span>
+                  </li>
+                }
+              </div>
+
+              <div class="text-sm text-gray-800">
+                <span class="font-medium"> {{ store.getSchemaByType('handling', 'handlingsriktning') }}: </span>
+                <span class="text-sm font-bold">{{
+                  item.properties[schemaFields.handling.handlingsriktning]?.properties?.label
+                }}</span>
+              </div>
+              @if (
+                item.properties[schemaFields.handling.handlingsriktning]?.properties?.id ===
+                VOCAB_IDS.arendeRiktning.inkommande
+              ) {
+                <div class="text-sm text-gray-800">
+                  <span class="font-medium">{{ store.getValue('label.ui.schema.handling.inkommenDatum') }}:</span>
+                  <span class="text-sm font-bold">
+                    {{ getDate(item.properties[schemaFields.handling.inkommenDatum]) }}</span
+                  >
+                </div>
+              } @else if (
+                item.properties[schemaFields.handling.handlingsriktning]?.properties?.id ===
+                  VOCAB_IDS.arendeRiktning.utgaende ||
+                item.properties[schemaFields.handling.handlingsriktning]?.properties?.id ===
+                  VOCAB_IDS.arendeRiktning.intern
+              ) {
+                <div class="text-sm text-gray-800">
+                  <span class="font-medium">{{ store.getValue('label.ui.schema.handling.upprattadDatum') }}:</span>
+                  <span class="text-sm font-bold">
+                    {{ getDate(item.properties[schemaFields.handling.upprattadDatum]) }}</span
+                  >
+                </div>
+              }
+            </div>
+          </div>
+          @if (isEditable()) {
+            <div class="my-auto">
+              <digi-button
+                af-size="medium"
+                af-variation="function"
+                af-full-width="false"
+                (click)="$event.stopPropagation()"
+                (afOnClick)="openEditDialog()">
+                <digi-icon-pen slot="icon"></digi-icon-pen>
+                Redigera
+              </digi-button>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </div>
+</div>

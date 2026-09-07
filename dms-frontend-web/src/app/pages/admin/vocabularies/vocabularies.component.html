@@ -1,0 +1,147 @@
+<div class="p-6">
+  <digi-navigation-breadcrumbs af-current-page="Vokabulär">
+    <a href="/">Start</a>
+  </digi-navigation-breadcrumbs>
+
+  <div class="flex flex-wrap items-center justify-between gap-4 pt-5">
+    <div>
+      <h1 class="text-3xl font-semibold">Vokabulär</h1>
+      <p class="mt-2 text-sm text-gray-600">
+        Hantera kontrollerade listor som styr formulär, metadata och automatisering i systemet.
+      </p>
+    </div>
+  </div>
+
+  <form [formGroup]="form" class="mt-6">
+    <div class="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
+      <div class="text-sm font-semibold text-gray-600" id="vocabularySelect-label">Ordlista</div>
+      <digi-form-select
+        id="vocabularySelect"
+        class="mt-2"
+        formControlName="vocabulary"
+        af-label=" "
+        [attr.aria-labelledby]="'vocabularySelect-label'"
+        (afOnChange)="onVocabularyChange($event.target.value)"
+        [attr.af-variation]="'medium'"
+        [attr.af-validation]="'neutral'"
+        [attr.af-placeholder]="'Välj vokabulär'">
+        @for (option of vocabularyOptions(); track option.id) {
+          <option [value]="option.id">
+            <span>{{ option.label }}</span>
+          </option>
+        }
+      </digi-form-select>
+    </div>
+  </form>
+
+  <div class="mt-6 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+    <div class="flex items-center justify-between border-b border-gray-200 px-5 py-4">
+      <div>
+        <h2 class="text-lg font-semibold text-gray-900">
+          {{ selectedVocabulary() || 'Välj en vokabulär' }}
+        </h2>
+        <p class="text-sm text-gray-500">Visar katalogvärden</p>
+      </div>
+      @if (selectedVocabulary()) {
+        <digi-button
+          (afOnClick)="openAddEntry()"
+          [attr.af-size]="'medium'"
+          [attr.af-variation]="'primary'"
+          [attr.af-full-width]="false">
+          Add entry
+        </digi-button>
+      }
+      @if (isLoading()) {
+        <digi-loader-spinner af-size="small" af-text="Laddar"></digi-loader-spinner>
+      }
+    </div>
+
+    <ng-template #actionsTpl let-item>
+      <div class="flex items-center gap-4">
+        <digi-button
+          (afOnClick)="openEditEntry(item)"
+          [attr.af-size]="'small'"
+          [attr.af-variation]="'function'"
+          [attr.af-full-width]="false">
+          <digi-icon-pen slot="icon"></digi-icon-pen>
+          Redigera
+        </digi-button>
+        <digi-button
+          (afOnClick)="deleteEntryTarget.set(item)"
+          [attr.af-size]="'small'"
+          [attr.af-variation]="'function'"
+          [attr.af-full-width]="false">
+          <digi-icon-trash slot="icon"></digi-icon-trash>
+          Ta bort
+        </digi-button>
+      </div>
+    </ng-template>
+
+    <nuxeo-case-list-table
+      [tableConfig]="tableConfig"
+      [defaultColumnOptions]="defaultColumnOptions"
+      [tableItems]="rows()"
+      [total]="rows().length"
+      [page]="0"
+      [pageSize]="25"
+      [loading]="isLoading()"
+      [actionsTemplate]="actionsTpl"
+      actionsHeader="Åtgärder"
+      [isSettingsEnabled]="false">
+    </nuxeo-case-list-table>
+  </div>
+
+  <digi-dialog
+    (afOnClose)="closeAddEntry()"
+    [attr.af-heading]="editingEntryId() ? 'Redigera ordförrådspost' : 'Lägg till ordförrådspost'"
+    [attr.af-size]="'small'"
+    [attr.af-show-dialog]="isAddEntryOpen()">
+    <div class="flex flex-col gap-4 bg-gray-100 p-4">
+      @if (editingEntryId()) {
+        <div>
+          <div class="text-sm font-semibold text-gray-600">ID</div>
+          <div class="max-w-full text-base break-all whitespace-normal text-gray-900">{{ editingEntryId() }}</div>
+        </div>
+      }
+      <nuxeo-general-form
+        [config]="entryFormConfig()"
+        [shouldShowButtons]="false"
+        (formResult)="handleEntryFormResult($event)">
+      </nuxeo-general-form>
+
+      <div class="mt-2 flex items-center justify-between">
+        <digi-button
+          type="button"
+          (afOnClick)="closeAddEntry()"
+          [attr.af-size]="'medium'"
+          [attr.af-variation]="'secondary'"
+          [attr.af-full-width]="false">
+          Avbryt
+        </digi-button>
+        <digi-button
+          type="button"
+          (afOnClick)="submitEntryForm()"
+          [attr.af-size]="'medium'"
+          [attr.af-variation]="'primary'"
+          [attr.af-full-width]="false">
+          Spara
+        </digi-button>
+      </div>
+    </div>
+  </digi-dialog>
+
+  <digi-dialog
+    (afPrimaryButtonClick)="confirmDeleteEntry()"
+    (afSecondaryButtonClick)="deleteEntryTarget.set(null)"
+    (afOnClose)="deleteEntryTarget.set(null)"
+    [attr.af-heading]="'Bekräfta radering'"
+    [attr.af-size]="'small'"
+    [attr.af-show-dialog]="!!deleteEntryTarget()"
+    af-primary-button-text="Radera"
+    af-secondary-button-text="Avbryt">
+    <p class="text-sm text-slate-600">
+      Är du säker på att du vill radera <strong>{{ deleteEntryTarget()?.['id'] }}</strong
+      >?
+    </p>
+  </digi-dialog>
+</div>

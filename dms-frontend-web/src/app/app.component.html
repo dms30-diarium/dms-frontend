@@ -1,0 +1,24 @@
+<div class="flex h-[100dvh] flex-col">
+  <nuxeo-navbar class="sticky top-0 z-50 shrink-0" [user]="user()" (toggleSidebar)="toggleSidebar()"></nuxeo-navbar>
+  <div class="bg-gray-primary flex min-h-0 flex-1 overflow-hidden">
+    <nuxeo-sidebar class="h-full shrink-0 self-stretch" [user]="user()" [isOpen]="isSidebarOpen"></nuxeo-sidebar>
+
+    <div class="flex min-h-0 min-w-0 flex-1 flex-col">
+      <main #main class="min-h-0 min-w-0 flex-1 overflow-x-hidden overflow-y-auto">
+        <router-outlet></router-outlet>
+      </main>
+    </div>
+  </div>
+</div>
+
+@if (store.notification().show) {
+  <nuxeo-notification
+    class="fixed right-0 z-50"
+    [class.top-0]="!store.notification().belowTopPanel"
+    [class.top-21]="store.notification().belowTopPanel"
+    size="medium"
+    [variation]="store.notification().variation ?? 'info'"
+    [autoCloseAfter]="3000"
+    [text]="store.notification().text || ''"
+    (closeNotification)="store.notification.set({ show: false })"></nuxeo-notification>
+}

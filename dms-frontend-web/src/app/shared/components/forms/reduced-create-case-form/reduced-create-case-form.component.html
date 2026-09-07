@@ -1,0 +1,32 @@
+@if (this.isLoading()) {
+  <div
+    class="fixed top-0 left-0 z-50 flex h-full w-full items-center justify-center overflow-clip bg-white/60 backdrop-blur-xs">
+    <digi-loader-spinner [attr.af-size]="'medium'" [attr.af-text]="'Laddar'"> </digi-loader-spinner>
+  </div>
+}
+<div class="flex gap-4 bg-gray-100 p-4">
+  <nuxeo-general-form
+    class="flex-2"
+    [columns]="2"
+    [firstColumnSize]="firstColumnSize()"
+    [isLoading]="isLoading()"
+    [showFieldsInTwoCols]="true"
+    formName="Skapa ärende"
+    [config]="arendeConfig()"
+    (formResult)="createDocument($event)"
+    (formNotValid)="createDocument(null)"
+    (changeForm)="onFormChange($event)"
+    (selectedOptionChanged)="selectedOptionChanged($event)"
+    (selectedRadioChanged)="selectedRadioChanged($event)"
+    (changeForm)="onFormChange($event)"
+    (dialogClose)="dialogClosed.emit(null)"
+    (selectedRadioChanged)="selectedOptionChanged($event)"
+    subLabel="Alla obligatoriska fält är uppmärkta med (obligatorisk uppgift).">
+    <digi-button [attr.af-size]="'medium'" [attr.af-variation]="'secondary'" [attr.af-full-width]="false">
+      <digi-icon-home [nuxeoTooltipDirective]="searchButtonTest()" class="image image-medium"></digi-icon-home>
+    </digi-button>
+  </nuxeo-general-form>
+  <div class="mt-4 flex-1">
+    <nuxeo-assign-user-modal [item]="parentUid()" [hideButtons]="true"></nuxeo-assign-user-modal>
+  </div>
+</div>

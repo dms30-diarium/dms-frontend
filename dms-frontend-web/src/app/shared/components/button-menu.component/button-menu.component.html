@@ -1,0 +1,53 @@
+<div #buttonContainer class="flex w-full justify-end gap-2">
+  @for (button of visibleButtons(); track button.text) {
+    <nuxeo-image-button
+      [icon]="button.icon"
+      [text]="button.text"
+      slot="icon"
+      variation="function"
+      (buttonClick)="button.click()">
+    </nuxeo-image-button>
+  }
+
+  <!-- “Mer” button (only shows if there are hidden buttons) -->
+  @if (hiddenButtons().length > 0 || shouldShowMerButton()) {
+    <div class="relative">
+      <nuxeo-image-button
+        [icon]="'Ellipsis'"
+        [text]="'Mer'"
+        slot="icon"
+        variation="function"
+        (buttonClick)="toggleMoreMenu()">
+      </nuxeo-image-button>
+
+      @if (menuOpen()) {
+        <div
+          class="absolute top-6 right-2 z-50 mt-2 flex flex-col items-center rounded-md border border-gray-200 bg-white py-2 shadow-2xs">
+          <div class="flex flex-col" nuxeoBackdropClick (backdropClick)="menuOpen.set(false)">
+            @for (button of hiddenButtons(); track button.text) {
+              <nuxeo-image-button
+                [icon]="button.icon"
+                [text]="button.text"
+                variation="function"
+                (buttonClick)="handleMenuClick(button)">
+              </nuxeo-image-button>
+            }
+            @if (shouldShowAccordion()) {
+              <div class="relative z-100 m-2 w-fit border border-gray-200 pb-2">
+                <nuxeo-accordion
+                  class="relative z-100"
+                  accordionTitle="Arbetsflöden & uppgifter"
+                  (afOnClick)="handleMenuClick(null); $event.stopPropagation()"
+                  [isExpanded]="true">
+                  <div>
+                    <ng-content></ng-content>
+                  </div>
+                </nuxeo-accordion>
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

@@ -1,0 +1,9 @@
+Bundle-ActivationPolicy: lazy
+Bundle-ClassPath: .
+Manifest-Version: 1.0
+Bundle-Vendor: se.dms.diarium.frontend
+Bundle-Version: 1.0.0
+Bundle-Name: dms-frontend-web
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: dms-frontend-web;singleton=true
+Nuxeo-Component: OSGI-INF/dms-frontend-auth-contrib.xml, OSGI-INF/nuxeo-default-ui-contrib.xml

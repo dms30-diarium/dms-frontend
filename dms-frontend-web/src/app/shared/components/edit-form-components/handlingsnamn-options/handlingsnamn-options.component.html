@@ -1,0 +1,74 @@
+<div class="flex flex-col gap-2">
+  <digi-button
+    (afOnClick)="isDialogOpen.set(true)"
+    [attr.af-size]="'small'"
+    [attr.af-variation]="'secondary'"
+    [attr.af-full-width]="false">
+    Lägg till handlingsnamn
+  </digi-button>
+
+  <digi-dialog
+    (afOnClose)="isDialogOpen.set(false); $event.stopPropagation()"
+    [attr.af-heading]="'Lägg till handlingsnamn'"
+    [attr.af-size]="'small'"
+    [attr.af-show-dialog]="isDialogOpen()">
+    <div>
+      <form [formGroup]="form">
+        <div class="flex flex-col gap-4">
+          <div>
+            <h4 class="font-semibold text-gray-500">Handlingsnamn</h4>
+            <digi-form-input
+              [formControlName]="'handlingsnamn'"
+              af-label=" "
+              [attr.af-variation]="'medium'"
+              [attr.af-type]="'text'"
+              af-validation="neutral">
+            </digi-form-input>
+          </div>
+        </div>
+        <div class="flex gap-2 pt-6">
+          <digi-button
+            (afOnClick)="isDialogOpen.set(false)"
+            [attr.af-size]="'medium'"
+            [attr.af-variation]="'secondary'"
+            [attr.af-full-width]="false">
+            Avbryt
+          </digi-button>
+          <digi-button
+            (afOnClick)="save()"
+            [attr.af-size]="'medium'"
+            [attr.af-variation]="'primary'"
+            [attr.af-full-width]="false">
+            Spara
+          </digi-button>
+        </div>
+      </form>
+    </div>
+  </digi-dialog>
+
+  @if (values().length) {
+    <nuxeo-case-list-table
+      [isSettingsEnabled]="false"
+      [shouldShowResults]="false"
+      class="max-h-[200px] overflow-auto"
+      [defaultColumnOptions]="defaultColumnOptions"
+      [tableItems]="values()"
+      [tableConfig]="COLS"
+      actionsHeader="Åtgärd"
+      [actionsTemplate]="actionsTpl"
+      [loading]="false"
+      [pageSize]="25">
+    </nuxeo-case-list-table>
+  }
+
+  <ng-template #actionsTpl let-item>
+    <digi-button
+      (afOnClick)="remove(item)"
+      [attr.af-size]="'small'"
+      [attr.af-variation]="'function'"
+      [attr.af-full-width]="false">
+      <digi-icon-trash slot="icon" />
+      Ta bort
+    </digi-button>
+  </ng-template>
+</div>

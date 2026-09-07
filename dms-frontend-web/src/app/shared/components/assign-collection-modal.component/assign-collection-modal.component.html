@@ -1,0 +1,38 @@
+<h4 class="mb-4 text-2xl font-semibold">Lägg till i samling</h4>
+
+<form [formGroup]="assignCollectionFormGroup" class="flex flex-col gap-3">
+  <div class="relative flex flex-col gap-2">
+    <digi-form-select-filter
+      formControlName="collectionName"
+      [afListItems]="collectionsOptions"
+      [attr.af-label]="'Välj samling'"
+      af-filter-button-text-label=" "
+      af-filter-button-text="Välj samling"
+      af-submit-button-text="Filtrera"
+      af-multiple-items="false"
+      af-name=" "
+      (afOnQueryChanged)="onQueryChanged($event)"
+      af-validation="neutral">
+    </digi-form-select-filter>
+  </div>
+
+  @if (isNewCollection()) {
+    <div class="flex flex-col gap-2">
+      <label for="newCollectionDescription" class="font-medium"> Beskrivning (valfritt) </label>
+      <textarea
+        id="newCollectionDescription"
+        formControlName="comment"
+        placeholder="Beskriv den nya samlingen..."
+        class="rounded border p-2"
+        rows="3"></textarea>
+    </div>
+  }
+
+  <div class="mt-4 flex gap-4">
+    <digi-button (click)="onClose()" af-size="medium" af-variation="secondary"> Avbryt </digi-button>
+
+    <digi-button (click)="onAssignCollection()" af-size="medium" af-variation="primary">
+      {{ isNewCollection() ? 'Skapa & Lägg till' : 'Lägg till' }}
+    </digi-button>
+  </div>
+</form>

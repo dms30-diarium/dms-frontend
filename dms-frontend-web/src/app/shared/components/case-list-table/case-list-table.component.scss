@@ -1,0 +1,188 @@
+.table-search-gray {
+  --digi--color--background--input: #e5e7eb;
+  --digi--color--background--input-empty: #e5e7eb;
+  --digi--color--text--primary: currentColor;
+  --digi--color--text--secondary: currentColor;
+  font-family: var(--digi--global--typography--font-family--default);
+  font-weight: 400;
+  position: relative;
+  z-index: 2;
+}
+
+.table-search-labels {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  min-height: 1.75rem;
+  white-space: normal;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+
+.table-search-description {
+  color: #64748b;
+  font-size: 0.6875rem;
+  line-height: 1.2;
+}
+
+.table-search-description--empty {
+  visibility: hidden;
+}
+
+.table-search-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  min-height: var(--digi--input-height--small);
+}
+
+.table-search-row button {
+  align-self: center;
+  display: inline-flex;
+  align-items: center;
+  height: var(--digi--input-height--small);
+}
+
+.table-scroll {
+  overflow-y: visible !important;
+  padding-bottom: var(--table-dropdown-space, 0px);
+  --digi--input-height--medium: var(--digi--input-height--small);
+}
+
+.table-scroll--min-height {
+  min-height: var(--table-min-height, 420px);
+}
+
+.table-scroll--dropdown-open {
+  --table-dropdown-space: 240px;
+}
+
+.table-scroll thead {
+  position: relative;
+}
+
+.table-scroll .table-search-gray digi-form-select,
+.table-scroll .table-search-gray digi-form-select-filter {
+  position: relative;
+  z-index: 3;
+  min-width: 120px;
+}
+
+.table-sticky-actions {
+  background-color: inherit;
+  background-image: linear-gradient(to right, #94a3b8 0, #94a3b8 3px, transparent 3px);
+  background-repeat: no-repeat;
+  background-size: 1px 100%;
+  background-position: left top;
+  position: sticky;
+  right: 0;
+  z-index: 2;
+}
+
+.table-sticky-settings {
+  background-color: inherit;
+  background-image: linear-gradient(to right, #94a3b8 0, #94a3b8 3px, transparent 3px);
+  background-repeat: no-repeat;
+  background-size: 1px 100%;
+  background-position: left top;
+  position: sticky;
+  right: 0;
+  z-index: 3;
+}
+
+.table-scroll thead .table-sticky-actions,
+.table-scroll thead .table-sticky-settings {
+  background-color: var(--color-table-header);
+}
+
+.table-scroll--has-actions .table-sticky-settings {
+  background-image: none;
+}
+
+.table-scroll tbody tr {
+  background: #ffffff;
+}
+
+.table-scroll tbody tr.bg-slate-50 {
+  background: #f8fafc;
+}
+
+.case-list-table__progress-circle--closed digi-progress-indicator {
+  --digi--progress-indicator--border-color--active: var(--digi--color--background--neutral-4);
+  --digi--progress-indicator--step--background--active: var(--digi--color--background--neutral-4);
+  --digi--progress-indicator--step--line--color--active: var(--digi--color--background--neutral-4);
+}
+
+.case-list-table__progress-circle digi-progress-indicator {
+  --digi--progress-indicator--step--size--large: 0.85rem;
+  --digi--progress-indicator--step--size--active--large: 0.85rem;
+  --digi--progress-indicator--gap--x-large: 0.2rem;
+  --digi--progress-indicator--gap: 0.2rem;
+  --digi--progress-indicator--label--font-size: 0;
+}
+
+.case-list-table__progress-circle digi-progress-indicator .digi-progress-indicator__step::before {
+  left: calc(var(--digi--progress-indicator--step--size) / 2);
+  width: calc(100% - var(--digi--progress-indicator--step--size));
+}
+
+.scroll-top {
+  overflow-x: auto;
+  overflow-y: hidden;
+  height: 20px;
+}
+
+.scroll-main {
+  overflow-x: auto;
+}
+
+.scroll-top::-webkit-scrollbar,
+.scroll-main::-webkit-scrollbar {
+  height: 12px;
+}
+
+.scroll-top::-webkit-scrollbar-track,
+.scroll-main::-webkit-scrollbar-track {
+  background-color: #e2e8f0;
+}
+
+.scroll-top::-webkit-scrollbar-thumb,
+.scroll-main::-webkit-scrollbar-thumb {
+  background-color: var(--color-primary, #1b345d);
+  border-radius: 999px;
+  border: 3px solid #e2e8f0;
+}
+
+.scroll-top-content {
+  height: 1px;
+  width: 100%;
+}
+
+.table-content {
+  border-collapse: collapse;
+}
+
+.sekretess-highlight {
+  display: inline-block;
+  color: #c62828;
+  font-weight: 700;
+  border: 1px solid #c62828;
+  padding: 0.25rem 0.5rem;
+  min-width: 8.5rem;
+  text-align: center;
+}
+
+.sekretess-highlight--strong {
+  font-weight: 900;
+  border-width: 3px;
+}
+
+.scroll-main {
+  --table-actions-right: 0px;
+}
+
+.table-scroll .table-sticky-actions,
+.table-scroll .table-sticky-settings {
+  padding-right: calc(var(--table-actions-right, 0px) + 2px);
+  box-sizing: border-box;
+}

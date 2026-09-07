@@ -1,0 +1,202 @@
+<div class="flex flex-col gap-8">
+  <nuxeo-collection-permissions-section
+    [title]="'Behörigheter definierade lokalt'"
+    [actionLabel]="'Ny'"
+    (actionClick)="openAddPermission()">
+    @if (!localRows().length) {
+      <div class="text-sm text-gray-500">Det finns inga lokala behörigheter.</div>
+    } @else {
+      <nuxeo-case-list-table
+        [tableConfig]="localPermissionsTableConfig"
+        [defaultColumnOptions]="localPermissionsDefaultColumnOptions"
+        [tableItems]="localRows()"
+        [total]="localRows().length"
+        [page]="0"
+        [pageSize]="25"
+        [loading]="loading()"
+        [isSettingsEnabled]="false"
+        [rowClickEnabled]="false"
+        actionsHeader="Åtgärder"
+        [actionsTemplate]="localActions">
+      </nuxeo-case-list-table>
+    }
+  </nuxeo-collection-permissions-section>
+
+  <nuxeo-collection-permissions-section
+    [title]="'Behörigheter ärvda från överliggande nivåer'"
+    [actionLabel]="inheritanceBlocked() ? 'Unblock' : 'Block'"
+    [alertText]="
+      inheritanceBlocked()
+        ? 'Only local permissions are applied. Unblock to restore the permissions inheritance from upper levels.'
+        : 'Om du vill kontrollera åtkomsten till den här samlingen explicit kan du blockera ärvda behörigheter i administrationsgränssnittet.'
+    "
+    (actionClick)="togglePermissionInheritance()">
+    @if (!inheritanceBlocked() && !inheritedRows().length) {
+      <div class="text-sm text-gray-500">Det finns inga ärvda behörigheter.</div>
+    } @else if (!inheritanceBlocked()) {
+      <nuxeo-case-list-table
+        [tableConfig]="inheritedPermissionsTableConfig"
+        [defaultColumnOptions]="inheritedPermissionsDefaultColumnOptions"
+        [tableItems]="inheritedRows()"
+        [total]="inheritedRows().length"
+        [page]="0"
+        [pageSize]="25"
+        [loading]="loading()"
+        [isSettingsEnabled]="false"
+        [rowClickEnabled]="false">
+      </nuxeo-case-list-table>
+    }
+  </nuxeo-collection-permissions-section>
+
+  <nuxeo-collection-permissions-section
+    [title]="'Behörigheter tilldelade externa användare'"
+    [actionLabel]="'Ny'"
+    [alertText]="'Delning till externa användare skapar inte nya konton. Externa användare får en länk till samlingen.'"
+    (actionClick)="openExternalDialog()">
+    @if (!externalRows().length) {
+      <div class="text-sm text-gray-500">Samlingen är inte delad med någon extern användare.</div>
+    } @else {
+      <nuxeo-case-list-table
+        [tableConfig]="externalPermissionsTableConfig"
+        [defaultColumnOptions]="externalPermissionsDefaultColumnOptions"
+        [tableItems]="externalRows()"
+        [total]="externalRows().length"
+        [page]="0"
+        [pageSize]="25"
+        [loading]="loading()"
+        [isSettingsEnabled]="false"
+        [rowClickEnabled]="false"
+        actionsHeader="Åtgärder"
+        [actionsTemplate]="externalActions">
+      </nuxeo-case-list-table>
+    }
+  </nuxeo-collection-permissions-section>
+</div>
+
+<ng-template #localActions let-item>
+  <div class="flex items-center gap-2">
+    <digi-button
+      nuxeoTooltipDirective="Redigera"
+      af-size="small"
+      af-variation="function"
+      af-full-width="false"
+      type="button"
+      aria-label="Redigera behörighet"
+      (afOnClick)="openEditPermissionFromRow(item)">
+      <digi-icon-pen slot="icon" />
+    </digi-button>
+    <digi-button
+      nuxeoTooltipDirective="Ta bort"
+      af-size="small"
+      af-variation="function"
+      af-full-width="false"
+      type="button"
+      aria-label="Remove permission"
+      (afOnClick)="openRemovePermissionFromRow(item)">
+      <digi-icon-trash slot="icon" />
+    </digi-button>
+  </div>
+</ng-template>
+
+<ng-template #externalActions let-item>
+  <div class="flex items-center gap-2">
+    <digi-button
+      nuxeoTooltipDirective="Redigera"
+      af-size="small"
+      af-variation="function"
+      af-full-width="false"
+      type="button"
+      aria-label="Redigera behörighet"
+      (afOnClick)="openEditExternalPermissionFromRow(item)">
+      <digi-icon-pen slot="icon" />
+    </digi-button>
+    <digi-button
+      nuxeoTooltipDirective="Skicka"
+      af-size="small"
+      af-variation="function"
+      af-full-width="false"
+      type="button"
+      aria-label="Skicka"
+      (afOnClick)="sendPermissionNotificationFromRow(item)">
+      <digi-icon-send-solid slot="icon" />
+    </digi-button>
+    <digi-button
+      nuxeoTooltipDirective="Ta bort"
+      af-size="small"
+      af-variation="function"
+      af-full-width="false"
+      type="button"
+      aria-label="Remove permission"
+      (afOnClick)="openRemovePermissionFromRow(item)">
+      <digi-icon-trash slot="icon" />
+    </digi-button>
+  </div>
+</ng-template>
+
+@if (permissionDialogMode()) {
+  <digi-dialog
+    (afOnClose)="closePermissionDialog()"
+    [attr.af-heading]="permissionDialogMode() === 'edit' ? 'Redigera behörighet' : 'Lägg till behörighet'"
+    [attr.af-size]="'medium'"
+    [attr.af-show-dialog]="true">
+    <nuxeo-collection-permission-dialog
+      [mode]="permissionDialogMode()!"
+      [form]="permissionForm"
+      [principalOptions]="principalOptions()"
+      [permissionOptions]="permissionOptions"
+      (dialogClose)="closePermissionDialog()"
+      (formSubmit)="submitPermission()"
+      (principalQueryChanged)="onPrincipalQueryChanged($event)"
+      (principalSelected)="onPrincipalSelected($event)">
+    </nuxeo-collection-permission-dialog>
+  </digi-dialog>
+}
+
+@if (externalDialogMode() === 'add') {
+  <digi-dialog
+    (afOnClose)="closeExternalDialog()"
+    [attr.af-heading]="'Dela med extern användare'"
+    [attr.af-size]="'medium'"
+    [attr.af-show-dialog]="true">
+    <nuxeo-external-permission-add-dialog
+      [form]="externalForm"
+      [permissionOptions]="permissionOptions"
+      (dialogClose)="closeExternalDialog()"
+      (formSubmit)="submitExternalPermission()">
+    </nuxeo-external-permission-add-dialog>
+  </digi-dialog>
+}
+
+@if (externalDialogMode() === 'edit') {
+  <digi-dialog
+    (afOnClose)="closeExternalDialog()"
+    [attr.af-heading]="'Update Permission'"
+    [attr.af-size]="'medium'"
+    [attr.af-show-dialog]="true">
+    <nuxeo-external-permission-edit-dialog
+      [form]="externalForm"
+      [permissionOptions]="permissionOptions"
+      (dialogClose)="closeExternalDialog()"
+      (formSubmit)="submitExternalPermission()">
+    </nuxeo-external-permission-edit-dialog>
+  </digi-dialog>
+}
+
+@if (deleteDialogEntry()) {
+  <digi-dialog
+    (afPrimaryButtonClick)="confirmDeletePermission()"
+    (afSecondaryButtonClick)="closeDeleteDialog()"
+    (afOnClose)="closeDeleteDialog()"
+    [attr.af-heading]="'The following permission will be deleted.'"
+    [attr.af-size]="'medium'"
+    [attr.af-show-dialog]="true"
+    af-primary-button-text="Delete"
+    af-secondary-button-text="Avbryt">
+    <nuxeo-collection-permission-delete-dialog
+      [principal]="permissionsService.resolvePrincipalLabel(deleteDialogEntry()!)"
+      [right]="permissionsService.resolvePermissionLabel(deleteDialogEntry()!.permission, permissionOptions)"
+      [timeFrame]="permissionsService.buildTimeFrameLabel(deleteDialogEntry()!)"
+      [grantedBy]="permissionsService.resolveGrantedByLabel(deleteDialogEntry()!)">
+    </nuxeo-collection-permission-delete-dialog>
+  </digi-dialog>
+}

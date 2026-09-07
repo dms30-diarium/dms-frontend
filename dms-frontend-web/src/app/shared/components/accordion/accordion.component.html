@@ -1,0 +1,9 @@
+<digi-expandable-faq class="max-w-max bg-white shadow-2xl">
+  <digi-expandable-faq-item
+    [attr.af-expanded]="currentExpanded()"
+    [attr.af-heading]="accordionTitle()"
+    class="bg-white"
+    (afOnClick)="handleClick($event)">
+    <ng-content></ng-content>
+  </digi-expandable-faq-item>
+</digi-expandable-faq>

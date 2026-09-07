@@ -1,0 +1,123 @@
+<digi-button (afOnClick)="onButtonClick()" [attr.af-size]="size()" [attr.af-variation]="variation()">
+  <div class="flex items-center justify-center gap-2">
+    @if (icon() === 'UserPen') {
+      <!-- missing icon on library -->
+      <digi-icon-user-alt [slot]="slot()" class="image image-small" />
+    }
+    @if (icon() === 'Pencil') {
+      <digi-icon-pen [slot]="slot()" class="image image-small" />
+    }
+    @if (icon() === 'Share2') {
+      <digi-icon-share-alt [slot]="slot()" class="image image-small" />
+    }
+    @if (icon() === 'Printer') {
+      <digi-icon-print [slot]="slot()" class="image image-small" />
+    }
+    @if (icon() === 'LockOpen') {
+      <digi-icon-unlock [slot]="slot()" class="image image-small" />
+    }
+    @if (icon() === 'LockClose') {
+      <digi-icon-lock [slot]="slot()" class="image image-small" />
+    }
+    @if (icon() === 'Ellipsis') {
+      <digi-icon-ellipsis [slot]="slot()" class="image image-small" />
+    }
+    @if (icon() === 'XButtonOutline') {
+      <digi-icon-x-button-outline [slot]="slot()" class="image image-small" />
+    }
+    @if (icon() === 'X') {
+      <digi-icon-x [slot]="slot()" class="image image-small" />
+    }
+    @if (icon() === 'FileText') {
+      <digi-icon-file-document [slot]="slot()" class="image image-small" />
+    }
+    @if (icon() === 'Trash2') {
+      <digi-icon-trash [slot]="slot()" class="image image-small" />
+    }
+    @if (icon() === 'Star') {
+      <digi-icon-star-reg [slot]="slot()" class="image image-small" />
+    }
+    @if (icon() === 'Copy') {
+      <digi-icon-copy [slot]="slot()" class="image image-small"></digi-icon-copy>
+    }
+    @if (icon() === 'Send') {
+      <digi-icon-send-outline [slot]="slot()" class="image image-small"></digi-icon-send-outline>
+    }
+    @if (icon() === 'SignOut') {
+      <digi-icon-arrow-sign-out [slot]="slot()" class="image image-small"></digi-icon-arrow-sign-out>
+    }
+    @if (icon() === 'FolderDir') {
+      <digi-icon-folder-directory [slot]="slot()" class="image image-small"></digi-icon-folder-directory>
+    }
+    @if (icon() === 'StarFull') {
+      <digi-icon-star [slot]="slot()" class="image image-small" />
+    }
+    @if (icon() === 'Success') {
+      <digi-icon-notification-succes [slot]="slot()" class="image image-small" />
+    }
+    @if (icon() === 'BookmarkFull') {
+      <digi-icon-bookmark-solid [slot]="slot()" class="image image-small" />
+    }
+    @if (icon() === 'Bookmark') {
+      <digi-icon-bookmark-outline [slot]="slot()" class="image image-small" />
+    }
+    @if (icon() === 'BellOff') {
+      <digi-icon-bell [slot]="slot()" class="image image-small" />
+    }
+    @if (icon() === 'Review') {
+      <digi-icon-dxa [slot]="slot()" class="image image-small"></digi-icon-dxa>
+    }
+    @if (icon() === 'Bell') {
+      <digi-icon-bell-filled [slot]="slot()" class="image image-small" />
+    }
+    @if (icon() === 'Globe') {
+      <digi-icon-globe [slot]="slot()" class="image image-small" />
+    }
+    @if (icon() === 'Email') {
+      <digi-icon-envelope-filled [slot]="slot()" class="image image-small" />
+    }
+
+    @if (icon() === 'BubbleEllipsis') {
+      <digi-icon-bubble-ellipsis [slot]="slot()" class="image image-small" />
+    }
+    @if (icon() === 'Bubble') {
+      <digi-icon-bubble [slot]="slot()" class="image image-small" />
+    }
+    @if (icon() === 'Users') {
+      <digi-icon-users-solid [slot]="slot()" class="image image-small" />
+    }
+    @if (icon() === 'Download') {
+      <digi-icon-download [slot]="slot()" class="image image-small" />
+    }
+    @if (icon() === 'FileExport') {
+      <digi-icon-file-export [slot]="slot()" class="image image-small" />
+    }
+    @if (icon() === 'Eye') {
+      <digi-icon-eye slot="icon" class="image image-small"> </digi-icon-eye>
+    }
+    @if (icon() === 'Redo') {
+      <digi-icon-redo class="image image-small"></digi-icon-redo>
+    }
+    @if (icon() === 'Check') {
+      <digi-icon-check [slot]="slot()" class="image image-small" />
+    }
+    @if (icon() === 'Clock') {
+      <digi-icon-clock class="image image-small"></digi-icon-clock>
+    }
+    @if (icon() === 'Bars') {
+      <digi-icon-bars class="image image-small"></digi-icon-bars>
+    }
+    @if (icon() === 'Table') {
+      <digi-icon-table class="image image-small"></digi-icon-table>
+    }
+    @if (icon() === 'Arende') {
+      <nuxeo-svg-icon size="20px" class="my-icon text-primary h-5 w-5" src="/nuxeo/app/assets/figmaIcons/arende.svg">
+      </nuxeo-svg-icon>
+    }
+    @if (icon() === 'Samling') {
+      <nuxeo-svg-icon size="20px" class="my-icon text-primary h-5 w-5" src="/nuxeo/app/assets/figmaIcons/samling.svg">
+      </nuxeo-svg-icon>
+    }
+    <span>{{ text() }}</span>
+  </div>
+</digi-button>

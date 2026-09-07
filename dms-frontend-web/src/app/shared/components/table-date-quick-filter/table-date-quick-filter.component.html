@@ -1,0 +1,12 @@
+<div class="flex items-center gap-3">
+  <digi-form-filter
+    (afSubmitFilter)="onSubmit($event)"
+    (afResetFilter)="onReset()"
+    [attr.af-filter-button-text]="'Datumperiod'"
+    [attr.af-submit-button-text]="'Filtrera'"
+    [attr.af-reset-button-text]="'Rensa'"
+    [attr.af-name]="'Datums'"
+    [afListItems]="quickRangeFilterItems()"
+    [afCheckItems]="selectedItems()">
+  </digi-form-filter>
+</div>

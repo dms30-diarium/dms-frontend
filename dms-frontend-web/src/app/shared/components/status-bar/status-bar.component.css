@@ -1,0 +1,9 @@
+.status-bar__indicator--closed {
+  --digi--progress-indicator--border-color--active: var(--digi--color--background--neutral-4);
+  --digi--progress-indicator--step--background--active: var(--digi--color--background--neutral-4);
+  --digi--progress-indicator--step--line--color--active: var(--digi--color--background--neutral-4);
+}
+
+:host-context([data-theme='dark']) span {
+  color: #ffffff;
+}

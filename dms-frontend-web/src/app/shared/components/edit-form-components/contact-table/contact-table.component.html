@@ -1,0 +1,39 @@
+<div class="flex flex-col gap-2">
+  <div class="flex items-center justify-between">
+    <h2 [class.invisible]="!contacts()().length" class="text-2xl font-light">
+      {{ fieldName() === 'internContacts' ? 'Interna' : 'Externa' }}
+    </h2>
+    @if (type() === 'external') {
+      <nuxeo-contact-button-with-dialog
+        heading="Lägg Extern kontakter"
+        class="self-end"
+        (addedContact)="addContact($event)"></nuxeo-contact-button-with-dialog>
+    }
+  </div>
+  <!-- contacts is the signal input from parent, to track its changes there.
+    Since that component is used as ngComponentOutlet and cannot send output when data changes -->
+  @if (contacts()().length) {
+    <nuxeo-case-list-table
+      [isSettingsEnabled]="false"
+      [shouldShowResults]="false"
+      (updatedTableItems)="updateEditedData($event)"
+      [defaultColumnOptions]="getDefaultColumnOptions()"
+      [tableItems]="contacts()()"
+      [tableConfig]="customColumnConfig()"
+      [actionsHeader]="type() === 'external' ? 'Åtgärd' : null"
+      [actionsTemplate]="type() === 'external' ? actionsTpl : null"
+      [loading]="false"
+      [pageSize]="25">
+    </nuxeo-case-list-table>
+  }
+  <ng-template #actionsTpl let-item>
+    <digi-button
+      (afOnClick)="removeContact(item)"
+      [attr.af-size]="'small'"
+      [attr.af-variation]="'function'"
+      [attr.af-full-width]="false">
+      <digi-icon-trash slot="icon" />
+      Ta bort
+    </digi-button>
+  </ng-template>
+</div>

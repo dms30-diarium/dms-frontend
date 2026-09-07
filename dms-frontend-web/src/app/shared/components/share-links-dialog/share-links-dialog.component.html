@@ -1,0 +1,33 @@
+<digi-dialog
+  [attr.af-show-dialog]="true"
+  (afOnClose)="dialogClose.emit()"
+  [attr.af-size]="'medium'"
+  [attr.af-heading]="'Dela valda dokument'">
+  <div class="flex flex-col gap-3">
+    @for (item of links(); track item.uid) {
+      <div class="flex items-center justify-between gap-4 rounded border border-gray-200 p-3">
+        <div class="min-w-0 flex-1">
+          <p class="truncate text-sm font-medium">{{ item.title }}</p>
+          <p class="truncate text-xs text-gray-500">{{ item.link }}</p>
+        </div>
+        @if (copiedId() === item.uid) {
+          <digi-icon-check class="shrink-0"></digi-icon-check>
+        } @else {
+          <digi-icon-copy (click)="copyOne(item.uid, item.link)" class="shrink-0 cursor-pointer"></digi-icon-copy>
+        }
+      </div>
+    }
+    <div class="mt-2 flex justify-end">
+      @if (allCopied()) {
+        <digi-icon-check></digi-icon-check>
+      } @else {
+        <button
+          class="text-primary flex cursor-pointer items-center gap-2 border-none bg-transparent text-sm font-medium underline"
+          (click)="copyAll()">
+          <digi-icon-copy></digi-icon-copy>
+          Kopiera alla
+        </button>
+      }
+    </div>
+  </div>
+</digi-dialog>

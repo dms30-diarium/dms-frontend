@@ -1,0 +1,24 @@
+.audit-filters {
+  position: relative;
+  z-index: 5;
+}
+
+.audit-filters digi-form-select-filter,
+.audit-filters digi-calendar-datepicker {
+  position: relative;
+  z-index: 5;
+}
+
+.audit-filter-field {
+  position: relative;
+  z-index: 1;
+}
+
+.audit-filter-field:focus-within {
+  z-index: 20;
+}
+
+.audit-table {
+  position: relative;
+  z-index: 1;
+}
